@@ -1,0 +1,52 @@
+name: 'arduino-compile-examples'
+description: 'Compile all examples of an Arduino library for one board and check for errors'
+author: 'Armin Joachimsmeyer'
+inputs:
+  cli-version:
+    description: 'Version of arduino-cli to use when builing. Current one is 0.9.0'
+    default: 'latest'
+    required: false
+    
+  arduino-board-fqbn:
+    #In the Arduino IDE, the fqbn is printed in the first line of the verbose output for compilation as parameter -fqbn=... for the "arduino-builder -dump-prefs" command
+    description: 'Fully Qualified Board Name of the Arduino board'
+    default: 'arduino:avr:uno'
+    required: false
+    
+  platform-url:
+    description: 'The platform URL for the required board description if arduino-board-fqbn does not start with arduino:'
+    default: ''
+    required: false
+    
+  libraries:
+    description: 'Space separated list of arduino library names required for compiling the examples for this board'
+    default: ''
+    required: false
+
+  examples-exclude:
+    description: 'List of significant prefixes of all examples to be excluded in the build for this board'
+    default: ''
+    required: false
+
+  examples-build-properties:
+    description: |
+      Build parameter like `-DDEBUG` for each example in json format
+      For example { "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }
+    default: ''
+    required: false
+  
+  
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.cli-version }}
+    - ${{ inputs.arduino-board-fqbn }}
+    - ${{ inputs.platform-url }}
+    - ${{ inputs.libraries }}
+    - ${{ inputs.examples-exclude }}
+    - ${{ inputs.examples-build-properties }}
+      
+branding:
+  icon: 'eye'
+  color: 'red'
