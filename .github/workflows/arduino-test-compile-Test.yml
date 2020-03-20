@@ -1,5 +1,5 @@
-# ActionTest.yml
-# Github workflow script for testing the arduino-compile-examples action development.
+# arduino-test-compile-Test.yml
+# Github workflow script for testing the arduino-test-compile action development.
 #
 # Copyright (C) 2020  Armin Joachimsmeyer
 # https://github.com/ArminJo/Github-Actions
@@ -7,12 +7,12 @@
 #
 
 # This is the name of the workflow, visible on GitHub UI.
-name: ActionTest
+name: arduino-test-compile-Test
 on: 
   push: # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
     paths:
     - '**.sh'
-    - '**.yml'
+    - '**arduino-test-compile-Test.yml'
 
 jobs:
   build:
@@ -24,6 +24,7 @@ jobs:
       # Space separated list without double quotes around the list. 
       # If you need a library with a space in its name, like Adafruit NeoPixel or Adafruit INA219, you must use double quotes
       # around the name and have at least 2 entries, where the first must be without double quotes! You may use Servo as dummy entry.
+        #############################################################################################################
       REQUIRED_LIBRARIES: Servo "Adafruit NeoPixel"
 #      CLI_VERSION: latest
 
@@ -45,6 +46,7 @@ jobs:
 #          - digistump:avr:digispark-tiny1
 #          - ATTinyCore:avr:attinyx5:chip=85,clock=1internal
           - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
+          - esp32:esp32:featheresp32:FlashFreq=80
 
         # Specify parameters for each board.
         # Parameters can be: examples-exclude and examples-build-properties
@@ -59,7 +61,7 @@ jobs:
               SimpleFrequencyDetector:
                 -DINFO
 
-          - arduino-boards-fqbn: arduino:avr:uno|trace
+          - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
             examples-exclude: 50Hz # Space separated list of (unique substrings of) example names to exclude in build
             examples-build-properties:
               WhistleSwitch:
@@ -81,24 +83,20 @@ jobs:
             platform-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
             examples-exclude: WhistleSwitch 50Hz SimpleFrequencyDetector
 
-######################################################
-# End of configuration, start of fixed script section
-######################################################
+          - arduino-boards-fqbn: esp32:esp32:featheresp32:FlashFreq=80
+            platform-url: https://dl.espressif.com/dl/package_esp32_index.json
+            examples-exclude: WhistleSwitch 50Hz SimpleFrequencyDetector
 
       # Do not cancel all jobs / architectures if one job fails
       fail-fast: false
 
-    # This is the list of steps this job will run.
     steps:
-
-      # First of all, we clone the repo using the `checkout` action.
       - name: Checkout
         uses: actions/checkout@master
 
-
-      # Test the action of this repository
+      # Test of the arduino-test-compile action
       - name: Compile all examples
-        uses: ./ # Uses an action in the root directory
+        uses: ArminJo/arduino-test-compile@master
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-url: ${{ matrix.platform-url }}

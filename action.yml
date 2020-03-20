@@ -1,30 +1,35 @@
-name: 'arduino-compile-examples'
-description: 'Compile all examples of an Arduino library for one board and check for errors'
+name: 'Test compile for Arduino'
+description: 'Compile sketches or Arduino library examples for one board type using arduino-cli and check for errors'
 author: 'Armin Joachimsmeyer'
 inputs:
   cli-version:
-    description: 'Version of arduino-cli to use when builing. Current one is 0.9.0'
+    description: 'Version of arduino-cli to use when builing. Current (3/2020) one is 0.9.0.'
     default: 'latest'
     required: false
     
+  sketch-name:
+    description: 'Pattern or filename of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled.'
+    default: '*.ino'
+    required: false
+        
   arduino-board-fqbn:
     #In the Arduino IDE, the fqbn is printed in the first line of the verbose output for compilation as parameter -fqbn=... for the "arduino-builder -dump-prefs" command
-    description: 'Fully Qualified Board Name of the Arduino board'
+    description: 'Fully Qualified Board Name of the Arduino board.'
     default: 'arduino:avr:uno'
     required: false
     
   platform-url:
-    description: 'The platform URL for the required board description if arduino-board-fqbn does not start with arduino:'
+    description: 'The platform URL for the required board description if arduino-board-fqbn does not start with "arduino:".'
     default: ''
     required: false
     
   libraries:
-    description: 'Space separated list of arduino library names required for compiling the examples for this board'
+    description: 'Space separated list of arduino library names required for compiling the examples for this board.'
     default: ''
     required: false
 
   examples-exclude:
-    description: 'List of significant prefixes of all examples to be excluded in the build for this board'
+    description: 'List of significant prefixes of all examples to be excluded in the build for this board.'
     default: ''
     required: false
 
@@ -34,18 +39,24 @@ inputs:
       For example { "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }
     default: ''
     required: false
-  
+
+  debug:
+    description: 'If set to "true" she action logs verbose compile output even during successful builds'
+    default: ''
+    required: false  
   
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
     - ${{ inputs.cli-version }}
+    - ${{ inputs.sketch-name }}
     - ${{ inputs.arduino-board-fqbn }}
     - ${{ inputs.platform-url }}
     - ${{ inputs.libraries }}
     - ${{ inputs.examples-exclude }}
     - ${{ inputs.examples-build-properties }}
+    - ${{ inputs.debug }}
       
 branding:
   icon: 'eye'

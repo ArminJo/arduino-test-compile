@@ -2,7 +2,7 @@
 FROM ubuntu:latest
 
 # Install wget
-RUN apt-get update --quiet=2 && apt-get install --quiet=2 --assume-yes wget
+RUN apt-get update --quiet=2 > /dev/null && apt-get install --quiet=2 --assume-yes wget > /dev/null
 CMD /bin/bash
 
 # Copies your code file from your action repository to the filesystem path `/` of the container
