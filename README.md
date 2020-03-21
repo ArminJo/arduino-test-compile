@@ -24,13 +24,13 @@ arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
 Required for 3rd party boards.
 
 ```yaml
-platform-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
+platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
 ```
 
 Sample URL's are:
 - http://drazzy.com/package_drazzy.com_index.json - for ATTiny boards
-- http://digistump.com/package_digistump_index.json - for Digispark boards
-- http://arduino.esp8266.com/stable/package_esp8266com_index.json - for ESP8266 based boards
+- https://digistump.com/package_digistump_index.json - for Digispark boards
+- https://arduino.esp8266.com/stable/package_esp8266com_index.json - for ESP8266 based boards
 - https://dl.espressif.com/dl/package_esp32_index.json - for ESP32 based boards
 - https://github.com/stm32duino/BoardManagerFiles/raw/dev/STM32/package_stm_index.json - for STM32 boards
 - https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards, esp. Apollo3 boards
@@ -114,7 +114,7 @@ jobs:
       uses: actions/arduino-test-compile@master
       with:
         arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-        platform-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
+        platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
         libraries: Servo "Adafruit NeoPixel"
         examples-exclude: WhistleSwitch 50Hz
 ```
@@ -154,7 +154,7 @@ jobs:
                 -DTRACE
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-            platform-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
+            platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
             examples-exclude: WhistleSwitch 50Hz SimpleFrequencyDetector          
 
       fail-fast: false
