@@ -24,12 +24,12 @@ inputs:
     required: false
     
   libraries:
-    description: 'Space separated list of arduino library names required for compiling the examples for this board.'
+    description: 'Space separated list of arduino library names required for compiling the sketches / examples for this board.'
     default: ''
     required: false
 
   examples-exclude:
-    description: 'List of significant prefixes of all examples to be excluded in the build for this board.'
+    description: 'List of significant prefixes of all sketches / examples to be excluded in the build for this board.'
     default: ''
     required: false
 

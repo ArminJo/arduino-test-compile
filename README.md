@@ -3,7 +3,7 @@
 This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/actions) in a repository each with different compile parameters.<br/>
 It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/actions).<br/>
 It uses the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling.<br/>
-It is not required, that the sketch resides in a directory with the same name (as Arduino IDE requires it). The appropriate directory is then created on the fly before test-compiling.
+It is not required, that the sketch resides in a directory with the same name (as Arduino IDE requires it). The appropriate directory is created on the fly before test-compiling.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 [![Build Status](https://github.com/ArminJo/Github-Actions/workflows/arduino-test-compile-Test/badge.svg)](https://github.com/ArminJo/Github-Actions/actions)
@@ -11,26 +11,9 @@ It is not required, that the sketch resides in a directory with the same name (a
 # Inputs
 See [action.yml](https://github.com/ArminJo/arduino-test-compile/blob/master/action.yml) for comprehensive list of parameters.
 
-### `cli-version`
-The version of `arduino-cli` to use.<br/>
-Default `latest`.
-
-```yaml
-cli-version: 0.9.0 # The current one (3/2020)
-```
-
-### `sketch-name`
-Pattern or filename of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled.<br/>
-Default `*.ino`.
-
-```yaml
-sketch-name: SimpleTouchScreenDSO.cpp
-```
-if the sketch is not contained in a directory with the same name as the sketch, such a directory will be created and the content of the sketch directory will be recursively copied to it. This is required by the arduino-cli to successful compile a sketch.
-
 ### `arduino-board-fqbn`
-The fully qualified board name to use when compiling.<br/>
-Default `arduino:avr:uno`.<br/>
+The fully qualified board name to use for compiling with arduino-cli.<br/>
+Default `arduino:avr:uno`
 
 ```yaml
 arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
@@ -41,7 +24,7 @@ arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
 Required for 3rd party boards.
 
 ```yaml
-arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
+platform-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
 ```
 
 Sample URL's are:
@@ -53,31 +36,49 @@ Sample URL's are:
 - https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards, esp. Apollo3 boards
 - https://files.pololu.com/arduino/package_pololu_index.json - for Pololu boards, esp. ATMega328PB boards
 
-```yaml
-platform-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
-```
 
 ### `libraries`
-List of library dependencies to install. Default `""`.
-Space separated list without double quotes around the list. If you need a library with a space in its name, like Adafruit NeoPixel or Adafruit INA219, you must use double quotes around the name and have at least 2 entries, where the first must be without double quotes! You may use Servo as dummy entry.
+List of library dependencies to install.<br/>
+Default `""`
 
 ```yaml
 libraries: Servo "Adafruit NeoPixel"
 ```
 
-#### `examples-exclude`
-Examples to be **excluded from build**. Space separated list of (unique substrings of) example names to exclude in build.
+Space separated list without double quotes around the list. If you need a library with a space in its name, like Adafruit NeoPixel or Adafruit INA219, you must use double quotes around the name and have at least 2 entries, where the first must be without double quotes! You may use Servo as dummy entry.
+
+
+### `examples-exclude`
+Examples to be **excluded from build**. Space separated list of (unique substrings of) sketch / example names to exclude in build.
 
 ```yaml
   examples-exclude: QuadrupedControl RobotArmControl # QuadrupedControl and RobotArmControl because of missing EEprom
 ```
 
-#### `examples-build-properties`
+### `examples-build-properties`
 Build parameter like `-DDEBUG` for each example
 
 ```yaml
   examples-build-properties: QuadrupedControl RobotArmControl # QuadrupedControl and RobotArmControl because of missing EEprom
 ```
+
+### `cli-version`
+The version of `arduino-cli` to use.<br/>
+Default `latest`
+
+```yaml
+cli-version: 0.9.0 # The current one (3/2020)
+```
+
+### `sketch-name`
+Pattern or filename of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled.<br/>
+Default `*.ino`
+
+```yaml
+sketch-name: SimpleTouchScreenDSO.cpp
+```
+If the sketch is not contained in a directory with the same name as the sketch, this directory will be created and the content of the sketch directory will be recursively copied to it. This is required by arduino-cli to successful compile a sketch.
+
 
 # Workflows examples
 ## Simple - without any input
@@ -171,6 +172,10 @@ jobs:
           examples-exclude: ${{ matrix.examples-exclude }}
           examples-build-properties: ${{ toJson(matrix.examples-build-properties) }}
 ```
+Other samples:
+- One sketch, one board, multiple options. RobotCar [![Build Status](https://github.com/ArminJo/Arduino-RobotCar/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-RobotCar/blob/master/.github/workflows/LibraryBuild.yml)
+- Arduino library, 2 boards. Arduino-FrequencyDetector [![Build Status](https://github.com/ArminJo/Arduino-FrequencyDetector/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Arduino-FrequencyDetector/blob/master/.github/workflows/LibraryBuildWithAction.yml)
+- Arduino library, multiple boards. ServoEasing [![Build Status](https://github.com/ArminJo/ServoEasing/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/ServoEasing/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
 ### Version 1.0.0
