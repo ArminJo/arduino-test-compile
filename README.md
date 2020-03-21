@@ -24,13 +24,13 @@ arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
 Required for 3rd party boards.
 
 ```yaml
-platform-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
+platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
 ```
 
 Sample URL's are:
 - http://drazzy.com/package_drazzy.com_index.json - for ATTiny boards
-- http://digistump.com/package_digistump_index.json - for Digispark boards
-- http://arduino.esp8266.com/stable/package_esp8266com_index.json - for ESP8266 based boards
+- http://digistump.com/package_digistump_index.json - for Digispark boards. https gives: x509: certificate signed by unknown authority
+- https://arduino.esp8266.com/stable/package_esp8266com_index.json - for ESP8266 based boards
 - https://dl.espressif.com/dl/package_esp32_index.json - for ESP32 based boards
 - https://github.com/stm32duino/BoardManagerFiles/raw/dev/STM32/package_stm_index.json - for STM32 boards
 - https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards, esp. Apollo3 boards
@@ -81,20 +81,21 @@ If the sketch is not contained in a directory with the same name as the sketch, 
 
 
 # Workflows examples
-## Simple - without any input
-Compile all examples for the UNO board.
+## Simple - without any parameter
+Compile all sketches / examples for the UNO board.
 
 ```yaml
-name: SimpleLibraryBuild
+name: SimpleBuild
 on: push
 jobs:
   build:
     name: Test compiling examples for UNO
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - name: Checkout
+      uses: actions/checkout@master
     - name: Compile all examples
-      uses: actions/arduino-test-compile@master
+      uses: ArminJo/arduino-test-compile@v1.0.0
 ```
 
 ## One ESP8266 board with parameter
@@ -111,10 +112,10 @@ jobs:
       uses: actions/checkout@master
       
     - name: Compile all examples
-      uses: actions/arduino-test-compile@master
+      uses: ArminJo/arduino-test-compile@master
       with:
         arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-        platform-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
+        platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
         libraries: Servo "Adafruit NeoPixel"
         examples-exclude: WhistleSwitch 50Hz
 ```
@@ -154,7 +155,7 @@ jobs:
                 -DTRACE
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-            platform-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
+            platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
             examples-exclude: WhistleSwitch 50Hz SimpleFrequencyDetector          
 
       fail-fast: false
@@ -164,7 +165,7 @@ jobs:
         uses: actions/checkout@master
       
       - name: Compile all examples
-        uses: actions/arduino-test-compile@master
+        uses: ArminJo/arduino-test-compile@master
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-url: ${{ matrix.platform-url }}
@@ -173,7 +174,10 @@ jobs:
           examples-build-properties: ${{ toJson(matrix.examples-build-properties) }}
 ```
 Other samples:
-- One sketch, one board, multiple options. RobotCar [![Build Status](https://github.com/ArminJo/Arduino-RobotCar/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-RobotCar/blob/master/.github/workflows/LibraryBuild.yml)
+- The simple example from above. LightweightServo [![Build Status](https://github.com/ArminJo/LightweightServo/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/LightweightServo/blob/master/.github/workflows/LibraryBuild.yml)
+- One sketch, one library. Simple-DSO [![Build Status](https://github.com/ArminJo/Arduino-Simple-DSO/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml)
+- One sketch, one board, multiple options. RobotCar [![Build Status](https://github.com/ArminJo/Arduino-RobotCar/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-RobotCar/blob/master/.github/workflows/TestCompile.yml)
+- Arduino library, only arduino:avr boards. Talkie [![Build Status](https://github.com/ArminJo/Talkie/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Talkie/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, 2 boards. Arduino-FrequencyDetector [![Build Status](https://github.com/ArminJo/Arduino-FrequencyDetector/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Arduino-FrequencyDetector/blob/master/.github/workflows/LibraryBuildWithAction.yml)
 - Arduino library, multiple boards. ServoEasing [![Build Status](https://github.com/ArminJo/ServoEasing/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/ServoEasing/blob/master/.github/workflows/LibraryBuild.yml)
 
@@ -184,4 +188,4 @@ Other samples:
 ## Requests for modifications / extensions
 Please write me a PM including your motivation/problem if you need a modification or an extension.
 
-#### If you find this library useful, please give it a star.
+#### If you find this action useful, please give it a star.

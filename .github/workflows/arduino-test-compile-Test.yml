@@ -43,8 +43,8 @@ jobs:
         arduino-boards-fqbn:
           - arduino:avr:uno
           - arduino:avr:uno|trace
-#          - digistump:avr:digispark-tiny1
-#          - ATTinyCore:avr:attinyx5:chip=85,clock=1internal
+          - digistump:avr:digispark-tiny1
+          - ATTinyCore:avr:attinyx5:chip=85,clock=1internal
           - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
           - esp32:esp32:featheresp32:FlashFreq=80
 
@@ -68,19 +68,19 @@ jobs:
                 -DDEBUG
                 -DTRACE
 
-#         - arduino-boards-fqbn: digistump:avr:digispark-tiny1  # ATtiny85 board @1 MHz
-#            platform-url: http://digistump.com/package_digistump_index.json
-#            # examples-build-properties / aka setting compiler.cpp.extra_flags does not work for digistump:avr platform
-#            examples-exclude: WhistleSwitch "Test" # Space separated list of (unique substrings of) example names to exclude in build
+          - arduino-boards-fqbn: digistump:avr:digispark-tiny1  # ATtiny85 board @1 MHz
+            platform-url: http://digistump.com/package_digistump_index.json
+            # examples-build-properties / aka setting compiler.cpp.extra_flags does not work for digistump:avr platform
+            examples-exclude: WhistleSwitch "Blink" # Space separated list of (unique substrings of) example names to exclude in build
 
-#          - arduino-boards-fqbn: ATTinyCore:avr:attinyx5:chip=85,clock=1internal
-#            platform-url: http://drazzy.com/package_drazzy.com_index.json
-#            examples-build-properties:
-#              WhistleSwitch:
-#                -DFREQUENCY_RANGE_LOW
+          - arduino-boards-fqbn: ATTinyCore:avr:attinyx5:chip=85,clock=1internal
+            platform-url: http://drazzy.com/package_drazzy.com_index.json
+            examples-build-properties:
+              WhistleSwitch:
+                -DFREQUENCY_RANGE_LOW
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-            platform-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
+            platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
             examples-exclude: WhistleSwitch 50Hz SimpleFrequencyDetector
 
           - arduino-boards-fqbn: esp32:esp32:featheresp32:FlashFreq=80
