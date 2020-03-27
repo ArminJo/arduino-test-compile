@@ -1,5 +1,5 @@
-# arduino-test-compile-Test.yml
-# Github workflow script for testing the arduino-test-compile action development.
+# arduino-test-compile-ScriptTest.yml
+# Github workflow script for testing the arduino-test-compile Bash script development.
 #
 # Copyright (C) 2020  Armin Joachimsmeyer
 # https://github.com/ArminJo/Github-Actions
@@ -7,12 +7,12 @@
 #
 
 # This is the name of the workflow, visible on GitHub UI.
-name: arduino-test-compile-Test
+name: arduino-test-compile-ScriptTest
 on: 
   push: # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
     paths:
     - '**.sh'
-    - '**arduino-test-compile-Test.yml'
+    - '**arduino-test-compile-ScriptTest.yml'
 
 jobs:
   build:
@@ -62,7 +62,6 @@ jobs:
                 -DINFO
 
           - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
-            arduino-platform: arduino:avr@1.8.2
             examples-exclude: 50Hz # Space separated list of (unique substrings of) example names to exclude in build
             examples-build-properties:
               WhistleSwitch:
@@ -75,14 +74,12 @@ jobs:
             examples-exclude: WhistleSwitch "Blink" # Space separated list of (unique substrings of) example names to exclude in build
 
           - arduino-boards-fqbn: ATTinyCore:avr:attinyx5:chip=85,clock=1internal
-            platform-url: http://drazzy.com/package_drazzy.com_index.json,http://digistump.com/package_digistump_index.json
+            platform-url: http://drazzy.com/package_drazzy.com_index.json
             examples-build-properties:
               WhistleSwitch:
                 -DFREQUENCY_RANGE_LOW
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-            # This "<URL> <URL>" is deprecated but works also
-            #platform-url: "https://arduino.esp8266.com/stable/package_esp8266com_index.json http://digistump.com/package_digistump_index.json"
             platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
             examples-exclude: WhistleSwitch 50Hz SimpleFrequencyDetector
 
@@ -97,13 +94,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
-      # Test of the arduino-test-compile action
-      - name: Compile all examples using the arduino-test-compile action
-        uses: ArminJo/arduino-test-compile@master
-        with:
-          arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
-          platform-url: ${{ matrix.platform-url }}
-          required-libraries: ${{ env.REQUIRED_LIBRARIES }}
-          examples-exclude: ${{ matrix.examples-exclude }}
-          examples-build-properties: ${{ toJson(matrix.examples-build-properties) }}
+      # Test of the arduino-test-compile script
+      - name: Compile all examples using the bash script arduino-test-compile.sh
+        env:
+          # Passing parameters to the script by setting the appropriate ENV_* variables.
+          ENV_ARDUINO_BOARD_FQBN: ${{ matrix.arduino-boards-fqbn }}
+          ENV_PLATFORM_URL: ${{ matrix.platform-url }}
+          ENV_REQUIRED_LIBRARIES: ${{ env.REQUIRED_LIBRARIES }}
+          ENV_EXAMPLES_EXCLUDE: ${{ matrix.examples-exclude }}
+          ENV_EXAMPLES_BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
+        run: |
+          wget --quiet https://raw.githubusercontent.com/ArminJo/arduino-test-compile/master/arduino-test-compile.sh
+          ./arduino-test-compile.sh
 

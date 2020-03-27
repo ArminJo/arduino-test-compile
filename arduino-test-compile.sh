@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# entrypoint.sh
+# arduino-test-compile.sh
 # Bash script to do a test-compile of one or more Arduino programs in a repository each with different compile parameters.
 #
 # Copyright (C) 2020  Armin Joachimsmeyer
@@ -9,19 +9,42 @@
 #
 
 # Input parameter
-readonly CLI_VERSION="$1"
-readonly SKETCH_NAME="$2"
-readonly ARDUINO_BOARD_FQBN="$3"
-readonly PLATFORM_URL="$4"
-readonly LIBRARIES="$5"
-readonly EXAMPLES_EXCLUDE="$6"
-EXAMPLES_BUILD_PROPERTIES="$7"
-readonly DEBUG="$8"
+CLI_VERSION="$1"
+SKETCH_NAME="$2"
+ARDUINO_BOARD_FQBN="$3"
+ARDUINO_PLATFORM="$4"
+PLATFORM_URL="$5"
+REQUIRED_LIBRARIES="$6"
+EXAMPLES_EXCLUDE="$7"
+EXAMPLES_BUILD_PROPERTIES="$8"
+DEBUG="$9"
 
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[1;33m'
 readonly BLUE='\033[0;34m'
+
+#
+# Get env parameter with higher priority, which enables the script to run directly in a step
+#
+if [[ -n $ENV_CLI_VERSION ]]; then CLI_VERSION=$ENV_CLI_VERSION; fi
+if [[ -n $ENV_SKETCH_NAME ]]; then SKETCH_NAME=$ENV_SKETCH_NAME; fi
+if [[ -n $ENV_ARDUINO_BOARD_FQBN ]]; then ARDUINO_BOARD_FQBN=$ENV_ARDUINO_BOARD_FQBN; fi
+if [[ -n $ENV_ARDUINO_PLATFORM ]]; then ARDUINO_PLATFORM=$ENV_ARDUINO_PLATFORM; fi
+if [[ -n $ENV_PLATFORM_URL ]]; then PLATFORM_URL=$ENV_PLATFORM_URL; fi
+if [[ -n $ENV_REQUIRED_LIBRARIES ]]; then REQUIRED_LIBRARIES=$ENV_REQUIRED_LIBRARIES; fi
+if [[ -n $ENV_EXAMPLES_EXCLUDE ]]; then EXAMPLES_EXCLUDE=$ENV_EXAMPLES_EXCLUDE; fi
+if [[ -n $ENV_EXAMPLES_BUILD_PROPERTIES ]]; then EXAMPLES_BUILD_PROPERTIES=$ENV_EXAMPLES_BUILD_PROPERTIES; fi
+if [[ -n $ENV_DEBUG ]]; then DEBUG=$ENV_DEBUG; fi
+
+
+#
+# Enforce defaults. Required at least for script version. !!! MUST be equal the defaults in action.yml !!!
+#
+if [[ -z $CLI_VERSION ]]; then echo "Set CLI_VERSION to default value: \"latest\""; CLI_VERSION='latest'; fi
+if [[ -z $ENV_SKETCH_NAME ]]; then echo -e "Set SKETCH_NAME to default value: \"*.ino\""; SKETCH_NAME='*.ino'; fi
+if [[ -z $ENV_ARDUINO_BOARD_FQBN ]]; then echo "Set ARDUINO_BOARD_FQBN to default value: \"arduino:avr:uno\""; ARDUINO_BOARD_FQBN='arduino:avr:uno'; fi
+
 
 #
 # Echo input parameter
@@ -30,8 +53,9 @@ echo -e "\n\n"$YELLOW"Echo input parameter"
 echo CLI_VERSION=$CLI_VERSION
 echo SKETCH_NAME=$SKETCH_NAME
 echo ARDUINO_BOARD_FQBN=$ARDUINO_BOARD_FQBN
+echo ARDUINO_PLATFORM=$ARDUINO_PLATFORM
 echo PLATFORM_URL=$PLATFORM_URL
-echo LIBRARIES=$LIBRARIES
+echo REQUIRED_LIBRARIES=$REQUIRED_LIBRARIES
 echo EXAMPLES_EXCLUDE=$EXAMPLES_EXCLUDE
 echo EXAMPLES_BUILD_PROPERTIES=$EXAMPLES_BUILD_PROPERTIES
 echo DEBUG=$DEBUG
@@ -46,18 +70,18 @@ declare -p BASH_ARGV
 # Download and install arduino IDE, if not already cached
 #
 echo -n -e "\n\n"$YELLOW"arduino-cli "
-if [ -f $HOME/arduino_ide/arduino-cli ]; then
+if [[ -f $HOME/arduino_ide/arduino-cli ]]; then
   echo -e "cached: ""$GREEN""\xe2\x9c\x93"
 else
   echo -n "downloading: "
   wget --quiet https://downloads.arduino.cc/arduino-cli/arduino-cli_${CLI_VERSION}_Linux_64bit.tar.gz
-  if [ $? -ne 0 ]; then echo -e """$RED""\xe2\x9c\x96"; else echo -e """$GREEN""\xe2\x9c\x93"; fi
+  if [[ $? -ne 0 ]]; then echo -e """$RED""\xe2\x9c\x96"; else echo -e """$GREEN""\xe2\x9c\x93"; fi
   echo -n "Upacking arduino-cli to ${HOME}/arduino_ide:  "
-  if [ ! -d $HOME/arduino_ide/ ]; then
+  if [[ ! -d $HOME/arduino_ide/ ]]; then
     mkdir $HOME/arduino_ide
   fi
   tar xf arduino-cli_${CLI_VERSION}_Linux_64bit.tar.gz -C $HOME/arduino_ide/
-  if [ $? -ne 0 ]; then echo -e """$RED""\xe2\x9c\x96"; else echo -e """$GREEN""\xe2\x9c\x93"; fi
+  if [[ $? -ne 0 ]]; then echo -e """$RED""\xe2\x9c\x96"; else echo -e """$GREEN""\xe2\x9c\x93"; fi
 #  ls -l $HOME/arduino_ide/* # LICENSE.txt + arduino-cli
 #  ls -l $HOME # only arduino_ide
 fi
@@ -72,7 +96,7 @@ export PATH="$HOME/arduino_ide:$PATH"
 #
 # Link this repository as Arduino library
 #
-if [ -f $PWD/library.properties ]; then
+if [[ -f $PWD/library.properties ]]; then
   echo -e "\n\n"$YELLOW"Link this repository as Arduino library"
   mkdir -p "$HOME/Arduino/libraries"
   ln -s "$PWD" "$HOME/Arduino/libraries/."
@@ -83,18 +107,23 @@ fi
 # Update index and install the required board platform
 #
 echo -e "\n\n"$YELLOW"Update index and install the required board platform"
-remainder=${ARDUINO_BOARD_FQBN#*:}; PLATFORM=${ARDUINO_BOARD_FQBN%%:*}:${remainder%%:*}
+if [[ -z $ARDUINO_PLATFORM ]]; then
+  remainder=${ARDUINO_BOARD_FQBN#*:}; PLATFORM=${ARDUINO_BOARD_FQBN%%:*}:${remainder%%:*}
+else
+  PLATFORM=$ARDUINO_PLATFORM
+fi
 echo PLATFORM=${PLATFORM}
-if [[ ${PLATFORM} != *"arduino"* && -z "$PLATFORM_URL" ]]; then
+if [[ ${PLATFORM} != *"arduino"* && -z $PLATFORM_URL ]]; then
   echo -e "::error::Non Arduino platform $PLATFORM requested, but \"platform-url\" parameter is missing."
   exit 1
 fi
-if [ -z "$PLATFORM_URL" ]; then
+if [[ -z $PLATFORM_URL ]]; then
   echo -e "arduino-cli core update-index > /dev/null"
   arduino-cli core update-index > /dev/null
   echo "arduino-cli core install $PLATFORM > /dev/null"
   arduino-cli core install $PLATFORM > /dev/null
 else
+  PLATFORM_URL=${PLATFORM_URL/ /,} # replace space by comma to enable multiple urls which are space separated
   echo -e "arduino-cli core update-index --additional-urls \"$PLATFORM_URL\" > /dev/null"
   arduino-cli core update-index --additional-urls "$PLATFORM_URL" > /dev/null # must specify --additional-urls here
   echo -e "arduino-cli core install $PLATFORM --additional-urls \"$PLATFORM_URL\" > /dev/null"
@@ -107,8 +136,8 @@ if [[ "${PLATFORM}" == "esp8266:esp8266" && ! -f /usr/bin/python3 ]]; then ## do
   apt-get install -qq python3 > /dev/null
 fi
           
-if [ "$PLATFORM" == "esp32:esp32" ]; then
-  if [ ! -f /usr/bin/pip ]; then
+if [[ "$PLATFORM" == "esp32:esp32" ]]; then
+  if [[ ! -f /usr/bin/pip ]]; then
     echo "install python and pip for ESP32"
     apt-get install -qq python-pip > /dev/null # this installs also python
   fi
@@ -123,15 +152,15 @@ arduino-cli board listall
 # Install libraries if needed
 #
 echo -e "\n"$YELLOW"Install libraries if needed"
-if [ -z "$LIBRARIES" ]; then
+if [[ -z $REQUIRED_LIBRARIES ]]; then
   echo "No additional libraries to install"
 else
-  echo -n "Install libraries $LIBRARIES "
+  echo -n "Install libraries $REQUIRED_LIBRARIES "
   # Support library names which contain whitespace
-  declare -a -r LIBRARIES_ARRAY="(${LIBRARIES})"
-  arduino-cli lib install "${LIBRARIES_ARRAY[@]}"
-  if [ $? -ne 0 ]; then
-    echo "::error::Installation of "$LIBRARIES" failed"
+  declare -a -r REQUIRED_LIBRARIES_ARRAY="(${REQUIRED_LIBRARIES})"
+  arduino-cli lib install "${REQUIRED_LIBRARIES_ARRAY[@]}"
+  if [[ $? -ne 0 ]]; then
+    echo "::error::Installation of "$REQUIRED_LIBRARIES" failed"
     exit 1
   fi
 fi
@@ -143,7 +172,7 @@ echo -e "\n"$YELLOW"Compiling sketches / examples for board $ARDUINO_BOARD_FQBN 
 
 # If matrix.examples-build-properties are specified, create an associative shell array
 EXAMPLES_BUILD_PROPERTIES=${EXAMPLES_BUILD_PROPERTIES#\{} # remove the "{". The "}" is required as end token
-if [[ -n $EXAMPLES_BUILD_PROPERTIES && $EXAMPLES_BUILD_PROPERTIES != "null" ]]; then 
+if [[ -n $EXAMPLES_BUILD_PROPERTIES && $EXAMPLES_BUILD_PROPERTIES != "null" ]]; then # contains "null", if passed as environment variable
   echo EXAMPLES_BUILD_PROPERTIES=$EXAMPLES_BUILD_PROPERTIES
   declare -A PROP_MAP="( $(echo $EXAMPLES_BUILD_PROPERTIES | sed -E 's/"(\w*)": *([^,}]*)[,}]/\[\1\]=\2/g' ) )"
   declare -p PROP_MAP # print properties of PROP_MAP
@@ -164,12 +193,12 @@ for sketch in "${SKETCHES[@]}"; do # Loop over all sketch files
     echo -e "Skipping $SKETCH_BASENAME \xe2\x9e\x9e" # Right arrow
   else
     # If sketch name does not end with .ino, rename it locally
-    if [ "$SKETCH_EXTENSION" != "ino" ]; then
+    if [[ "$SKETCH_EXTENSION" != "ino" ]]; then
       echo "Rename ${SKETCH_PATH}/${SKETCH_FILENAME} to ${SKETCH_PATH}/${SKETCH_BASENAME}.ino"
       mv ${SKETCH_PATH}/${SKETCH_FILENAME} ${SKETCH_PATH}/${SKETCH_BASENAME}.ino
     fi
     # If directory name does not match sketch name, create an appropriate directory, copy the files recursively and compile
-    if [ "$SKETCH_DIR" != "$SKETCH_BASENAME" ]; then
+    if [[ "$SKETCH_DIR" != "$SKETCH_BASENAME" ]]; then
       mkdir $HOME/$SKETCH_BASENAME
       echo "Creating directory $HOME/$SKETCH_BASENAME and copy ${SKETCH_PATH}/* to it"
       cp -R ${SKETCH_PATH}/* $HOME/$SKETCH_BASENAME
@@ -177,19 +206,19 @@ for sketch in "${SKETCHES[@]}"; do # Loop over all sketch files
     fi
     # check if there is an entry in the associative array and create compile parameter to put in compiler.cpp.extra_flags
     echo -n "Compiling $SKETCH_BASENAME "
-    if [ "${PROP_MAP[$SKETCH_BASENAME]}" != "" ]; then
+    if [[ "${PROP_MAP[$SKETCH_BASENAME]}" != "" ]]; then
       echo -n "with ${PROP_MAP[$SKETCH_BASENAME]} "
     fi
-    if [ "$DEBUG" == "true" ]; then
+    if [[ "$DEBUG" == "true" ]]; then
       arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-properties compiler.cpp.extra_flags="${PROP_MAP[$SKETCH_BASENAME]}" $SKETCH_PATH
     else
       build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-properties compiler.cpp.extra_flags="${PROP_MAP[$SKETCH_BASENAME]}" $SKETCH_PATH 2>&1)
     fi
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
       echo -e ""$RED"\xe2\x9c\x96" # If ok output a green checkmark else a red X and the command output.
       echo "::error::Compile of  $SKETCH_BASENAME ${PROP_MAP[$SKETCH_BASENAME]} failed"
       exit_code=1
-      if [ "$DEBUG" != "true" ]; then
+      if [[ "$DEBUG" != "true" ]]; then
         echo -e "$build_stdout \n"
       fi
     else

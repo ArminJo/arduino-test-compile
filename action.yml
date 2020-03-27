@@ -18,12 +18,17 @@ inputs:
     default: 'arduino:avr:uno'
     required: false
     
+  arduino-platform:
+    description: 'The platform specifier, if you require a fixed version like arduino:avr@1.8.2 or do not want the specifier derived from the 2 first elements of the arduino-board-fqbn'
+    default: ''
+    required: false
+        
   platform-url:
     description: 'The platform URL for the required board description if arduino-board-fqbn does not start with "arduino:".'
     default: ''
     required: false
     
-  libraries:
+  required-libraries:
     description: 'Space separated list of arduino library names required for compiling the sketches / examples for this board.'
     default: ''
     required: false
@@ -52,8 +57,9 @@ runs:
     - ${{ inputs.cli-version }}
     - ${{ inputs.sketch-name }}
     - ${{ inputs.arduino-board-fqbn }}
+    - ${{ inputs.arduino-platform }}
     - ${{ inputs.platform-url }}
-    - ${{ inputs.libraries }}
+    - ${{ inputs.required-libraries }}
     - ${{ inputs.examples-exclude }}
     - ${{ inputs.examples-build-properties }}
     - ${{ inputs.debug }}
