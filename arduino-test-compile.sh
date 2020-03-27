@@ -42,8 +42,8 @@ if [[ -n $ENV_DEBUG ]]; then DEBUG=$ENV_DEBUG; fi
 # Enforce defaults. Required at least for script version. !!! MUST be equal the defaults in action.yml !!!
 #
 if [[ -z $CLI_VERSION ]]; then echo "Set CLI_VERSION to default value: \"latest\""; CLI_VERSION='latest'; fi
-if [[ -z $ENV_SKETCH_NAME ]]; then echo -e "Set SKETCH_NAME to default value: \"*.ino\""; SKETCH_NAME='*.ino'; fi
-if [[ -z $ENV_ARDUINO_BOARD_FQBN ]]; then echo "Set ARDUINO_BOARD_FQBN to default value: \"arduino:avr:uno\""; ARDUINO_BOARD_FQBN='arduino:avr:uno'; fi
+if [[ -z $SKETCH_NAME ]]; then echo -e "Set SKETCH_NAME to default value: \"*.ino\""; SKETCH_NAME='*.ino'; fi
+if [[ -z $ARDUINO_BOARD_FQBN ]]; then echo "Set ARDUINO_BOARD_FQBN to default value: \"arduino:avr:uno\""; ARDUINO_BOARD_FQBN='arduino:avr:uno'; fi
 
 
 #

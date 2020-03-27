@@ -1,10 +1,13 @@
 # arduino-test-compile action / script
 
-This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/actions) in a repository each with different compile parameters.<br/>
-It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/actions).<br/>
-It uses the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling.<br/>
-It is not required, that the sketch resides in a directory with the same name (as Arduino IDE requires it). The appropriate directory is created on the fly before test-compiling.
-If you need more flexibility for e.g. installing additional board platforms, or want more speed, then you may want to use the [arduino-test-compile.sh](https://raw.githubusercontent.com/ArminJo/arduino-test-compile/master/arduino-test-compile.sh) directly, see [example below](https://github.com/ArminJo/arduino-test-compile#Multiple boards with parameter using the script directly).
+This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master/src) in a repository each with different compile parameters.<br/>
+It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).<br/>
+The action is a Docker action which uses the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the other work is done by the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) bash script.<br/>
+If you want to test compile a single sketch, it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it). The appropriate directory is internally created on the fly for test-compiling.
+
+If you need more flexibility for e.g. installing additional board platforms, or want to save around 20 to 30 seconds for each job, then you may want to
+use the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) directly.
+See [example below](https://github.com/ArminJo/arduino-test-compile#multiple-boards-with-parameter-using-the-script-directly).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 [![Build Status](https://github.com/ArminJo/Github-Actions/workflows/arduino-test-compile-Test/badge.svg)](https://github.com/ArminJo/Github-Actions/actions)
@@ -41,13 +44,13 @@ Sample URL's are:
 - https://files.pololu.com/arduino/package_pololu_index.json - for Pololu boards, esp. ATMega328PB boards
 
 
-### `libraries`
+### `required-libraries`
 List of library dependencies to install. You may add a version number like `@1.3.4`<br/>
 Default `""`<br/>
 Environment name for script usage `ENV_REQUIRED_LIBRARIES`
 
 ```yaml
-libraries: Servo "Adafruit NeoPixel@1.3.4"
+required-libraries: Servo "Adafruit NeoPixel@1.3.4"
 ```
 
 Space separated list without double quotes around the list. If you need a library with a space in its name, like Adafruit NeoPixel or Adafruit INA219, you must use double quotes around the name and have at least 2 entries, where the first must be without double quotes! You may use Servo as dummy entry.
@@ -112,7 +115,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
     - name: Compile all examples
-      uses: ArminJo/arduino-test-compile@v1.0.0
+      uses: ArminJo/arduino-test-compile@v1.1.0
 ```
 
 ## One ESP8266 board with parameter
@@ -129,11 +132,11 @@ jobs:
       uses: actions/checkout@master
       
     - name: Compile all examples
-      uses: ArminJo/arduino-test-compile@v1.0.0
+      uses: ArminJo/arduino-test-compile@v1.1.0
       with:
         arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
         platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
-        libraries: Servo "Adafruit NeoPixel"
+        required-libraries: Servo "Adafruit NeoPixel"
         examples-exclude: WhistleSwitch 50Hz
 ```
 
@@ -182,11 +185,11 @@ jobs:
         uses: actions/checkout@master
       
       - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v1.0.0
+        uses: ArminJo/arduino-test-compile@v1.1.0
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-url: ${{ matrix.platform-url }}
-          libraries: ${{ env.REQUIRED_LIBRARIES }}
+          required-libraries: ${{ env.REQUIRED_LIBRARIES }}
           examples-exclude: ${{ matrix.examples-exclude }}
           examples-build-properties: ${{ toJson(matrix.examples-build-properties) }}
 ```
@@ -245,6 +248,7 @@ jobs:
           ENV_EXAMPLES_BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
         run: |
           wget --quiet https://raw.githubusercontent.com/ArminJo/arduino-test-compile/master/arduino-test-compile.sh
+          chmod +x arduino-test-compile.sh
           ./arduino-test-compile.sh
 ```
             
@@ -255,6 +259,7 @@ Other samples:
 - Arduino library, only arduino:avr boards. Talkie [![Build Status](https://github.com/ArminJo/Talkie/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Talkie/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, 2 boards. Arduino-FrequencyDetector [![Build Status](https://github.com/ArminJo/Arduino-FrequencyDetector/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Arduino-FrequencyDetector/blob/master/.github/workflows/LibraryBuildWithAction.yml)
 - Arduino library, multiple boards. ServoEasing [![Build Status](https://github.com/ArminJo/ServoEasing/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/ServoEasing/blob/master/.github/workflows/LibraryBuild.yml)
+- Using script, Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
 ### Version 1.1.0

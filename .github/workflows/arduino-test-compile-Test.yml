@@ -62,7 +62,7 @@ jobs:
                 -DINFO
 
           - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
-            arduino-platform: arduino:avr@1.8.2
+            arduino-platform: arduino:avr@1.8.1
             examples-exclude: 50Hz # Space separated list of (unique substrings of) example names to exclude in build
             examples-build-properties:
               WhistleSwitch:
@@ -102,6 +102,7 @@ jobs:
         uses: ArminJo/arduino-test-compile@master
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
+          arduino-platform: ${{ matrix.arduino-platform }}
           platform-url: ${{ matrix.platform-url }}
           required-libraries: ${{ env.REQUIRED_LIBRARIES }}
           examples-exclude: ${{ matrix.examples-exclude }}
