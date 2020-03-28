@@ -89,15 +89,16 @@ Environment name for script usage `ENV_SKETCH_NAME`
 ```yaml
 sketch-name: SimpleTouchScreenDSO.cpp
 ```
-If the sketch is not contained in a directory with the same name as the sketch, this directory will be created and the content of the sketch directory will be recursively copied to it. This is required by arduino-cli to successful compile a sketch.
+If the sketch is not contained in a directory with the same name as the sketch, this directory will be created internally and the content of the sketch directory will be recursively copied to it. This is required by arduino-cli to successful compile a sketch.
 
 
 ### `arduino-platform`
-The platform specifier, if you require a fixed version like `arduino:avr@1.8.2` or do require another than the specifier derived from the 2 first elements of the arduino-board-fqbn (esp8266:esp8266:huzzah:eesz=4M3M,xtal=80, esp32:esp32:featheresp32:FlashFreq=80 -> esp8266:esp8266)<br/>
+Comma separated list of platform specifies with optional version. Useful if you require multiple platforms for your board or a fixed version like `arduino:avr@1.8.2`.<br/>
+In general, use it if you require another specifier than the one derived from the 2 first elements of the arduino-board-fqbn e.g. **esp8266:esp8266**:huzzah:eesz=4M3M,xtal=80, esp32:esp32:featheresp32:FlashFreq=80 -> **esp8266:esp8266**<br/>
 Environment name for script usage `ENV_ARDUINO_PLATFORM`
 
 ```yaml
-arduino-platform: arduino:avr@1.8.2
+arduino-platform: arduino:avr@1.8.2,digistump:avr
 ```
 
 # Workflows examples

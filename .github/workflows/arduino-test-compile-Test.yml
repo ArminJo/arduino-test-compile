@@ -75,6 +75,7 @@ jobs:
             examples-exclude: WhistleSwitch "Blink" # Space separated list of (unique substrings of) example names to exclude in build
 
           - arduino-boards-fqbn: ATTinyCore:avr:attinyx5:chip=85,clock=1internal
+            arduino-platform: digistump:avr,ATTinyCore:avr
             platform-url: http://drazzy.com/package_drazzy.com_index.json,http://digistump.com/package_digistump_index.json
             examples-build-properties:
               WhistleSwitch:

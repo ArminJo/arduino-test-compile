@@ -117,18 +117,28 @@ if [[ ${PLATFORM} != *"arduino"* && -z $PLATFORM_URL ]]; then
   echo -e "::error::Non Arduino platform $PLATFORM requested, but \"platform-url\" parameter is missing."
   exit 1
 fi
-if [[ -z $PLATFORM_URL ]]; then
-  echo -e "arduino-cli core update-index > /dev/null"
-  arduino-cli core update-index > /dev/null
-  echo "arduino-cli core install $PLATFORM > /dev/null"
-  arduino-cli core install $PLATFORM > /dev/null
-else
-  PLATFORM_URL=${PLATFORM_URL/ /,} # replace space by comma to enable multiple urls which are space separated
-  echo -e "arduino-cli core update-index --additional-urls \"$PLATFORM_URL\" > /dev/null"
-  arduino-cli core update-index --additional-urls "$PLATFORM_URL" > /dev/null # must specify --additional-urls here
-  echo -e "arduino-cli core install $PLATFORM --additional-urls \"$PLATFORM_URL\" > /dev/null"
-  arduino-cli core install $PLATFORM --additional-urls "$PLATFORM_URL" > /dev/null
+
+if [[ -n $PLATFORM_URL ]]; then
+  PLATFORM_URL=${PLATFORM_URL// /,} # replace space by comma to enable multiple urls which are space separated
+  PLATFORM_URL_COMMAND="--additional-urls"
 fi
+
+PLATFORM=${PLATFORM//,/ } # replace comma by space to enable multiple platforms which are comma separated
+PLATFORM_ARRAY=( $PLATFORM )
+#declare -p PLATFORM_ARRAY # print properties of PLATFORM_ARRAY
+for single_platform in "${PLATFORM_ARRAY[@]}"; do # Loop over all platforms specified
+#  if [[ -z $PLATFORM_URL ]]; then
+#    echo -e "arduino-cli core update-index > /dev/null"
+#    arduino-cli core update-index > /dev/null
+#    echo "arduino-cli core install $single_platform > /dev/null"
+#    arduino-cli core install $single_platform > /dev/null
+#  else
+    echo -e "arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null"
+    arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null # must specify --additional-urls here
+    echo -e "arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null"
+    arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null
+#  fi
+done
 
 if [[ "${PLATFORM}" == "esp8266:esp8266" && ! -f /usr/bin/python3 ]]; then ## double brackets required
   # /github/home/.arduino15/packages/esp8266/tools/python3/3.7.2-post1/python3 -> /usr/bin/python3
