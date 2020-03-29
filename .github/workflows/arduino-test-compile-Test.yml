@@ -21,11 +21,8 @@ jobs:
     runs-on: ubuntu-latest # I picked Ubuntu to use shell scripts.
 
     env:
-      # Space separated list without double quotes around the list. 
-      # If you need a library with a space in its name, like Adafruit NeoPixel or Adafruit INA219, you must use double quotes
-      # around the name and have at least 2 entries, where the first must be without double quotes! You may use Servo as dummy entry.
-        #############################################################################################################
-      REQUIRED_LIBRARIES: Servo@1.1.5 "Adafruit NeoPixel@1.3.4"
+      # Comma separated list without double quotes around the list.
+      REQUIRED_LIBRARIES: Adafruit NeoPixel@1.3.4,Servo@1.1.5
 #      CLI_VERSION: latest
 
     strategy:
@@ -53,7 +50,7 @@ jobs:
         #############################################################################################################
         include:
           - arduino-boards-fqbn: arduino:avr:uno
-            examples-exclude: 50Hz # Space separated list of (unique substrings of) example names to exclude in build
+            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
             examples-build-properties:
               WhistleSwitch:
                 -DDEBUG
@@ -63,7 +60,7 @@ jobs:
 
           - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
             arduino-platform: arduino:avr@1.8.1
-            examples-exclude: 50Hz # Space separated list of (unique substrings of) example names to exclude in build
+            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
             examples-build-properties:
               WhistleSwitch:
                 -DDEBUG
@@ -72,7 +69,7 @@ jobs:
           - arduino-boards-fqbn: digistump:avr:digispark-tiny1  # ATtiny85 board @1 MHz
             platform-url: http://digistump.com/package_digistump_index.json
             # examples-build-properties / aka setting compiler.cpp.extra_flags does not work for digistump:avr platform
-            examples-exclude: WhistleSwitch "Blink" # Space separated list of (unique substrings of) example names to exclude in build
+            examples-exclude: WhistleSwitch,"Blink" # Comma separated list of (unique substrings of) example names to exclude in build
 
           - arduino-boards-fqbn: ATTinyCore:avr:attinyx5:chip=85,clock=1internal
             arduino-platform: digistump:avr,ATTinyCore:avr
@@ -85,11 +82,11 @@ jobs:
             # This "<URL> <URL>" is deprecated but works also
             #platform-url: "https://arduino.esp8266.com/stable/package_esp8266com_index.json http://digistump.com/package_digistump_index.json"
             platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
-            examples-exclude: WhistleSwitch 50Hz SimpleFrequencyDetector
+            examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
 
           - arduino-boards-fqbn: esp32:esp32:featheresp32:FlashFreq=80
             platform-url: https://dl.espressif.com/dl/package_esp32_index.json
-            examples-exclude: WhistleSwitch 50Hz SimpleFrequencyDetector
+            examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
 
       # Do not cancel all jobs / architectures if one job fails
       fail-fast: false
