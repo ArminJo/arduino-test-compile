@@ -276,7 +276,7 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 - Changed `required-libraries` from **space** to **comma** separated list.
 - Renamed parameter `sketch-name` to `sketch-names` to enable comma separated list.
 - Accept comma separated list for `examples-exclude`.
-- Updated documentation.
+- Updated documentation. 
 
 ### Version 1.1.0
 - Renamed parameter `libraries` to `required-libraries`.
