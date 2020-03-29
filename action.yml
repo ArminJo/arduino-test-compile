@@ -41,7 +41,7 @@ inputs:
   examples-build-properties:
     description: |
       Build parameter like `-DDEBUG` for each example in json format
-      For example: examples-build-properties: "{ \"WhistleSwitch\": \"-DDEBUG -DFREQUENCY_RANGE_LOW\", \"SimpleFrequencyDetector\": \"-DINFO\" }"
+      For example: examples-build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'
     default: ''
     required: false
 

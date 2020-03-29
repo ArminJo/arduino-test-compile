@@ -1,4 +1,4 @@
-# arduino-test-compile-Test.yml
+# arduino-test-compile-ActionTest.yml
 # Github workflow script for testing the arduino-test-compile action development.
 #
 # Copyright (C) 2020  Armin Joachimsmeyer
@@ -7,12 +7,12 @@
 #
 
 # This is the name of the workflow, visible on GitHub UI.
-name: arduino-test-compile-Test
-on: 
+name: arduino-test-compile-ActionTest
+on:
   push: # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
     paths:
     - '**.sh'
-    - '**arduino-test-compile-Test.yml'
+    - '**arduino-test-compile-ActionTest.yml'
 
 jobs:
   build:
@@ -35,7 +35,7 @@ jobs:
         # ATTinyCore:avr:attinyx5:chip=85,clock=1internal, digistump:avr:digispark-tiny, digistump:avr:digispark-pro
         # STM32:stm32:GenF1:pnum=BLUEPILL_F103C8
         # esp8266:esp8266:huzzah:eesz=4M3M,xtal=80, esp32:esp32:featheresp32:FlashFreq=80
-        # You may add a suffix behind the fqbn with "|" to specify one board for e.g. different compile options like arduino:avr:uno|trace 
+        # You may add a suffix behind the fqbn with "|" to specify one board for e.g. different compile options like arduino:avr:uno|trace
         #############################################################################################################
         arduino-boards-fqbn:
           - arduino:avr:uno

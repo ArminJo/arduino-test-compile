@@ -1,16 +1,17 @@
 # arduino-test-compile action / script
 
-This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master/src) in a repository each with different compile parameters.<br/>
+This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master/src) in a repository for different boards, each with different compile parameters.<br/>
 It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).<br/>
 The action is a Docker action which uses the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the other work is done by the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) bash script.<br/>
-If you want to test compile a single sketch, it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it). The appropriate directory is internally created on the fly for test-compiling.
+If you want to test compile a sketch, it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino. Internally the appropriate directory is created on the fly for test-compiling and the file is renamed to be .ino.
 
 If you need more flexibility for e.g. installing additional board platforms, or want to save around 20 to 30 seconds for each job, then you may want to
 use the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) directly.
 See [example below](https://github.com/ArminJo/arduino-test-compile#multiple-boards-with-parameter-using-the-script-directly).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
-[![Build Status](https://github.com/ArminJo/Github-Actions/workflows/arduino-test-compile-Test/badge.svg)](https://github.com/ArminJo/Github-Actions/actions)
+[![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ActionTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
+[![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ScriptTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
 
 # Inputs
 See [action.yml](https://github.com/ArminJo/arduino-test-compile/blob/master/action.yml) for comprehensive list of parameters.
@@ -66,15 +67,23 @@ Environment name for script usage `ENV_EXAMPLES_EXCLUDE`
 
 ### `examples-build-properties`
 Build parameter like `-DDEBUG` for each example<br/>
-Environment name for script usage `ENV_EXAMPLES_BUILD_PROPERTIES`
+Environment name for script usage `ENV_EXAMPLES_BUILD_PROPERTIES`<br/>
+
+In the `include:` section you may specify:
+```yaml
+include:
+  examples-build-properties:
+    WhistleSwitch:
+      -DDEBUG
+      -DFREQUENCY_RANGE_LOW
+    SimpleFrequencyDetector:
+      -DINFO
+```
+in the `with:` section it must be:
 
 ```yaml
-examples-build-properties:
-  WhistleSwitch:
-    -DDEBUG
-    -DFREQUENCY_RANGE_LOW
-  SimpleFrequencyDetector:
-    -DINFO
+with:
+  examples-build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'
 ```
 
 ### `cli-version`
@@ -144,7 +153,7 @@ jobs:
         platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
         required-libraries: Servo,Adafruit NeoPixel
         examples-exclude: WhistleSwitch 50Hz
-        examples-build-properties: "{ \"WhistleSwitch\": \"-DDEBUG -DFREQUENCY_RANGE_LOW\", \"SimpleFrequencyDetector\": \"-DINFO\" }"        
+        examples-build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'        
 ```
 
 ## Multiple boards with parameter
