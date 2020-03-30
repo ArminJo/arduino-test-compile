@@ -190,13 +190,16 @@ fi
 #
 # Finally, we compile all examples
 #
-# Support comma separated sketch name list
+# Split comma separated sketch name list
 BACKUP_IFS="$IFS"
 IFS=$','
+SKETCH_NAMES=${SKETCH_NAMES// /}
 declare -a SKETCH_NAMES_ARRAY=( $SKETCH_NAMES )
+#declare -p SKETCH_NAMES_ARRAY
 IFS="$BACKUP_IFS"
 for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
   declare -a SKETCHES=($(find . -name "$sketch_name"))
+  #declare -p SKETCHES
   for sketch in "${SKETCHES[@]}"; do # Loop over all sketch files
     SKETCH_PATH=$(dirname $sketch) # complete path to sketch
     SKETCH_DIR=${SKETCH_PATH##*/}  # directory of sketch, must match sketch basename
