@@ -1,4 +1,4 @@
-# arduino-test-compile action / script
+# arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
 
 This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master/src) in a repository for different boards, each with different compile parameters.<br/>
 It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).<br/>
@@ -27,7 +27,7 @@ arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
 **For 3rd party boards**, you must also specify the Boards Manager URL `platform-url:`.
 
 ### `platform-url`
-Required for 3rd party boards. If you need, you may specify more than one URL as a comma separated list (without enclosing it in double quotes) like `http://drazzy.com/package_drazzy.com_index.json,http://digistump.com/package_digistump_index.json`
+Required for 3rd party boards. If you need, you may specify more than one URL as a comma separated list (without enclosing it in double quotes) like `http://drazzy.com/package_drazzy.com_index.json,https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json`
 Default `""`<br/>
 Environment name for script usage `ENV_PLATFORM_URL`
 
@@ -37,7 +37,8 @@ platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
 
 Sample URL's are:
 - http://drazzy.com/package_drazzy.com_index.json - for ATTiny boards
-- http://digistump.com/package_digistump_index.json - for Digispark boards. https gives: x509: certificate signed by unknown authority
+- Old URL: http://digistump.com/package_digistump_index.json - for Digispark boards. https gives: x509: certificate signed by unknown authority
+- Improved URL: https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json - up to 20% more code possible
 - https://arduino.esp8266.com/stable/package_esp8266com_index.json - for ESP8266 based boards
 - https://dl.espressif.com/dl/package_esp32_index.json - for ESP32 based boards
 - https://github.com/stm32duino/BoardManagerFiles/raw/dev/STM32/package_stm_index.json - for STM32 boards
