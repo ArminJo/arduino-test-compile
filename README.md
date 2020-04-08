@@ -27,7 +27,7 @@ arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
 **For 3rd party boards**, you must also specify the Boards Manager URL `platform-url:`.
 
 ### `platform-url`
-Required for 3rd party boards. If you need, you may specify more than one URL as a comma separated list (without enclosing it in double quotes) like `http://drazzy.com/package_drazzy.com_index.json,https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json`
+Required for 3rd party boards. If you need, you may specify more than one URL as a comma separated list (without enclosing it in double quotes) like `http://drazzy.com/package_drazzy.com_index.json,https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json`<br/>
 Default `""`<br/>
 Environment name for script usage `ENV_PLATFORM_URL`
 
@@ -55,7 +55,7 @@ Environment name for script usage `ENV_REQUIRED_LIBRARIES`
 required-libraries: Servo,Adafruit NeoPixel@1.3.4
 ```
 
-Space separated list without double quotes around the list. If you need a library with a space in its name, like Adafruit NeoPixel or Adafruit INA219, you must use double quotes around the name and have at least 2 entries, where the first must be without double quotes! You may use Servo as dummy entry.
+Comma separated list without double quotes around the list or a library name. A list of correct library names can be found [here](https://www.arduinolibraries.info/).
 
 
 ### `examples-exclude`
@@ -282,6 +282,9 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
+### master
+- Added missing after "Install libraries $REQUIRED_LIBRARIES"
+
 ### Version 2.0.0
 - Changed `required-libraries` from **space** to **comma** separated list.
 - Renamed parameter `sketch-name` to `sketch-names` to enable comma separated list.
