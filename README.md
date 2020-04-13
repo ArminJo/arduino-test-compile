@@ -17,9 +17,9 @@ See [example below](https://github.com/ArminJo/arduino-test-compile#multiple-boa
 See [action.yml](https://github.com/ArminJo/arduino-test-compile/blob/master/action.yml) for comprehensive list of parameters.
 
 ### `arduino-board-fqbn`
-The fully qualified board name to use for compiling with arduino-cli.<br/>
-Default `arduino:avr:uno`<br/>
-Environment name for script usage `ENV_ARDUINO_BOARD_FQBN`
+The fully qualified board name to use for compiling with arduino-cli. You may add a suffix behind the fqbn with `|` to specify one board for e.g. different compile options like `arduino:avr:uno|trace`.<br/>
+Default is `arduino:avr:uno`.<br/>
+Environment name for script usage is `ENV_ARDUINO_BOARD_FQBN`.
 
 ```yaml
 arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
@@ -27,9 +27,9 @@ arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
 **For 3rd party boards**, you must also specify the Boards Manager URL `platform-url:`.
 
 ### `platform-url`
-Required for 3rd party boards. If you need, you may specify more than one URL as a comma separated list (without enclosing it in double quotes) like `http://drazzy.com/package_drazzy.com_index.json,https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json`<br/>
-Default `""`<br/>
-Environment name for script usage `ENV_PLATFORM_URL`
+Required for 3rd party boards. If you need, you may specify more than one URL as a comma separated list (without enclosing it in double quotes) like `http://drazzy.com/package_drazzy.com_index.json,https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json`.<br/>
+Default is `""`.<br/>
+Environment name for script usage is `ENV_PLATFORM_URL`.
 
 ```yaml
 platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
@@ -47,9 +47,9 @@ Sample URL's are:
 
 
 ### `required-libraries`
-Comma separated list of library dependencies to install. You may add a version number like `@1.3.4`<br/>
-Default `""`<br/>
-Environment name for script usage `ENV_REQUIRED_LIBRARIES`
+Comma separated list of library dependencies to install. You may add a version number like `@1.3.4`.<br/>
+Default is `""`.<br/>
+Environment name for script usage is `ENV_REQUIRED_LIBRARIES`.
 
 ```yaml
 required-libraries: Servo,Adafruit NeoPixel@1.3.4
@@ -60,17 +60,18 @@ Comma separated list without double quotes around the list or a library name. A 
 
 ### `examples-exclude`
 Examples to be **excluded from build**. Comma or space separated list of (unique substrings of) sketch / example names to exclude in build.<br/>
-Environment name for script usage `ENV_EXAMPLES_EXCLUDE`
+Environment name for script usage is `ENV_EXAMPLES_EXCLUDE`.
 
 ```yaml
   examples-exclude: QuadrupedControl,RobotArmControl # QuadrupedControl and RobotArmControl because of missing EEprom
 ```
 
 ### `examples-build-properties`
-Build parameter like `-DDEBUG` for each example<br/>
-Environment name for script usage `ENV_EXAMPLES_BUILD_PROPERTIES`<br/>
+Build parameter like `-DDEBUG` for each example specified or for all examples, if example name is `All`.<br/>
+Environment name for script usage is `ENV_EXAMPLES_BUILD_PROPERTIES`.<br/>
 
 In the `include:` section you may specify:
+
 ```yaml
 include:
   examples-build-properties:
@@ -80,6 +81,14 @@ include:
     SimpleFrequencyDetector:
       -DINFO
 ```
+
+```yaml
+include:
+  examples-build-properties:
+    All:
+      -DDEBUG
+```
+
 in the `with:` section it must be:
 
 ```yaml
@@ -89,8 +98,8 @@ with:
 
 ### `cli-version`
 The version of `arduino-cli` to use.<br/>
-Default `latest`<br/>
-Environment name for script usage `ENV_CLI_VERSION`
+Default is `latest`.<br/>
+Environment name for script usage is `ENV_CLI_VERSION`.
 
 ```yaml
 cli-version: 0.9.0 # The current one (3/2020)
@@ -98,8 +107,8 @@ cli-version: 0.9.0 # The current one (3/2020)
 
 ### `sketch-names`
 Comma sepatated list of patterns or filenames (without path) of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled. If first is a `*` the list must be enclosed in double quotes!<br/>
-Default `*.ino`<br/>
-Environment name for script usage `ENV_SKETCH_NAMES`
+Default is `*.ino`.<br/>
+Environment name for script usage is `ENV_SKETCH_NAMES`.
 
 ```yaml
 sketch-names: "*.ino,SimpleTouchScreenDSO.cpp"
@@ -110,7 +119,7 @@ The sketches to compile are internally searched by the command `find . -name "$S
 ### `arduino-platform`
 Comma separated list of platform specifies with optional version. Useful if you require multiple platforms for your board or a fixed version like `arduino:avr@1.8.2`.<br/>
 In general, use it if you require another specifier than the one derived from the 2 first elements of the arduino-board-fqbn e.g. **esp8266:esp8266**:huzzah:eesz=4M3M,xtal=80, esp32:esp32:featheresp32:FlashFreq=80 -> **esp8266:esp8266**<br/>
-Environment name for script usage `ENV_ARDUINO_PLATFORM`
+Environment name for script usage is `ENV_ARDUINO_PLATFORM`.
 
 ```yaml
 arduino-platform: arduino:avr@1.8.2,digistump:avr
@@ -131,7 +140,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
     - name: Compile all examples
-      uses: ArminJo/arduino-test-compile@v2.0.0
+      uses: ArminJo/arduino-test-compile@v2.1.0
 ```
 
 ## One ESP8266 board with parameter
@@ -148,7 +157,7 @@ jobs:
       uses: actions/checkout@master
       
     - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v2.0.0
+        uses: ArminJo/arduino-test-compile@v2.1.0
       with:
         arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
         platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
@@ -171,6 +180,7 @@ jobs:
       matrix:
         arduino-boards-fqbn:
           - arduino:avr:uno
+          - arduino:avr:uno|All-DEBUG
           - arduino:avr:uno|trace
           - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
 
@@ -184,6 +194,12 @@ jobs:
                 -DFREQUENCY_RANGE_LOW
               SimpleFrequencyDetector:
                 -DINFO
+
+          - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # UNO board with -DDEBUG for all examples
+            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            examples-build-properties:
+              All:
+                -DDEBUG
 
           - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
             examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
@@ -203,7 +219,7 @@ jobs:
         uses: actions/checkout@master
       
       - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v2.0.0
+        uses: ArminJo/arduino-test-compile@v2.1.0
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-url: ${{ matrix.platform-url }}
@@ -228,6 +244,7 @@ jobs:
       matrix:
         arduino-boards-fqbn:
           - arduino:avr:uno
+          - arduino:avr:uno|All-DEBUG
           - arduino:avr:uno|trace
           - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
 
@@ -240,6 +257,12 @@ jobs:
                 -DFREQUENCY_RANGE_LOW
               SimpleFrequencyDetector:
                 -DINFO
+
+          - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # UNO board with -DDEBUG for all examples
+            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            examples-build-properties:
+              All:
+                -DDEBUG
 
           - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
             examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
@@ -276,28 +299,31 @@ Samples for using action in workflow:
 - Arduino library, only arduino:avr boards. Talkie [![Build Status](https://github.com/ArminJo/Talkie/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Talkie/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, 2 boards. Arduino-FrequencyDetector [![Build Status](https://github.com/ArminJo/Arduino-FrequencyDetector/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Arduino-FrequencyDetector/blob/master/.github/workflows/LibraryBuildWithAction.yml)
 
-Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-test-compile@v2.0.0` action:
+Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-test-compile@v2.1.0` action:
 - One sketch, one board, multiple options. RobotCar [![Build Status](https://github.com/ArminJo/Arduino-RobotCar/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-RobotCar/blob/master/.github/workflows/TestCompile.yml)
 - Arduino library, multiple boards. ServoEasing [![Build Status](https://github.com/ArminJo/ServoEasing/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/ServoEasing/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
 ### master
-- Added missing after "Install libraries $REQUIRED_LIBRARIES"
 
-### Version 2.0.0
+### Version v2.1.0
+- Added missing newline after print of "Install libraries $REQUIRED_LIBRARIES".
+- Added semantic for example name `All` in `examples-build-properties`.
+
+### Version v2.0.0
 - Changed `required-libraries` from **space** to **comma** separated list.
 - Renamed parameter `sketch-name` to `sketch-names` to enable comma separated list.
 - Accept comma separated list for `examples-exclude`.
 - Updated documentation. 
 
-### Version 1.1.0
+### Version v1.1.0
 - Renamed parameter `libraries` to `required-libraries`.
 - Renamed script.
 - Script instead of action can be used in steps.
 - Added parameter `arduino-platform` to enable specifying the version of the required platform.
 
-### Version 1.0.0
+### Version v1.0.0
 - Initial tested version.
 
 ## Requests for modifications / extensions

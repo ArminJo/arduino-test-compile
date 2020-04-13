@@ -14,7 +14,7 @@ inputs:
         
   arduino-board-fqbn:
     #In the Arduino IDE, the fqbn is printed in the first line of the verbose output for compilation as parameter -fqbn=... for the "arduino-builder -dump-prefs" command
-    description: 'Fully Qualified Board Name of the Arduino board.'
+    description: 'Fully Qualified Board Name of the Arduino board. You may add a suffix behind the fqbn with "|" to specify one board for e.g. different compile options like arduino:avr:uno|trace.'
     default: 'arduino:avr:uno'
     required: false
     
@@ -40,7 +40,7 @@ inputs:
 
   examples-build-properties:
     description: |
-      Build parameter like `-DDEBUG` for each example in json format
+      Build parameter like -DDEBUG for each example specified or for all examples, if example name is "All". In json format.
       For example: examples-build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'
     default: ''
     required: false

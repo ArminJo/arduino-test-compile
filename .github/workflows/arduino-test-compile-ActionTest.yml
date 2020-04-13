@@ -40,6 +40,7 @@ jobs:
         arduino-boards-fqbn:
           - arduino:avr:uno
           - arduino:avr:uno|trace
+          - arduino:avr:uno|All-DEBUG
           - digistump:avr:digispark-tiny1
           - ATTinyCore:avr:attinyx5:chip=85,clock=1internal
           - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
@@ -57,6 +58,12 @@ jobs:
                 -DFREQUENCY_RANGE_LOW
               SimpleFrequencyDetector:
                 -DINFO
+
+          - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # UNO board with -DDEBUG for all examples
+            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            examples-build-properties:
+              All:
+                -DDEBUG
 
           - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
             arduino-platform: arduino:avr@1.8.1
