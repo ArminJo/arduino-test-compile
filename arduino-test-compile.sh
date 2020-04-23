@@ -230,23 +230,21 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
         CPP_EXTRA_FLAGS=${PROP_MAP[All]}
         echo -n "with $CPP_EXTRA_FLAGS"
       fi
-      if [[ $DEBUG == true ]]; then
-        echo "Debug mode enabled => compile output will be printed also for successful compilation"
-        arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-properties compiler.cpp.extra_flags="${CPP_EXTRA_FLAGS}" $SKETCH_PATH
-      else
         build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-properties compiler.cpp.extra_flags="${CPP_EXTRA_FLAGS}" $SKETCH_PATH 2>&1)
-      fi
       if [[ $? -ne 0 ]]; then
         echo -e ""$RED"\xe2\x9c\x96" # If ok output a green checkmark else a red X and the command output.
+        echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-properties compiler.cpp.extra_flags=\"${CPP_EXTRA_FLAGS}\" $SKETCH_PATH"
         echo "::error::Compile of  $SKETCH_BASENAME ${CPP_EXTRA_FLAGS} failed"
+        echo -e "$build_stdout \n"
         exit_code=1
-        if [[ $DEBUG != true ]]; then
-          echo -e "$build_stdout \n"
-        fi
       else
         echo -e ""$GREEN"\xe2\x9c\x93"
+        echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-properties compiler.cpp.extra_flags=\"${CPP_EXTRA_FLAGS}\" $SKETCH_PATH"
+        if [[ $DEBUG == true ]]; then
+          echo "Debug mode enabled => compile output will be printed also for successful compilation"
+          echo -e "$build_stdout \n"
+        fi
       fi
-      echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-properties compiler.cpp.extra_flags=\"${CPP_EXTRA_FLAGS}\" $SKETCH_PATH"
     fi
   done
 done
