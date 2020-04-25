@@ -229,6 +229,8 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
       elif [[ -n ${PROP_MAP[All]} ]]; then
         CPP_EXTRA_FLAGS=${PROP_MAP[All]}
         echo -n "with $CPP_EXTRA_FLAGS"
+      else
+        CPP_EXTRA_FLAGS=
       fi
         build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-properties compiler.cpp.extra_flags="${CPP_EXTRA_FLAGS}" $SKETCH_PATH 2>&1)
       if [[ $? -ne 0 ]]; then
