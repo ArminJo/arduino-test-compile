@@ -2,7 +2,7 @@
 
 This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master/src) in a repository for different boards, each with different compile parameters.<br/>
 It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).<br/>
-The action is a Docker action which uses the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the other work is done by the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) bash script.<br/>
+The action is a Docker action which uses Ubuntu 18.04 and the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the other work is done by the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) bash script.<br/>
 If you want to test compile a sketch, it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino. Internally the appropriate directory is created on the fly for test-compiling and the file is renamed to be .ino.
 
 If you need more flexibility for e.g. installing additional board platforms, or want to save around 20 to 30 seconds for each job, then you may want to
@@ -140,7 +140,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
     - name: Compile all examples
-      uses: ArminJo/arduino-test-compile@v2.1.0
+      uses: ArminJo/arduino-test-compile@v2.2.0
 ```
 
 ## One ESP8266 board with parameter
@@ -157,7 +157,7 @@ jobs:
       uses: actions/checkout@master
       
     - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v2.1.0
+        uses: ArminJo/arduino-test-compile@v2.2.0
       with:
         arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
         platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
@@ -219,7 +219,7 @@ jobs:
         uses: actions/checkout@master
       
       - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v2.1.0
+        uses: ArminJo/arduino-test-compile@v2.2.0
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-url: ${{ matrix.platform-url }}
@@ -299,13 +299,16 @@ Samples for using action in workflow:
 - Arduino library, only arduino:avr boards. Talkie [![Build Status](https://github.com/ArminJo/Talkie/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Talkie/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, 2 boards. Arduino-FrequencyDetector [![Build Status](https://github.com/ArminJo/Arduino-FrequencyDetector/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Arduino-FrequencyDetector/blob/master/.github/workflows/LibraryBuildWithAction.yml)
 
-Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-test-compile@v2.1.0` action:
+Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-test-compile@v2.2.0` action:
 - One sketch, one board, multiple options. RobotCar [![Build Status](https://github.com/ArminJo/Arduino-RobotCar/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-RobotCar/blob/master/.github/workflows/TestCompile.yml)
 - Arduino library, multiple boards. ServoEasing [![Build Status](https://github.com/ArminJo/ServoEasing/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/ServoEasing/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
 ### master
+### Version v2.2.0
+- Using ubuntu:18.04 for Docker container, since ubuntu:latest can not fetch python for ESP32 anymore.
+- `CPP_EXTRA_FLAGS` are now resettet.
 
 ### Version v2.1.0
 - Added missing newline after print of "Install libraries $REQUIRED_LIBRARIES".

@@ -140,7 +140,7 @@ if [[ ${PLATFORM} == esp8266:esp8266 && ! -f /usr/bin/python3 ]]; then
 fi
           
 if [[ $PLATFORM == esp32:esp32 ]]; then
-  if [[ ! -f /usr/bin/pip ]]; then
+  if [[ ! -f /usr/bin/pip && ! -f /usr/bin/python ]]; then
     echo "install python and pip for ESP32"
     apt-get install -qq python-pip > /dev/null # this installs also python
   fi

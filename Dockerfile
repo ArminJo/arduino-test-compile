@@ -1,5 +1,5 @@
 # Container image that runs your code
-FROM ubuntu:latest
+FROM ubuntu:18.04
 
 # Install wget
 RUN apt-get update --quiet=2 > /dev/null && apt-get install --quiet=2 --assume-yes wget > /dev/null
