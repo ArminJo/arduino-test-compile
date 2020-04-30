@@ -305,22 +305,22 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
-### master
+
 ### Version v2.2.0
 - Using ubuntu:18.04 for Docker container, since ubuntu:latest can not fetch python for ESP32 anymore.
-- `CPP_EXTRA_FLAGS` are now resettet.
+- `CPP_EXTRA_FLAGS` are now resetted.
 
-### Version v2.1.0
+### Version v2.1.0 -> as of 30.4.2020 internally upgraded to content of v2.2.0, because of ESP32 compile bug
 - Added missing newline after print of "Install libraries $REQUIRED_LIBRARIES".
 - Added semantic for example name `All` in `examples-build-properties`.
 
-### Version v2.0.0
+### Version v2.0.0 -> as of 30.4.2020 internally upgraded to content of v2.2.0, because of ESP32 compile bug
 - Changed `required-libraries` from **space** to **comma** separated list.
 - Renamed parameter `sketch-name` to `sketch-names` to enable comma separated list.
 - Accept comma separated list for `examples-exclude`.
 - Updated documentation. 
 
-### Version v1.1.0
+### Version v1.1.0 -> as of 30.4.2020 internally upgraded to content of v2.2.0, because of ESP32 compile bug
 - Renamed parameter `libraries` to `required-libraries`.
 - Renamed script.
 - Script instead of action can be used in steps.
