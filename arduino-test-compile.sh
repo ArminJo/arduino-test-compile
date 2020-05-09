@@ -62,6 +62,7 @@ echo DEBUG=$DEBUG
 
 #echo HOME=$HOME # /github/home
 #echo PWD=$PWD # /github/workspace
+echo GITHUB_WORKSPACE=$GITHUB_WORKSPACE #
 declare -p BASH_ARGV
 #set
 #ls -lR $PWD

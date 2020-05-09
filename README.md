@@ -1,11 +1,11 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
 
-This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master/src) in a repository for different boards, each with different compile parameters.<br/>
+This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) in a repository for different boards, each with different compile parameters.<br/>
 It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).<br/>
 The action is a Docker action which uses Ubuntu 18.04 and the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the other work is done by the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) bash script.<br/>
-If you want to test compile a sketch, it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino. Internally the appropriate directory is created on the fly for test-compiling and the file is renamed to be .ino.
+If you want to test compile a sketch, **it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino**. Internally the file is renamed to be .ino and the appropriate directory is created on the fly for test-compiling. See [parameter `sketch-names`](https://github.com/ArminJo/arduino-test-compile#sketch-names).
 
-If you need more flexibility for e.g. installing additional board platforms, or want to save around 20 to 30 seconds for each job, then you may want to
+If you need more flexibility for e.g. installing additional board platforms, or want to save around 20 to 30 seconds for each job, then you may consider to
 use the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) directly.
 See [example below](https://github.com/ArminJo/arduino-test-compile#multiple-boards-with-parameter-using-the-script-directly).
 
@@ -47,7 +47,9 @@ Sample URL's are:
 
 
 ### `required-libraries`
-Comma separated list of library dependencies to install. You may add a version number like `@1.3.4`.<br/>
+Comma separated list of arduino library dependencies to install. You may add a version number like `@1.3.4`.<br/>
+Only libraries [avaliable in the Arduino library manager](https://www.arduinolibraries.info/) can be installed this way. 
+To use other / custom libraries, you must put all the library files into the sketch directory.
 Default is `""`.<br/>
 Environment name for script usage is `ENV_REQUIRED_LIBRARIES`.
 
@@ -106,15 +108,17 @@ cli-version: 0.9.0 # The current one (3/2020)
 ```
 
 ### `sketch-names`
-Comma sepatated list of patterns or filenames (without path) of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled. If first is a `*` the list must be enclosed in double quotes!<br/>
+Comma sepatated list of patterns or filenames (without path) of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled. If first character is a `*` like in "*.ino" the list must be enclosed in double quotes!<br/>
+The **sketch names to compile are searched in the whole repository** by the command `find . -name "$SKETCH_NAME"` with `.` as the root of the repository, so you do not need to specify the full path.<br/>
+Sketches do not need to be in an example directory. This enables **[plain programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) to be test compiled**.<br/>
+Since Arduino requires a sketch to end with .ino and to reside in a directory with the same name as the sketch, if required, the **renaming and directory creation is done internally** to fulfill the requirements of the Arduino IDE.<br/>
 Default is `*.ino`.<br/>
 Environment name for script usage is `ENV_SKETCH_NAMES`.
 
 ```yaml
 sketch-names: "*.ino,SimpleTouchScreenDSO.cpp"
 ```
-If the sketch is not contained in a directory with the same name as the sketch, this directory will be created internally and the content of the sketch directory will be recursively copied to it. This is required by arduino-cli to successful compile a sketch.<br/>
-The sketches to compile are internally searched by the command `find . -name "$SKETCH_NAME"` with `.` as the root of the repository, so you do not need to specify the full path.
+
 
 ### `arduino-platform`
 Comma separated list of platform specifies with optional version. Useful if you require multiple platforms for your board or a fixed version like `arduino:avr@1.8.2`.<br/>
@@ -138,7 +142,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v2
     - name: Compile all examples
       uses: ArminJo/arduino-test-compile@v2.2.0
 ```
@@ -154,7 +158,7 @@ jobs:
     
     steps:
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v2
       
     - name: Compile all examples
         uses: ArminJo/arduino-test-compile@v2.2.0
@@ -169,7 +173,14 @@ jobs:
 ## Multiple boards with parameter
 ```yaml
 name: LibraryBuild
-on: [push, pull_request]
+on:
+  push: # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
+    paths:
+    - '**.ino'
+    - '**.cpp'
+    - '**.h'
+    - '**LibraryBuild.yml'
+  pull_request:
 jobs:
   build:
     name: ${{ matrix.arduino-boards-fqbn }} - test compiling examples
@@ -216,7 +227,7 @@ jobs:
                 
       steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
       
       - name: Compile all examples
         uses: ArminJo/arduino-test-compile@v2.2.0
@@ -228,12 +239,19 @@ jobs:
           examples-build-properties: ${{ toJson(matrix.examples-build-properties) }}
 ```
 
-## Multiple boards with parameter using the script directly
+## Multiple boards with parameter using the **script directly**
 This is faster and more flexible.
 
 ```yaml
 name: LibraryBuild
-on: [push, pull_request]
+on:
+  push: # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
+    paths:
+    - '**.ino'
+    - '**.cpp'
+    - '**.h'
+    - '**LibraryBuild.yml'
+  pull_request:
 jobs:
   build:
     name: ${{ matrix.arduino-boards-fqbn }} - test compiling examples
@@ -278,7 +296,7 @@ jobs:
       fail-fast: false
       steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
       - name: Compile all examples using the bash script arduino-test-compile.sh
         env:
           # Passing parameters to the script by setting the appropriate ENV_* variables.
@@ -292,7 +310,60 @@ jobs:
           chmod +x arduino-test-compile.sh
           ./arduino-test-compile.sh
 ```
-            
+
+## Using 2 extra steps `Checkout custom library` and `Link custom library` for loading custom library
+```yaml
+...
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Checkout custom library
+        uses: actions/checkout@v2
+        repository: ArminJo/Arduino-Utils
+        ref: master
+        
+      - name: Link custom library
+        run: |
+          mkdir -p "$HOME/Arduino/libraries"
+          ln -s "$PWD../Arduino-Utils" "$HOME/Arduino/libraries/."
+          ls -l "$HOME/Arduino/libraries"
+                          
+      # Use the arduino-test-compile script, because extra steps does not work with action
+      - name: Compile all examples using the bash script arduino-test-compile.sh
+        env:
+          # Passing parameters to the script by setting the appropriate ENV_* variables.
+          ENV_ARDUINO_BOARD_FQBN: ${{ matrix.arduino-boards-fqbn }}
+          ENV_PLATFORM_URL: ${{ matrix.platform-url }}
+          ENV_REQUIRED_LIBRARIES: ${{ env.REQUIRED_LIBRARIES }}
+          ENV_EXAMPLES_EXCLUDE: ${{ matrix.examples-exclude }}
+          ENV_EXAMPLES_BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
+        run: |
+          wget --quiet https://raw.githubusercontent.com/ArminJo/arduino-test-compile/master/arduino-test-compile.sh
+            ls -l arduino-test-compile.sh
+            chmod +x arduino-test-compile.sh
+            ./arduino-test-compile.sh
+```
+
+## Single [program](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master/src) using `sketch-names` parameter
+```yaml
+name: TestCompile
+on: push
+jobs:
+  build:
+    name: Test compiling examples for UNO
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+                                         
+      - name: Compile all examples
+        uses: ArminJo/arduino-test-compile@master
+        with:
+          sketch-names: SimpleTouchScreenDSO.cpp
+          required-libraries: BlueDisplay
+```
+
 Samples for using action in workflow:
 - The simple example from above. LightweightServo [![Build Status](https://github.com/ArminJo/LightweightServo/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/LightweightServo/blob/master/.github/workflows/LibraryBuild.yml)
 - One sketch, one library. Simple-DSO [![Build Status](https://github.com/ArminJo/Arduino-Simple-DSO/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml)
