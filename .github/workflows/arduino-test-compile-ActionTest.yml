@@ -102,6 +102,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
+      - name: Checkout custom library
+        uses: actions/checkout@v2
+        with:
+          repository: ArminJo/ATtinySerialOut
+          ref: master
+          path: CustomLibrary
+
       # Test of the arduino-test-compile action
       - name: Compile all examples using the arduino-test-compile action
         uses: ArminJo/arduino-test-compile@master

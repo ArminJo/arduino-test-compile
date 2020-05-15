@@ -1,4 +1,5 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
+### Version 2.3.0
 
 This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) in a repository for different boards, each with different compile parameters.<br/>
 It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).<br/>
@@ -48,8 +49,8 @@ Sample URL's are:
 
 ### `required-libraries`
 Comma separated list of arduino library dependencies to install. You may add a version number like `@1.3.4`.<br/>
-Only libraries [avaliable in the Arduino library manager](https://www.arduinolibraries.info/) can be installed this way. 
-To use other / custom libraries, you must put all the library files into the sketch directory.
+Only libraries [avaliable in the Arduino library manager](https://www.arduinolibraries.info/) can be installed this way.<br/>
+To use other/custom libraries, you must put all the library files into the sketch directory or add an extra step as in [this example](#using-custom-library).
 Default is `""`.<br/>
 Environment name for script usage is `ENV_REQUIRED_LIBRARIES`.
 
@@ -311,7 +312,9 @@ jobs:
           ./arduino-test-compile.sh
 ```
 
-## Using 2 extra steps `Checkout custom library` and `Link custom library` for loading custom library
+## Using custom library
+Add an extra step `Checkout custom library` for loading custom library.
+Take care that the path parameter matches the pattern `*Custom*`.
 ```yaml
 ...
     steps:
@@ -320,29 +323,18 @@ jobs:
 
       - name: Checkout custom library
         uses: actions/checkout@v2
-        repository: ArminJo/Arduino-Utils
-        ref: master
-        
-      - name: Link custom library
-        run: |
-          mkdir -p "$HOME/Arduino/libraries"
-          ln -s "$PWD../Arduino-Utils" "$HOME/Arduino/libraries/."
-          ls -l "$HOME/Arduino/libraries"
-                          
-      # Use the arduino-test-compile script, because extra steps does not work with action
-      - name: Compile all examples using the bash script arduino-test-compile.sh
-        env:
-          # Passing parameters to the script by setting the appropriate ENV_* variables.
-          ENV_ARDUINO_BOARD_FQBN: ${{ matrix.arduino-boards-fqbn }}
-          ENV_PLATFORM_URL: ${{ matrix.platform-url }}
-          ENV_REQUIRED_LIBRARIES: ${{ env.REQUIRED_LIBRARIES }}
-          ENV_EXAMPLES_EXCLUDE: ${{ matrix.examples-exclude }}
-          ENV_EXAMPLES_BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
-        run: |
-          wget --quiet https://raw.githubusercontent.com/ArminJo/arduino-test-compile/master/arduino-test-compile.sh
-            ls -l arduino-test-compile.sh
-            chmod +x arduino-test-compile.sh
-            ./arduino-test-compile.sh
+        with:
+          repository: ArminJo/ATtinySerialOut
+          ref: master
+          path: CustomLibrary
+
+      - name: Checkout second custom library # This name must be different from the one above
+        uses: actions/checkout@v2
+        with:
+          repository: ArminJo/Arduino-Utils
+          ref: master
+          path: SecondCustomLibrary # This path must be different from the one above
+...
 ```
 
 ## Single [program](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master/src) using `sketch-names` parameter
@@ -376,6 +368,9 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
+
+### Version v2.3.0
+- Support for custom library
 
 ### Version v2.2.0
 - Using ubuntu:18.04 for Docker container, since ubuntu:latest can not fetch python for ESP32 anymore.

@@ -62,10 +62,10 @@ echo DEBUG=$DEBUG
 
 #echo HOME=$HOME # /github/home
 #echo PWD=$PWD # /github/workspace
-echo GITHUB_WORKSPACE=$GITHUB_WORKSPACE #
+#echo GITHUB_WORKSPACE=$GITHUB_WORKSPACE # /github/workspace
 declare -p BASH_ARGV
 #set
-#ls -lR $PWD
+#ls -lR $GITHUB_WORKSPACE
 
 #
 # Download and install arduino IDE, if not already cached
@@ -95,19 +95,29 @@ export PATH="$HOME/arduino_ide:$PATH"
 
 
 #
+# Add *Custom* directories to Arduino library directory
+#
+if ls $GITHUB_WORKSPACE/*Custom* >/dev/null 2>&1; then
+  echo -e "\n\n"${YELLOW}Add *Custom* as Arduino library
+  mkdir -p "$HOME/Arduino/libraries"
+  # mv to avoid the library examples to be test compiled
+  mv -n -v $GITHUB_WORKSPACE/*Custom* "$HOME/Arduino/libraries/"
+fi
+
+#
 # Link this repository as Arduino library
 #
-if [[ -f $PWD/library.properties ]]; then
-  echo -e "\n\n"$YELLOW"Link this repository as Arduino library"
+if [[ -f $GITHUB_WORKSPACE/library.properties ]]; then
+  echo -e "\n\n"${YELLOW}Link this repository as Arduino library
   mkdir -p "$HOME/Arduino/libraries"
-  ln -s "$PWD" "$HOME/Arduino/libraries/."
+  ln -s "$GITHUB_WORKSPACE" "$HOME/Arduino/libraries/."
 fi
 
 
 #
 # Update index and install the required board platform
 #
-echo -e "\n\n"$YELLOW"Update index and install the required board platform"
+echo -e "\n\n"${YELLOW}Update index and install the required board platform
 if [[ -z $ARDUINO_PLATFORM ]]; then
   remainder=${ARDUINO_BOARD_FQBN#*:}; PLATFORM=${ARDUINO_BOARD_FQBN%%:*}:${remainder%%:*}
 else
