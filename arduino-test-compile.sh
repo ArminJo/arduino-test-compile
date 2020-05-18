@@ -11,13 +11,14 @@
 # Input parameter
 CLI_VERSION="$1"
 SKETCH_NAMES="$2"
-ARDUINO_BOARD_FQBN="$3"
-ARDUINO_PLATFORM="$4"
-PLATFORM_URL="$5"
-REQUIRED_LIBRARIES="$6"
-EXAMPLES_EXCLUDE="$7"
-EXAMPLES_BUILD_PROPERTIES="$8"
-DEBUG="$9"
+SKETCH_NAMES_FIND_START="$3"
+ARDUINO_BOARD_FQBN="$4"
+ARDUINO_PLATFORM="$5"
+PLATFORM_URL="$6"
+REQUIRED_LIBRARIES="$7"
+EXAMPLES_EXCLUDE="$8"
+EXAMPLES_BUILD_PROPERTIES="$9"
+DEBUG="$10"
 
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -29,6 +30,7 @@ readonly BLUE='\033[0;34m'
 #
 if [[ -n $ENV_CLI_VERSION ]]; then CLI_VERSION=$ENV_CLI_VERSION; fi
 if [[ -n $ENV_SKETCH_NAMES ]]; then SKETCH_NAMES=$ENV_SKETCH_NAMES; fi
+if [[ -n $ENV_SKETCH_NAMES_FIND_START ]]; then SKETCH_NAMES_FIND_START=$ENV_SKETCH_NAMES_FIND_START; fi
 if [[ -n $ENV_ARDUINO_BOARD_FQBN ]]; then ARDUINO_BOARD_FQBN=$ENV_ARDUINO_BOARD_FQBN; fi
 if [[ -n $ENV_ARDUINO_PLATFORM ]]; then ARDUINO_PLATFORM=$ENV_ARDUINO_PLATFORM; fi
 if [[ -n $ENV_PLATFORM_URL ]]; then PLATFORM_URL=$ENV_PLATFORM_URL; fi
@@ -43,6 +45,7 @@ if [[ -n $ENV_DEBUG ]]; then DEBUG=$ENV_DEBUG; fi
 #
 if [[ -z $CLI_VERSION ]]; then echo "Set CLI_VERSION to default value: \"latest\""; CLI_VERSION='latest'; fi
 if [[ -z $SKETCH_NAMES ]]; then echo -e "Set SKETCH_NAMES to default value: \"*.ino\""; SKETCH_NAMES='*.ino'; fi
+if [[ -z $SKETCH_NAMES_FIND_START ]]; then echo -e "Set SKETCH_NAMES_FIND_START to default value: \".\" (root of repository)"; SKETCH_NAMES_FIND_START='.'; fi
 if [[ -z $ARDUINO_BOARD_FQBN ]]; then echo "Set ARDUINO_BOARD_FQBN to default value: \"arduino:avr:uno\""; ARDUINO_BOARD_FQBN='arduino:avr:uno'; fi
 
 
@@ -52,6 +55,7 @@ if [[ -z $ARDUINO_BOARD_FQBN ]]; then echo "Set ARDUINO_BOARD_FQBN to default va
 echo -e "\n\n"$YELLOW"Echo input parameter"
 echo CLI_VERSION=$CLI_VERSION
 echo SKETCH_NAMES=$SKETCH_NAMES
+echo SKETCH_NAMES_FIND_START=$SKETCH_NAMES_FIND_START
 echo ARDUINO_BOARD_FQBN=$ARDUINO_BOARD_FQBN
 echo ARDUINO_PLATFORM=$ARDUINO_PLATFORM
 echo PLATFORM_URL=$PLATFORM_URL
@@ -209,7 +213,7 @@ declare -a SKETCH_NAMES_ARRAY=( $SKETCH_NAMES )
 #declare -p SKETCH_NAMES_ARRAY
 IFS="$BACKUP_IFS"
 for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
-  declare -a SKETCHES=($(find . -name "$sketch_name"))
+  declare -a SKETCHES=($(find ${SKETCH_NAMES_FIND_START} -name "$sketch_name"))
   #declare -p SKETCHES
   for sketch in "${SKETCHES[@]}"; do # Loop over all sketch files
     SKETCH_PATH=$(dirname $sketch) # complete path to sketch

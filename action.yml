@@ -11,7 +11,12 @@ inputs:
     description: 'Comma sepatated list of patterns or filenames (without path) of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled.'
     default: '*.ino'
     required: false
-        
+
+  sketch-names-find-start:
+    description: 'The start directory to look for the sketch-names to test compile. Can be a path like "digistump-avr/libraries/*/examples/C*/" .'
+    default: '.'
+    required: false        
+
   arduino-board-fqbn:
     #In the Arduino IDE, the fqbn is printed in the first line of the verbose output for compilation as parameter -fqbn=... for the "arduino-builder -dump-prefs" command
     description: 'Fully Qualified Board Name of the Arduino board. You may add a suffix behind the fqbn with "|" to specify one board for e.g. different compile options like arduino:avr:uno|trace.'
@@ -49,13 +54,14 @@ inputs:
     description: 'If set to "true" she action logs verbose compile output even during successful builds'
     default: ''
     required: false  
-  
+
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
     - ${{ inputs.cli-version }}
     - ${{ inputs.sketch-names }}
+    - ${{ inputs.sketch-names-find-start }}
     - ${{ inputs.arduino-board-fqbn }}
     - ${{ inputs.arduino-platform }}
     - ${{ inputs.platform-url }}

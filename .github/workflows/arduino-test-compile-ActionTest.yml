@@ -12,6 +12,7 @@ on:
   push: # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
     paths:
     - '**.sh'
+    - '**action.yml'
     - '**arduino-test-compile-ActionTest.yml'
 
 jobs:
@@ -100,7 +101,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
 
       - name: Checkout custom library
         uses: actions/checkout@v2
@@ -119,4 +120,8 @@ jobs:
           required-libraries: ${{ env.REQUIRED_LIBRARIES }}
           examples-exclude: ${{ matrix.examples-exclude }}
           examples-build-properties: ${{ toJson(matrix.examples-build-properties) }}
-
+          sketch-names:
+            WhistleSwitch.ino,
+            50Hz.ino,
+            SimpleFrequencyDetector.ino
+          sketch-names-find-start: examples/*/

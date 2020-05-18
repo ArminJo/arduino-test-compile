@@ -116,6 +116,8 @@ jobs:
           ENV_REQUIRED_LIBRARIES: ${{ env.REQUIRED_LIBRARIES }}
           ENV_EXAMPLES_EXCLUDE: ${{ matrix.examples-exclude }}
           ENV_EXAMPLES_BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
+          ENV_SKETCH_NAMES: "*.ino"
+          ENV_SKETCH_NAMES_FILE_START: .
         run: |
           wget --quiet https://raw.githubusercontent.com/ArminJo/arduino-test-compile/master/arduino-test-compile.sh
             ls -l arduino-test-compile.sh

@@ -1,5 +1,5 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
-### Version 2.3.0
+### Version 2.4.0
 
 This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) in a repository for different boards, each with different compile parameters.<br/>
 It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).<br/>
@@ -77,26 +77,32 @@ In the `include:` section you may specify:
 
 ```yaml
 include:
+...
   examples-build-properties:
     WhistleSwitch:
       -DDEBUG
       -DFREQUENCY_RANGE_LOW
     SimpleFrequencyDetector:
       -DINFO
-```
-
-```yaml
-include:
+...
   examples-build-properties:
     All:
       -DDEBUG
+...
 ```
 
-in the `with:` section it must be:
+and reference it in the `with:` section by: 
 
 ```yaml
 with:
-  examples-build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'
+  examples-build-properties: ${{ toJson(matrix.examples-build-properties) }}
+```
+
+If you want to specify it directly in the `with:` section it must be:
+
+```yaml
+with:
+  examples-build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO", "All": "-DDEBUG" }'
 ```
 
 ### `cli-version`
@@ -111,6 +117,7 @@ cli-version: 0.9.0 # The current one (3/2020)
 ### `sketch-names`
 Comma sepatated list of patterns or filenames (without path) of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled. If first character is a `*` like in "*.ino" the list must be enclosed in double quotes!<br/>
 The **sketch names to compile are searched in the whole repository** by the command `find . -name "$SKETCH_NAME"` with `.` as the root of the repository, so you do not need to specify the full path.<br/>
+If you specify `sketch-names-find-start` then the find command is changed to `find ${SKETCH_NAMES_FIND_START} -name "$SKETCH_NAME"`.<br/>
 Sketches do not need to be in an example directory. This enables **[plain programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) to be test compiled**.<br/>
 Since Arduino requires a sketch to end with .ino and to reside in a directory with the same name as the sketch, if required, the **renaming and directory creation is done internally** to fulfill the requirements of the Arduino IDE.<br/>
 Default is `*.ino`.<br/>
@@ -120,6 +127,14 @@ Environment name for script usage is `ENV_SKETCH_NAMES`.
 sketch-names: "*.ino,SimpleTouchScreenDSO.cpp"
 ```
 
+### `sketch-names-find-start`
+The **start directory to look for the sketch-names** to test compile. Can be a path like `digistump-avr/libraries/*/examples/`. Used [here](https://github.com/ArminJo/DigistumpArduino/blob/master/.github/workflows/TestCompile.yml) to compile all library examples of the board package.
+Default is `.` (root of repository).<br/>
+Environment name for script usage is `ENV_SKETCH_NAMES_FIND_START`.
+
+```yaml
+sketch-names-find-start: digistump-avr/libraries/*/examples/C*/
+```
 
 ### `arduino-platform`
 Comma separated list of platform specifies with optional version. Useful if you require multiple platforms for your board or a fixed version like `arduino:avr@1.8.2`.<br/>
@@ -306,6 +321,8 @@ jobs:
           ENV_REQUIRED_LIBRARIES: ${{ env.REQUIRED_LIBRARIES }}
           ENV_EXAMPLES_EXCLUDE: ${{ matrix.examples-exclude }}
           ENV_EXAMPLES_BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
+          ENV_SKETCH_NAMES: "*.ino"              # Default. You may also omit this line.
+          ENV_SKETCH_NAMES_FILE_START: examples/ # Not really required here, but serves as an usage example.
         run: |
           wget --quiet https://raw.githubusercontent.com/ArminJo/arduino-test-compile/master/arduino-test-compile.sh
           chmod +x arduino-test-compile.sh
@@ -368,6 +385,8 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
+### Version v2.4.0
+- Added parameter `sketch-names-find-start` to compile multiple libraries.
 
 ### Version v2.3.0
 - Support for custom library
