@@ -18,8 +18,8 @@ PLATFORM_DEFAULT_URL="$6"
 PLATFORM_URL="$7"
 REQUIRED_LIBRARIES="$8"
 EXAMPLES_EXCLUDE="$9"
-EXAMPLES_BUILD_PROPERTIES="$10"
-DEBUG="$11"
+EXAMPLES_BUILD_PROPERTIES="${10}"
+DEBUG="${11}"
 
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -45,6 +45,7 @@ if [[ -n $ENV_DEBUG ]]; then DEBUG=$ENV_DEBUG; fi
 #
 # Enforce defaults. Required at least for script version. !!! MUST be equal the defaults in action.yml !!!
 #
+echo -e "\n\n"$YELLOW"Set defaults"
 if [[ -z $ARDUINO_BOARD_FQBN ]]; then echo "Set ARDUINO_BOARD_FQBN to default value: \"arduino:avr:uno\""; ARDUINO_BOARD_FQBN='arduino:avr:uno'; fi
 if [[ -z $PLATFORM_URL && -n $PLATFORM_DEFAULT_URL ]]; then echo -e "Set PLATFORM_URL to default value: \"${PLATFORM_DEFAULT_URL}\""; PLATFORM_URL=$PLATFORM_DEFAULT_URL; fi
 if [[ -z $CLI_VERSION ]]; then echo "Set CLI_VERSION to default value: \"latest\""; CLI_VERSION='latest'; fi
