@@ -32,7 +32,12 @@ inputs:
     description: 'The platform URL for the required board description if arduino-board-fqbn does not start with "arduino:".'
     default: ''
     required: false
-    
+        
+  platform-default-url:
+    description: 'The platform URL for the required board description if arduino-board-fqbn does not start with "arduino:" and not explicitly specified by platform-url.'
+    default: ''
+    required: false    
+
   required-libraries:
     description: 'Comma separated list of arduino library names required for compiling the sketches / examples for this board.'
     default: ''
@@ -64,6 +69,7 @@ runs:
     - ${{ inputs.sketch-names-find-start }}
     - ${{ inputs.arduino-board-fqbn }}
     - ${{ inputs.arduino-platform }}
+    - ${{ inputs.platform-default-url }}
     - ${{ inputs.platform-url }}
     - ${{ inputs.required-libraries }}
     - ${{ inputs.examples-exclude }}

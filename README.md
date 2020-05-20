@@ -25,15 +25,25 @@ Environment name for script usage is `ENV_ARDUINO_BOARD_FQBN`.
 ```yaml
 arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
 ```
-**For 3rd party boards**, you must also specify the Boards Manager URL `platform-url:`.
+
+**For 3rd party boards**, you must also specify the Boards Manager URL `platform-default-url:` or `platform-url:`.
+
+### `platform-default-url`
+Default value to take, if `platform-url` is not specified for a 3rd party board. Useful, if you want to test compile for different boards types of one architecture.<br/>
+Default is `""`.<br/>
+Environment name for script usage is `ENV_PLATFORM_DEFAULT_URL`.
+
+```yaml
+platform-default-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
+```
 
 ### `platform-url`
-Required for 3rd party boards. If you need, you may specify more than one URL as a comma separated list (without enclosing it in double quotes) like `http://drazzy.com/package_drazzy.com_index.json,https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json`.<br/>
+Required for 3rd party boards, if `platform-default-url` is not specified or applicable. If you need, you may specify more than one URL as a comma separated list (without enclosing it in double quotes) like `http://drazzy.com/package_drazzy.com_index.json,https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json`.<br/>
 Default is `""`.<br/>
 Environment name for script usage is `ENV_PLATFORM_URL`.
 
 ```yaml
-platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
+  platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
 ```
 
 Sample URL's are:
@@ -160,7 +170,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Compile all examples
-      uses: ArminJo/arduino-test-compile@v2.2.0
+      uses: ArminJo/arduino-test-compile@v2.4.0
 ```
 
 ## One ESP8266 board with parameter
@@ -177,7 +187,7 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v2.2.0
+        uses: ArminJo/arduino-test-compile@v2.4.0
       with:
         arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
         platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
@@ -202,6 +212,7 @@ jobs:
     name: ${{ matrix.arduino-boards-fqbn }} - test compiling examples
     runs-on: ubuntu-latest
     env:
+      PLATFORM_DEFAULT_URL: https://arduino.esp8266.com/stable/package_esp8266com_index.json
       REQUIRED_LIBRARIES: Servo,Adafruit NeoPixel
     strategy:
       matrix:
@@ -236,7 +247,6 @@ jobs:
                 -DTRACE
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-            platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
             examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector          
 
       fail-fast: false
@@ -246,9 +256,10 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v2.2.0
+        uses: ArminJo/arduino-test-compile@v2.4.0
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
+          platform-default-url: ${{ env.PLATFORM_DEFAULT_URL }}
           platform-url: ${{ matrix.platform-url }}
           required-libraries: ${{ env.REQUIRED_LIBRARIES }}
           examples-exclude: ${{ matrix.examples-exclude }}
@@ -273,6 +284,7 @@ jobs:
     name: ${{ matrix.arduino-boards-fqbn }} - test compiling examples
     runs-on: ubuntu-latest
     env:
+      PLATFORM_DEFAULT_URL: https://arduino.esp8266.com/stable/package_esp8266com_index.json
       REQUIRED_LIBRARIES: Adafruit NeoPixel,Servo
     strategy:
       matrix:
@@ -306,7 +318,6 @@ jobs:
                 -DTRACE
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-            platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
             examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector          
 
       fail-fast: false
@@ -317,6 +328,7 @@ jobs:
         env:
           # Passing parameters to the script by setting the appropriate ENV_* variables.
           ENV_ARDUINO_BOARD_FQBN: ${{ matrix.arduino-boards-fqbn }}
+          ENV_PLATFORM_DEFAULT_URL: ${{ env.PLATFORM_DEFAULT_URL }}
           ENV_PLATFORM_URL: ${{ matrix.platform-url }}
           ENV_REQUIRED_LIBRARIES: ${{ env.REQUIRED_LIBRARIES }}
           ENV_EXAMPLES_EXCLUDE: ${{ matrix.examples-exclude }}
@@ -379,7 +391,7 @@ Samples for using action in workflow:
 - Arduino library, only arduino:avr boards. Talkie [![Build Status](https://github.com/ArminJo/Talkie/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Talkie/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, 2 boards. Arduino-FrequencyDetector [![Build Status](https://github.com/ArminJo/Arduino-FrequencyDetector/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Arduino-FrequencyDetector/blob/master/.github/workflows/LibraryBuildWithAction.yml)
 
-Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-test-compile@v2.2.0` action:
+Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-test-compile@v2.4.0` action:
 - One sketch, one board, multiple options. RobotCar [![Build Status](https://github.com/ArminJo/Arduino-RobotCar/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-RobotCar/blob/master/.github/workflows/TestCompile.yml)
 - Arduino library, multiple boards. ServoEasing [![Build Status](https://github.com/ArminJo/ServoEasing/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/ServoEasing/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
@@ -387,9 +399,10 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 # Revision History
 ### Version v2.4.0
 - Added parameter `sketch-names-find-start` to compile multiple libraries.
+- Added parameter `platform-default-url` to ease compiling for multiple boards of the same architecture.
 
 ### Version v2.3.0
-- Support for custom library
+- Support for custom libraries.
 
 ### Version v2.2.0
 - Using ubuntu:18.04 for Docker container, since ubuntu:latest can not fetch python for ESP32 anymore.
