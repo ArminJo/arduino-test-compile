@@ -155,14 +155,16 @@ done
 
 if [[ ${PLATFORM} == esp8266:esp8266 && ! -f /usr/bin/python3 ]]; then
   # python3 is a link in the esp8266 package: /github/home/.arduino15/packages/esp8266/tools/python3/3.7.2-post1/python3 -> /usr/bin/python3
-  echo "install python3 for ESP8266"
+  echo -e "\n\n"${YELLOW}install python3 for ESP8266
   apt-get install -qq python3 > /dev/null
 fi
-          
+
 if [[ $PLATFORM == esp32:esp32 ]]; then
   if [[ ! -f /usr/bin/pip && ! -f /usr/bin/python ]]; then
-    echo "install python and pip for ESP32"
-    apt-get install -qq python-pip > /dev/null # this installs also python
+    echo -e "\n\n"${YELLOW}install python and pip for ESP32
+# Here we would get the warning: The directory '/github/home/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled.
+#                                Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+    apt-get install -qq python-pip > /dev/null 2>&1 # this installs also python
   fi
   pip install pyserial
 fi
