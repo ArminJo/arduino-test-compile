@@ -170,7 +170,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Compile all examples
-      uses: ArminJo/arduino-test-compile@v2.4.0
+      uses: ArminJo/arduino-test-compile@v2
 ```
 
 ## One ESP8266 board with parameter
@@ -187,7 +187,7 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v2.4.0
+        uses: ArminJo/arduino-test-compile@v2
       with:
         arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
         platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
@@ -224,8 +224,7 @@ jobs:
 
         include:
           - arduino-boards-fqbn: arduino:avr:uno
-            sketch-names: "*.ino" # is default setting
-            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            sketch-names: WhistleSwitch.ino,SimpleFrequencyDetector.ino # Comma separated list of sketch names (no path required) or patterns to use in build
             examples-build-properties:
               WhistleSwitch:
                 -DDEBUG
@@ -256,12 +255,13 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v2.4.0
+        uses: ArminJo/arduino-test-compile@v2
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-default-url: ${{ env.PLATFORM_DEFAULT_URL }}
           platform-url: ${{ matrix.platform-url }}
           required-libraries: ${{ env.REQUIRED_LIBRARIES }}
+          sketch-names: ${{ matrix.sketch-names }}
           examples-exclude: ${{ matrix.examples-exclude }}
           examples-build-properties: ${{ toJson(matrix.examples-build-properties) }}
 ```
@@ -333,7 +333,7 @@ jobs:
           ENV_REQUIRED_LIBRARIES: ${{ env.REQUIRED_LIBRARIES }}
           ENV_EXAMPLES_EXCLUDE: ${{ matrix.examples-exclude }}
           ENV_EXAMPLES_BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
-          ENV_SKETCH_NAMES: "*.ino"              # Default. You may also omit this line.
+          ENV_SKETCH_NAMES: ${{ matrix.sketch-names }}
           ENV_SKETCH_NAMES_FILE_START: examples/ # Not really required here, but serves as an usage example.
         run: |
           wget --quiet https://raw.githubusercontent.com/ArminJo/arduino-test-compile/master/arduino-test-compile.sh
@@ -391,7 +391,7 @@ Samples for using action in workflow:
 - Arduino library, only arduino:avr boards. Talkie [![Build Status](https://github.com/ArminJo/Talkie/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Talkie/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, 2 boards. Arduino-FrequencyDetector [![Build Status](https://github.com/ArminJo/Arduino-FrequencyDetector/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Arduino-FrequencyDetector/blob/master/.github/workflows/LibraryBuildWithAction.yml)
 
-Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-test-compile@v2.4.0` action:
+Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-test-compile@v2` action:
 - One sketch, one board, multiple options. RobotCar [![Build Status](https://github.com/ArminJo/Arduino-RobotCar/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-RobotCar/blob/master/.github/workflows/TestCompile.yml)
 - Arduino library, multiple boards. ServoEasing [![Build Status](https://github.com/ArminJo/ServoEasing/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/ServoEasing/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
