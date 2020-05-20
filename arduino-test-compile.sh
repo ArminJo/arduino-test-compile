@@ -263,10 +263,10 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
       echo -n "Compiling $SKETCH_BASENAME "
       if [[ -n ${PROP_MAP[$SKETCH_BASENAME]} ]]; then
         CPP_EXTRA_FLAGS=${PROP_MAP[$SKETCH_BASENAME]}
-        echo -n "with $CPP_EXTRA_FLAGS"
+        echo -n "with $CPP_EXTRA_FLAGS "
       elif [[ -n ${PROP_MAP[All]} ]]; then
         CPP_EXTRA_FLAGS=${PROP_MAP[All]}
-        echo -n "with $CPP_EXTRA_FLAGS"
+        echo -n "with $CPP_EXTRA_FLAGS "
       else
         CPP_EXTRA_FLAGS=
       fi
