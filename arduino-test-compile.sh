@@ -105,6 +105,12 @@ $HOME/arduino_ide/arduino-cli version
 # add the arduino CLI to our PATH
 export PATH="$HOME/arduino_ide:$PATH"
 
+# Set debug flag for arduino-cli calls
+if [[ $DEBUG_INSTALL == true ]]; then
+  ARDUINO_VERBOSE=-v
+else
+  ARDUINO_VERBOSE=
+fi
 
 #
 # Add *Custom* directories to Arduino library directory
@@ -151,10 +157,10 @@ declare -a PLATFORM_ARRAY=( $PLATFORM )
 #declare -p PLATFORM_ARRAY # print properties of PLATFORM_ARRAY
 for single_platform in "${PLATFORM_ARRAY[@]}"; do # Loop over all platforms specified
   if [[ $DEBUG_INSTALL == true ]]; then
-    echo -e "arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL"
-    arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL # must specify --additional-urls here
-    echo -e "arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL"
-    arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL
+    echo -e "arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL $ARDUINO_VERBOSE"
+    arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL $ARDUINO_VERBOSE # must specify --additional-urls here
+    echo -e "arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL $ARDUINO_VERBOSE"
+    arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL $ARDUINO_VERBOSE
   else
     echo -e "arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null"
     arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null # must specify --additional-urls here
@@ -180,7 +186,7 @@ if [[ $PLATFORM == esp32:esp32 ]]; then
 fi
 
 echo -e "\n\n"$YELLOW"List installed boards with their FQBN"
-arduino-cli board listall
+arduino-cli board listall $ARDUINO_VERBOSE
 
 
 #
