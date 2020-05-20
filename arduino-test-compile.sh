@@ -19,7 +19,8 @@ PLATFORM_URL="$7"
 REQUIRED_LIBRARIES="$8"
 EXAMPLES_EXCLUDE="$9"
 EXAMPLES_BUILD_PROPERTIES="${10}"
-DEBUG="${11}"
+DEBUG_COMPILE="${11}"
+DEBUG_INSTALL="${12}" # not yet implemented for action
 
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -39,7 +40,8 @@ if [[ -n $ENV_PLATFORM_URL ]]; then PLATFORM_URL=$ENV_PLATFORM_URL; fi
 if [[ -n $ENV_REQUIRED_LIBRARIES ]]; then REQUIRED_LIBRARIES=$ENV_REQUIRED_LIBRARIES; fi
 if [[ -n $ENV_EXAMPLES_EXCLUDE ]]; then EXAMPLES_EXCLUDE=$ENV_EXAMPLES_EXCLUDE; fi
 if [[ -n $ENV_EXAMPLES_BUILD_PROPERTIES ]]; then EXAMPLES_BUILD_PROPERTIES=$ENV_EXAMPLES_BUILD_PROPERTIES; fi
-if [[ -n $ENV_DEBUG ]]; then DEBUG=$ENV_DEBUG; fi
+if [[ -n $ENV_DEBUG_COMPILE ]]; then DEBUG_COMPILE=$ENV_DEBUG_COMPILE; fi
+if [[ -n $ENV_DEBUG_INSTALL ]]; then DEBUG_INSTALL=$ENV_DEBUG_INSTALL; fi
 
 
 #
@@ -67,7 +69,8 @@ echo PLATFORM_URL=$PLATFORM_URL
 echo REQUIRED_LIBRARIES=$REQUIRED_LIBRARIES
 echo EXAMPLES_EXCLUDE=$EXAMPLES_EXCLUDE
 echo EXAMPLES_BUILD_PROPERTIES=$EXAMPLES_BUILD_PROPERTIES
-echo DEBUG=$DEBUG
+echo DEBUG_COMPILE=$DEBUG_COMPILE
+echo DEBUG_INSTALL=$DEBUG_INSTALL
 
 #echo HOME=$HOME # /github/home
 #echo PWD=$PWD # /github/workspace
@@ -81,7 +84,7 @@ declare -p BASH_ARGV
 #
 echo -n -e "\n\n"$YELLOW"arduino-cli "
 if [[ -f $HOME/arduino_ide/arduino-cli ]]; then
-  echo -e "cached: ""$GREEN""\xe2\x9c\x93"
+  echo -e "cached: ""$GREEN""\xe2\x9c\x93" # never seen :-(
 else
   echo -n "downloading: "
   wget --quiet https://downloads.arduino.cc/arduino-cli/arduino-cli_${CLI_VERSION}_Linux_64bit.tar.gz
@@ -147,10 +150,17 @@ PLATFORM=${PLATFORM//,/ } # replace all comma by space to enable multiple platfo
 declare -a PLATFORM_ARRAY=( $PLATFORM )
 #declare -p PLATFORM_ARRAY # print properties of PLATFORM_ARRAY
 for single_platform in "${PLATFORM_ARRAY[@]}"; do # Loop over all platforms specified
+  if [[ $DEBUG_INSTALL == true ]]; then
+    echo -e "arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL"
+    arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL # must specify --additional-urls here
+    echo -e "arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL"
+    arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL
+  else
     echo -e "arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null"
     arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null # must specify --additional-urls here
     echo -e "arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null"
     arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null
+  fi
 done
 
 if [[ ${PLATFORM} == esp8266:esp8266 && ! -f /usr/bin/python3 ]]; then
@@ -264,7 +274,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
       else
         echo -e ""$GREEN"\xe2\x9c\x93"
         echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-properties compiler.cpp.extra_flags=\"${CPP_EXTRA_FLAGS}\" $SKETCH_PATH"
-        if [[ $DEBUG == true ]]; then
+        if [[ $DEBUG_COMPILE == true ]]; then
           echo "Debug mode enabled => compile output will be printed also for successful compilation"
           echo -e "$build_stdout \n"
         fi

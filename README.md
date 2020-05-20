@@ -400,6 +400,7 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 ### Version v2.4.0
 - Added parameter `sketch-names-find-start` to compile multiple libraries.
 - Added parameter `platform-default-url` to ease compiling for multiple boards of the same architecture.
+- Suppress warnings for install python and pip for ESP32.
 
 ### Version v2.3.0
 - Support for custom libraries.
