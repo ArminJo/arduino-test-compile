@@ -6,7 +6,7 @@ inputs:
     description: 'Version of arduino-cli to use when builing. Current (3/2020) one is 0.9.0.'
     default: 'latest'
     required: false
-    
+
   sketch-names:
     description: 'Comma sepatated list of patterns or filenames (without path) of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled.'
     default: '*.ino'
@@ -22,17 +22,17 @@ inputs:
     description: 'Fully Qualified Board Name of the Arduino board. You may add a suffix behind the fqbn with "|" to specify one board for e.g. different compile options like arduino:avr:uno|trace.'
     default: 'arduino:avr:uno'
     required: false
-    
+
   arduino-platform:
     description: 'The platform specifier, if you require a fixed version like arduino:avr@1.8.2 or do not want the specifier derived from the 2 first elements of the arduino-board-fqbn'
     default: ''
     required: false
-        
+
   platform-default-url:
     description: 'The platform URL for the required board description if arduino-board-fqbn does not start with "arduino:" and not explicitly specified by platform-url.'
     default: ''
     required: false    
-        
+
   platform-url:
     description: 'The platform URL for the required board description if arduino-board-fqbn does not start with "arduino:".'
     default: ''
@@ -55,8 +55,13 @@ inputs:
     default: ''
     required: false
 
-  debug:
-    description: 'If set to "true" she action logs verbose compile output even during successful builds'
+  debug-compile:
+    description: 'If set to "true" the action logs verbose compile output even during successful builds'
+    default: ''
+    required: false  
+
+  debug-install:
+    description: 'If set to "true" the action logs verbose arduino-cli output during installation'
     default: ''
     required: false  
 
@@ -74,8 +79,9 @@ runs:
     - ${{ inputs.required-libraries }}
     - ${{ inputs.examples-exclude }}
     - ${{ inputs.examples-build-properties }}
-    - ${{ inputs.debug }}
-      
+    - ${{ inputs.debug-compile }}
+    - ${{ inputs.debug-install }}
+
 branding:
   icon: 'eye'
   color: 'red'
