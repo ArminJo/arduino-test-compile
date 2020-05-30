@@ -53,7 +53,7 @@ Sample URL's are:
 - Improved URL: https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json - up to 20% more code possible
 - https://arduino.esp8266.com/stable/package_esp8266com_index.json - for ESP8266 based boards
 - https://dl.espressif.com/dl/package_esp32_index.json - for ESP32 based boards
-- https://github.com/stm32duino/BoardManagerFiles/raw/dev/STM32/package_stm_index.json - for STM32 boards
+- https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/package_stm_index.json - for STM32 boards
 - https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards, esp. Apollo3 boards
 - https://files.pololu.com/arduino/package_pololu_index.json - for Pololu boards, esp. ATMega328PB boards
 
@@ -356,14 +356,14 @@ Take care that the path parameter matches the pattern `*Custom*`.
         with:
           repository: ArminJo/ATtinySerialOut
           ref: master
-          path: CustomLibrary
+          path: CustomLibrary # must contain string "Custom"
 
       - name: Checkout second custom library # This name must be different from the one above
         uses: actions/checkout@v2
         with:
           repository: ArminJo/Arduino-Utils
           ref: master
-          path: SecondCustomLibrary # This path must be different from the one above
+          path: SecondCustomLibrary # This path must be different from the one above but must also contain string "Custom"
 ...
 ```
 

@@ -236,7 +236,7 @@ declare -a SKETCH_NAMES_ARRAY=( $SKETCH_NAMES )
 #declare -p SKETCH_NAMES_ARRAY
 IFS="$BACKUP_IFS"
 for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
-  declare -a SKETCHES=($(find ${SKETCH_NAMES_FIND_START} -name "$sketch_name"))
+  declare -a SKETCHES=($(find ${SKETCH_NAMES_FIND_START} -type f -name "$sketch_name")) # only search for files
   #declare -p SKETCHES
   for sketch in "${SKETCHES[@]}"; do # Loop over all sketch files
     SKETCH_PATH=$(dirname $sketch) # complete path to sketch

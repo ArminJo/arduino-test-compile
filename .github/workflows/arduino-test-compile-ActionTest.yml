@@ -48,7 +48,6 @@ jobs:
           - esp32:esp32:featheresp32:FlashFreq=80
 
         # Specify parameters for each board.
-        # Parameters can be: examples-exclude and examples-build-properties
         #############################################################################################################
         include:
           - arduino-boards-fqbn: arduino:avr:uno
