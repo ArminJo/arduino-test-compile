@@ -49,14 +49,25 @@ Environment name for script usage is `ENV_PLATFORM_URL`.
 
 Sample URL's are:
 - http://drazzy.com/package_drazzy.com_index.json - for ATTiny boards
-- Old URL: http://digistump.com/package_digistump_index.json - for Digispark boards. https gives: x509: certificate signed by unknown authority
-- Improved URL: https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json - up to 20% more code possible
+- https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json - for Digistump AVR boards. Up to 20% smaller code
 - https://arduino.esp8266.com/stable/package_esp8266com_index.json - for ESP8266 based boards
 - https://dl.espressif.com/dl/package_esp32_index.json - for ESP32 based boards
 - https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/package_stm_index.json - for STM32 boards
 - https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards, esp. Apollo3 boards
 - https://files.pololu.com/arduino/package_pololu_index.json - for Pololu boards, esp. ATMega328PB boards
+- https://downloads.arduino.cc/packages/package_index.json - Built in URL for default Arduino boards, not required to specify
 
+### `arduino-platform`
+Comma separated list of platform specifies with optional version to specify multiple platforms for your board or a fixed version like `arduino:avr@1.8.2`.<br/>
+In general, use it only if you require another specifier than the one derived from the 2 first elements of the arduino-board-fqbn e.g. **esp8266:esp8266**:huzzah:eesz=4M3M,xtal=80, esp32:esp32:featheresp32:FlashFreq=80 -> **esp8266:esp8266**. Do not forget to specify the related URL's, if it is not the arduino URL, which is built in.<br/>
+Default is `""`.<br/>
+Environment name for script usage is `ENV_ARDUINO_PLATFORM`.
+
+```yaml
+arduino-platform: arduino:avr,SparkFun:avr@1.1.13
+platform-url: https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json # Arduino URL is not required here
+
+```
 
 ### `required-libraries`
 Comma separated list of arduino library dependencies to install. You may add a version number like `@1.3.4`.<br/>
@@ -147,14 +158,6 @@ Environment name for script usage is `ENV_SKETCH_NAMES_FIND_START`.
 sketch-names-find-start: digistump-avr/libraries/*/examples/C*/
 ```
 
-### `arduino-platform`
-Comma separated list of platform specifies with optional version. Useful if you require multiple platforms for your board or a fixed version like `arduino:avr@1.8.2`.<br/>
-In general, use it if you require another specifier than the one derived from the 2 first elements of the arduino-board-fqbn e.g. **esp8266:esp8266**:huzzah:eesz=4M3M,xtal=80, esp32:esp32:featheresp32:FlashFreq=80 -> **esp8266:esp8266**<br/>
-Environment name for script usage is `ENV_ARDUINO_PLATFORM`.
-
-```yaml
-arduino-platform: arduino:avr@1.8.2,digistump:avr
-```
 
 # Workflows examples
 ## Simple - without any parameter
