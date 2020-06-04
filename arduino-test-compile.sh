@@ -137,6 +137,7 @@ fi
 #
 echo -e "\n\n"${YELLOW}Update index and install the required board platform
 if [[ -z $ARDUINO_PLATFORM ]]; then
+# Derive platform from the 2 first elements of the arduino-board-fqbn
   remainder=${ARDUINO_BOARD_FQBN#*:}; PLATFORM=${ARDUINO_BOARD_FQBN%%:*}:${remainder%%:*}
 else
   PLATFORM=$ARDUINO_PLATFORM
@@ -186,6 +187,7 @@ if [[ $PLATFORM == esp32:esp32 ]]; then
 fi
 
 echo -e "\n\n"$YELLOW"List installed boards with their FQBN"
+echo arduino-cli board listall $ARDUINO_VERBOSE
 arduino-cli board listall $ARDUINO_VERBOSE
 
 
