@@ -185,11 +185,11 @@ jobs:
   build:
     name: Test compiling examples for esp8266
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-      
+
     - name: Compile all examples
         uses: ArminJo/arduino-test-compile@v2
       with:
@@ -253,11 +253,11 @@ jobs:
             examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector          
 
       fail-fast: false
-                
-      steps:
+
+    steps:
       - name: Checkout
         uses: actions/checkout@v2
-      
+
       - name: Compile all examples
         uses: ArminJo/arduino-test-compile@v2
         with:
@@ -325,7 +325,8 @@ jobs:
             examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector          
 
       fail-fast: false
-      steps:
+
+    steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Compile all examples using the bash script arduino-test-compile.sh
@@ -381,7 +382,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-                                         
+
       - name: Compile all examples
         uses: ArminJo/arduino-test-compile@master
         with:
