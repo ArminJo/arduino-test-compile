@@ -170,6 +170,9 @@ for single_platform in "${PLATFORM_ARRAY[@]}"; do # Loop over all platforms spec
   fi
 done
 
+#
+# Special esp8266 and esp32 platform handling
+#
 if [[ ${PLATFORM} == esp8266:esp8266 && ! -f /usr/bin/python3 ]]; then
   # python3 is a link in the esp8266 package: /github/home/.arduino15/packages/esp8266/tools/python3/3.7.2-post1/python3 -> /usr/bin/python3
   echo -e "\n\n"${YELLOW}install python3 for ESP8266
@@ -186,6 +189,9 @@ if [[ $PLATFORM == esp32:esp32 ]]; then
   pip install pyserial
 fi
 
+#
+# List installed boards with their FQBN
+#
 echo -e "\n\n"$YELLOW"List installed boards with their FQBN"
 echo arduino-cli board listall $ARDUINO_VERBOSE
 arduino-cli board listall $ARDUINO_VERBOSE
@@ -235,11 +241,15 @@ BACKUP_IFS="$IFS"
 IFS=$','
 SKETCH_NAMES=${SKETCH_NAMES// /}
 declare -a SKETCH_NAMES_ARRAY=( $SKETCH_NAMES )
-#declare -p SKETCH_NAMES_ARRAY
+if [[ $DEBUG_COMPILE == true ]]; then
+  declare -p SKETCH_NAMES_ARRAY
+fi
 IFS="$BACKUP_IFS"
 for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
   declare -a SKETCHES=($(find ${SKETCH_NAMES_FIND_START} -type f -name "$sketch_name")) # only search for files
-  #declare -p SKETCHES
+  if [[ $DEBUG_COMPILE == true ]]; then
+    declare -p SKETCHES
+  fi
   for sketch in "${SKETCHES[@]}"; do # Loop over all sketch files
     SKETCH_PATH=$(dirname $sketch) # complete path to sketch
     SKETCH_DIR=${SKETCH_PATH##*/}  # directory of sketch, must match sketch basename
@@ -283,8 +293,10 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
         echo -e ""$GREEN"\xe2\x9c\x93"
         echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-properties compiler.cpp.extra_flags=\"${CPP_EXTRA_FLAGS}\" $SKETCH_PATH"
         if [[ $DEBUG_COMPILE == true ]]; then
-          echo "Debug mode enabled => compile output will be printed also for successful compilation"
+          echo "Debug mode enabled => compile output will be printed also for successful compilation and sketch directory is listed after compilation"
           echo -e "$build_stdout \n"
+          echo -e "\nls -l $SKETCH_PATH\n\n"
+          ls -l $SKETCH_PATH
         fi
       fi
     fi

@@ -118,6 +118,7 @@ jobs:
           ENV_EXAMPLES_BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
           ENV_SKETCH_NAMES: "*.ino"
           ENV_SKETCH_NAMES_FILE_START: .
+          ENV_DEBUG_COMPILE: true
         run: |
           wget --quiet https://raw.githubusercontent.com/ArminJo/arduino-test-compile/master/arduino-test-compile.sh
             ls -l arduino-test-compile.sh
