@@ -66,21 +66,8 @@ inputs:
     required: false
 
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  args:
-    - ${{ inputs.cli-version }}
-    - ${{ inputs.sketch-names }}
-    - ${{ inputs.sketch-names-find-start }}
-    - ${{ inputs.arduino-board-fqbn }}
-    - ${{ inputs.arduino-platform }}
-    - ${{ inputs.platform-default-url }}
-    - ${{ inputs.platform-url }}
-    - ${{ inputs.required-libraries }}
-    - ${{ inputs.examples-exclude }}
-    - ${{ inputs.examples-build-properties }}
-    - ${{ inputs.debug-compile }}
-    - ${{ inputs.debug-install }}
+  using: 'node12'
+  main: 'action.js'
 
 branding:
   icon: 'eye'

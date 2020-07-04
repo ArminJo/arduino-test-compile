@@ -1,0 +1,17 @@
+{
+  "name": "arduino-test-compile",
+  "version": "0.0.0",
+  "main": "action.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArminJo/arduino-test-compile.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "homepage": "https://github.com/ArminJo/arduino-test-compile#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/exec": "^1.0.4"
+  }
+}
