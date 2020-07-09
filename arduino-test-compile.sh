@@ -253,6 +253,7 @@ if [[ $DEBUG_COMPILE == true ]]; then
   declare -p SKETCH_NAMES_ARRAY
 fi
 IFS="$BACKUP_IFS"
+COMPILED_SKETCHES=
 for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
   # must use $PWD/$SKETCH_NAMES_FIND_START, since arduino-cli does not support relative path for --build-path
   declare -a SKETCHES=($(find ${PWD}/${SKETCH_NAMES_FIND_START} -type f -name "$sketch_name")) # only search for files
@@ -322,7 +323,12 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
           ls -l $SKETCH_PATH
         fi
       fi
+      COMPILED_SKETCHES="$COMPILED_SKETCHES $SKETCH_NAME"
     fi
   done
 done
+if [ -z "$COMPILED_SKETCHES" ]; then
+  echo "Did not find any sketches to compile, probably misconfigured?"
+  exit_code=1
+fi
 exit $exit_code
