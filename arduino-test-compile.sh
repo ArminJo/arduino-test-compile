@@ -111,8 +111,10 @@ export PATH="$HOME/arduino_ide:$PATH"
 if ls $GITHUB_WORKSPACE/*Custom* >/dev/null 2>&1; then
   echo -e "\n\n"${YELLOW}Add *Custom* as Arduino library
   mkdir --parents $HOME/Arduino/libraries
+  rm --force --recursive $GITHUB_WORKSPACE/*Custom*/.git # do not want to move the whole .git directory
   # mv to avoid the library examples to be test compiled
   if [[ $DEBUG_INSTALL == true ]]; then
+    echo mv --no-clobber --verbose $GITHUB_WORKSPACE/\*Custom\* $HOME/Arduino/libraries/
     mv --no-clobber --verbose $GITHUB_WORKSPACE/*Custom* $HOME/Arduino/libraries/
   else
     echo mv --no-clobber $GITHUB_WORKSPACE/\*Custom\* $HOME/Arduino/libraries/
@@ -126,7 +128,7 @@ fi
 if [[ -f $GITHUB_WORKSPACE/library.properties ]]; then
   echo -e "\n\n"${YELLOW}Link this repository as Arduino library
   mkdir --parents $HOME/Arduino/libraries
-  ln --size $GITHUB_WORKSPACE $HOME/Arduino/libraries/.
+  ln --symbolic $GITHUB_WORKSPACE $HOME/Arduino/libraries/.
   if [[ $DEBUG_INSTALL == true ]]; then
    echo ls -l --dereference --recursive --all $HOME/Arduino/libraries/
    ls -l --dereference --recursive --all $HOME/Arduino/libraries/
@@ -219,8 +221,11 @@ else
   IFS=$','
   declare -a REQUIRED_LIBRARIES_ARRAY=( $REQUIRED_LIBRARIES )
   IFS="$BACKUP_IFS"
-  echo Install single library \"${REQUIRED_LIBRARIES_ARRAY[@]}\"
-  arduino-cli lib install "${REQUIRED_LIBRARIES_ARRAY[@]}"
+  if [[ $DEBUG_INSTALL == true ]]; then
+    arduino-cli lib install "${REQUIRED_LIBRARIES_ARRAY[@]}"
+  else
+    arduino-cli lib install "${REQUIRED_LIBRARIES_ARRAY[@]}" >/dev/null 2>&1
+  fi
   if [[ $? -ne 0 ]]; then
     echo "::error::Installation of $REQUIRED_LIBRARIES failed"
     exit 1
