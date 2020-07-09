@@ -251,7 +251,7 @@ jobs:
                 -DTRACE
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-            examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector          
+            examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
 
       fail-fast: false
 
@@ -323,7 +323,7 @@ jobs:
                 -DTRACE
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-            examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector          
+            examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
 
       fail-fast: false
 

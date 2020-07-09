@@ -11,6 +11,9 @@ name: arduino-test-compile-ScriptTest
 on:
   push: # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
     paths:
+    - '**.ino'
+    - '**.cpp'
+    - '**.h'
     - '**.sh'
     - '**arduino-test-compile-ScriptTest.yml'
 
@@ -23,7 +26,6 @@ jobs:
     env:
       # Comma separated list without double quotes around the list.
       REQUIRED_LIBRARIES: Servo@1.1.5,Adafruit NeoPixel@1.3.4
-#      CLI_VERSION: latest
 
     strategy:
       matrix:
@@ -105,7 +107,7 @@ jobs:
         with:
           repository: ArminJo/ATtinySerialOut
           ref: master
-          path: CustomLibrary
+          path: CustomLibrary # must match the pattern *Custom*
 
       # Test of the arduino-test-compile script
       - name: Compile all examples using the bash script arduino-test-compile.sh
@@ -119,6 +121,7 @@ jobs:
           ENV_SKETCH_NAMES: "*.ino"
           ENV_SKETCH_NAMES_FILE_START: .
           ENV_DEBUG_COMPILE: true
+          ENV_DEBUG_INSTALL: true
         run: |
           wget --quiet https://raw.githubusercontent.com/ArminJo/arduino-test-compile/master/arduino-test-compile.sh
             ls -l arduino-test-compile.sh

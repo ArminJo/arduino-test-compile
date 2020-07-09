@@ -11,6 +11,9 @@ name: arduino-test-compile-ActionTest
 on:
   push: # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
     paths:
+    - '**.ino'
+    - '**.cpp'
+    - '**.h'
     - '**.sh'
     - '**action.yml'
     - '**arduino-test-compile-ActionTest.yml'
@@ -107,7 +110,7 @@ jobs:
         with:
           repository: ArminJo/ATtinySerialOut
           ref: master
-          path: CustomLibrary
+          path: CustomLibrary # must match the pattern *Custom*
 
       # Test of the arduino-test-compile action
       - name: Compile all examples using the arduino-test-compile action
@@ -122,5 +125,6 @@ jobs:
           sketch-names:
             WhistleSwitch.ino,
             50Hz.ino,
-            SimpleFrequencyDetector.ino
-          sketch-names-find-start: examples/*/
+            SimpleFrequencyDetector.ino,
+            test.ino
+          sketch-names-find-start: test
