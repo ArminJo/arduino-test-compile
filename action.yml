@@ -3,7 +3,7 @@ description: 'Compile sketches or Arduino library examples for one board type us
 author: 'Armin Joachimsmeyer'
 inputs:
   cli-version:
-    description: 'Version of arduino-cli to use when builing. Current (3/2020) one is 0.9.0.'
+    description: 'Version of arduino-cli to use when builing. Current (7/2020) one is 0.11.0.'
     default: 'latest'
     required: false
 
@@ -55,6 +55,11 @@ inputs:
     default: ''
     required: false
 
+  save-generated-files:
+    description: 'Flag to save the generated files (.bin, .hex, .elf etc.) in the example directory. Is introduced because of a cli bug https://github.com/arduino/arduino-cli/issues/821'
+    default: 'false'
+    required: false
+
   debug-compile:
     description: 'If set to "true" the action logs verbose compile output even during successful builds'
     default: ''
@@ -79,6 +84,7 @@ runs:
     - ${{ inputs.required-libraries }}
     - ${{ inputs.examples-exclude }}
     - ${{ inputs.examples-build-properties }}
+    - ${{ inputs.save-generated-files }}
     - ${{ inputs.debug-compile }}
     - ${{ inputs.debug-install }}
 

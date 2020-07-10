@@ -19,8 +19,9 @@ PLATFORM_URL="$7"
 REQUIRED_LIBRARIES="$8"
 EXAMPLES_EXCLUDE="$9"
 EXAMPLES_BUILD_PROPERTIES="${10}"
-DEBUG_COMPILE="${11}"
-DEBUG_INSTALL="${12}" # not yet implemented for action
+SAVE_GENERATED_FILES="${11}"
+DEBUG_COMPILE="${12}"
+DEBUG_INSTALL="${13}" # not yet implemented for action
 
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -40,6 +41,8 @@ if [[ -n $ENV_PLATFORM_URL ]]; then PLATFORM_URL=$ENV_PLATFORM_URL; fi
 if [[ -n $ENV_REQUIRED_LIBRARIES ]]; then REQUIRED_LIBRARIES=$ENV_REQUIRED_LIBRARIES; fi
 if [[ -n $ENV_EXAMPLES_EXCLUDE ]]; then EXAMPLES_EXCLUDE=$ENV_EXAMPLES_EXCLUDE; fi
 if [[ -n $ENV_EXAMPLES_BUILD_PROPERTIES ]]; then EXAMPLES_BUILD_PROPERTIES=$ENV_EXAMPLES_BUILD_PROPERTIES; fi
+if [[ -n $ENV_SAVE_GENERATED_FILES ]]; then SAVE_GENERATED_FILES=$ENV_SAVE_GENERATED_FILES; fi
+
 if [[ -n $ENV_DEBUG_COMPILE ]]; then DEBUG_COMPILE=$ENV_DEBUG_COMPILE; fi
 if [[ -n $ENV_DEBUG_INSTALL ]]; then DEBUG_INSTALL=$ENV_DEBUG_INSTALL; fi
 
@@ -53,6 +56,7 @@ if [[ -z $PLATFORM_URL && -n $PLATFORM_DEFAULT_URL ]]; then echo -e "Set PLATFOR
 if [[ -z $CLI_VERSION ]]; then echo "Set CLI_VERSION to default value: \"latest\""; CLI_VERSION='latest'; fi
 if [[ -z $SKETCH_NAMES ]]; then echo -e "Set SKETCH_NAMES to default value: \"*.ino\""; SKETCH_NAMES='*.ino'; fi
 if [[ -z $SKETCH_NAMES_FIND_START ]]; then echo -e "Set SKETCH_NAMES_FIND_START to default value: \".\" (root of repository)"; SKETCH_NAMES_FIND_START='.'; fi
+if [[ -z $SAVE_GENERATED_FILES ]]; then echo -e "Set SAVE_GENERATED_FILES to default value: \"false\""; SAVE_GENERATED_FILES='false'; fi
 
 
 #
@@ -69,6 +73,8 @@ echo PLATFORM_URL=$PLATFORM_URL
 echo REQUIRED_LIBRARIES=$REQUIRED_LIBRARIES
 echo EXAMPLES_EXCLUDE=$EXAMPLES_EXCLUDE
 echo EXAMPLES_BUILD_PROPERTIES=$EXAMPLES_BUILD_PROPERTIES
+echo ENV_SAVE_GENERATED_FILES=$SAVE_GENERATED_FILES
+
 echo DEBUG_COMPILE=$DEBUG_COMPILE
 echo DEBUG_INSTALL=$DEBUG_INSTALL
 
@@ -270,6 +276,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
   if [[ $DEBUG_COMPILE == true ]]; then
     declare -p SKETCHES
   fi
+
   for sketch in "${SKETCHES[@]}"; do # Loop over all sketch files
     SKETCH_PATH=$(dirname $sketch) # complete path to sketch
     SKETCH_DIR=${SKETCH_PATH##*/}  # directory of sketch, must match sketch basename
@@ -291,6 +298,9 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
         cp --recursive ${SKETCH_PATH}/* $HOME/$SKETCH_BASENAME
         SKETCH_PATH=$HOME/$SKETCH_BASENAME
       fi
+      if [[ $SAVE_GENERATED_FILES == true ]]; then
+        BUILD_PATH_PARAMETER="--build-path $SKETCH_PATH"
+      fi
       # Check if there is an entry in the associative array and create compile parameter to put in compiler.*.extra_flags
       # This flags are also defined in platform.txt as empty, to be overwritten by a platform.local.txt definition.
       # But I never saw a distribution using this fature, so we can go on here :-)
@@ -305,16 +315,16 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
         GCC_EXTRA_FLAGS=
       fi
       if [[ -z $GCC_EXTRA_FLAGS ]]; then
-        build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-path $SKETCH_PATH $SKETCH_PATH 2>&1)
+        build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER $SKETCH_PATH 2>&1)
       else
-        build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-path $SKETCH_PATH --build-properties compiler.cpp.extra_flags="${GCC_EXTRA_FLAGS}" --build-properties compiler.c.extra_flags="${GCC_EXTRA_FLAGS}" --build-properties compiler.S.extra_flags="${GCC_EXTRA_FLAGS}" $SKETCH_PATH 2>&1)
+        build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-properties compiler.cpp.extra_flags="${GCC_EXTRA_FLAGS}" --build-properties compiler.c.extra_flags="${GCC_EXTRA_FLAGS}" --build-properties compiler.S.extra_flags="${GCC_EXTRA_FLAGS}" $SKETCH_PATH 2>&1)
       fi
       if [[ $? -ne 0 ]]; then
         echo -e ""$RED"\xe2\x9c\x96" # If ok output a green checkmark else a red X and the command output.
         if [[ -z $GCC_EXTRA_FLAGS ]]; then
-          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-path $SKETCH_PATH $SKETCH_PATH"
+          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER $SKETCH_PATH"
         else
-          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-path $SKETCH_PATH --build-properties compiler.cpp.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.c.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.S.extra_flags=\"${GCC_EXTRA_FLAGS}\" $SKETCH_PATH"
+          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-properties compiler.cpp.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.c.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.S.extra_flags=\"${GCC_EXTRA_FLAGS}\" $SKETCH_PATH"
         fi
         echo "::error::Compile of  $SKETCH_BASENAME ${GCC_EXTRA_FLAGS} failed"
         echo -e "$build_stdout \n"
@@ -322,15 +332,16 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
       else
         echo -e ""$GREEN"\xe2\x9c\x93"
         if [[ -z $GCC_EXTRA_FLAGS ]]; then
-          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-path $SKETCH_PATH $SKETCH_PATH"
+          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER $SKETCH_PATH"
         else
-          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} --build-path $SKETCH_PATH --build-properties compiler.cpp.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.c.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.S.extra_flags=\"${GCC_EXTRA_FLAGS}\" $SKETCH_PATH"
+          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-properties compiler.cpp.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.c.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.S.extra_flags=\"${GCC_EXTRA_FLAGS}\" $SKETCH_PATH"
         fi
-        if [[ $DEBUG_COMPILE == true ]]; then
+        if [[ $DEBUG_COMPILE == true || $SAVE_GENERATED_FILES == true ]]; then
           echo "Debug mode enabled => compile output will be printed also for successful compilation and sketch directory is listed after compilation"
           echo -e "$build_stdout \n"
-          echo -e "\nls -l $SKETCH_PATH\n\n"
+          echo -e "\nls -l $SKETCH_PATH"
           ls -l $SKETCH_PATH
+          echo -e "\n\n"
         fi
       fi
       COMPILED_SKETCHES="$COMPILED_SKETCHES $SKETCH_NAME"

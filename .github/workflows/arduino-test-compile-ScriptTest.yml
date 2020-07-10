@@ -120,6 +120,7 @@ jobs:
           ENV_EXAMPLES_BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
           ENV_SKETCH_NAMES: "*.ino"
           ENV_SKETCH_NAMES_FILE_START: .
+          ENV_SAVE_GENERATED_FILES: true
           ENV_DEBUG_COMPILE: true
           ENV_DEBUG_INSTALL: true
         run: |

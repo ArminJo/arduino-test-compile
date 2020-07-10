@@ -6,7 +6,6 @@ It can be used e.g. to test-compile all examples contained in an [Arduino librar
 The action is a Docker action which uses Ubuntu 18.04 and the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the other work like loading libraries, installing board definitions and setting parameters is orchestrated by the [arduino-test-compile.sh](arduino-test-compile.sh) bash script.<br/>
 In case of a compile error the [**complete compile output**](https://github.com/ArminJo/PlayRtttl/runs/692586646?check_suite_focus=true#step:4:99) is logged in the [Compile all examples](https://github.com/ArminJo/PlayRtttl/runs/692586646?check_suite_focus=true#step:4:1) step, otherwise only a [**green check**](https://github.com/ArminJo/PlayRtttl/runs/692736061?check_suite_focus=true#step:4:95) is printed.<br/>
 If you want to test compile a sketch, **it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino**. Internally the file is renamed to be .ino and the appropriate directory is created on the fly at `/home/runner/<sketch-name>` for test-compiling. See [parameter `sketch-names`](arduino-test-compile#sketch-names).<br/>
-The **generated files** (.bin, .hex, .elf etc.) can be found in the example directory `/home/runner/work/<repo-name>/<repo-name>/src/<example_name>` = `$GITHUB_WORKSPACE/src/<example_name>`  or in `/home/runner/<sketch-name>` = `$HOME/<sketch-name>` for files not residing in a directory with the same name.
 
 If you need more flexibility for e.g. installing additional board platforms, or want to save around 20 to 30 seconds for each job, then you may consider to
 use the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) directly.
@@ -159,6 +158,15 @@ Environment name for script usage is `ENV_SKETCH_NAMES_FIND_START`.
 sketch-names-find-start: digistump-avr/libraries/*/examples/C*/
 ```
 
+### `save-generated-files`
+If set to true, the **generated files** (.bin, .hex, .elf etc.) can be found in the example directory `/home/runner/work/<repo-name>/<repo-name>/src/<example_name>` = `$GITHUB_WORKSPACE/src/<example_name>`  or in `/home/runner/<sketch-name>` = `$HOME/<sketch-name>` for files not residing in a directory with the same name.<br/>
+Because of an [arduino-cli bug](https://github.com/arduino/arduino-cli/issues/821) this function is **incompatible with examples having local *.h files**.
+Default is `false` (compatible with local *.h files).<br/>
+Environment name for script usage is `ENV_SAVE_GENERATED_FILES`.
+
+```yaml
+save-generated-files: true
+```
 
 # Workflows examples
 ## Simple - without any parameter
@@ -407,6 +415,7 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 - Build result files (and build temporaryfiles) are now stored in the build source directory by internally using cli parameter *--build-path*.
 - Fixed skipped compile of examples, if one *.ino file is present in the repository root.
 - `examples-build-properties` now used also for **c and S* extra_flags.
+- Added `save-generated-files` parameter.
 
 ### Version v2.4.1
 - Only search for files when using `sketch-names`.
