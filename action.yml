@@ -44,7 +44,7 @@ inputs:
     required: false
 
   examples-exclude:
-    description: 'Comma or space separated list of significant prefixes of all sketches / examples to be excluded in the build for this board.'
+    description: 'Comma or space separated list of complete names of all sketches / examples to be excluded in the build for this board.'
     default: ''
     required: false
 

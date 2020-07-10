@@ -282,7 +282,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
     SKETCH_DIR=${SKETCH_PATH##*/}  # directory of sketch, must match sketch basename
     SKETCH_FILENAME=$(basename $sketch) # complete name of sketch
     SKETCH_EXTENSION=${SKETCH_FILENAME##*.} # extension of sketch
-    SKETCH_BASENAME=${SKETCH_FILENAME%%.*} # name wihout extension / basename of sketch, must match directory name
+    SKETCH_BASENAME=${SKETCH_FILENAME%%.*} # name without extension / basename of sketch, must match directory name
     if [[ $EXAMPLES_EXCLUDE == *"$SKETCH_BASENAME"* ]]; then
       echo -e "Skipping $SKETCH_BASENAME \xe2\x9e\x9e" # Right arrow
     else

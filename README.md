@@ -84,7 +84,7 @@ Comma separated list without double quotes around the list or a library name. A 
 
 
 ### `examples-exclude`
-Examples to be **excluded from build**. Comma or space separated list of (unique substrings of) sketch / example names to exclude in build.<br/>
+Examples to be **excluded from build**. Comma or space separated list of complete sketch / example names to exclude in build.<br/>
 Environment name for script usage is `ENV_EXAMPLES_EXCLUDE`.
 
 ```yaml
