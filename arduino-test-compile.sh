@@ -78,12 +78,17 @@ echo ENV_SAVE_GENERATED_FILES=$SAVE_GENERATED_FILES
 echo DEBUG_COMPILE=$DEBUG_COMPILE
 echo DEBUG_INSTALL=$DEBUG_INSTALL
 
-#echo HOME=$HOME # /github/home
-#echo PWD=$PWD # /github/workspace
-#echo GITHUB_WORKSPACE=$GITHUB_WORKSPACE # /github/workspace
-declare -p BASH_ARGV
+if [[ $DEBUG_INSTALL == true ]]; then
+echo HOME=$HOME # /home/runner if script, /github/home if action
+echo PWD=$PWD # /home/runner/work/Github-Actions-Test/Github-Actions-Tes if script, /github/workspace if action
+echo GITHUB_WORKSPACE=$GITHUB_WORKSPACE # /home/runner/work/Github-Actions/Github-Actions if script, /github/workspace if action
 #set
 #ls -lR $GITHUB_WORKSPACE
+fi
+
+# Show calling parameters
+declare -p BASH_ARGV
+
 
 #
 # Download and install arduino IDE, if not already cached
@@ -131,11 +136,14 @@ fi
 #
 # Link this repository as Arduino library
 #
+# Check if repo is an Arduino library
 if [[ -f $GITHUB_WORKSPACE/library.properties ]]; then
   echo -e "\n\n"${YELLOW}Link this repository as Arduino library
   mkdir --parents $HOME/Arduino/libraries
   ln --symbolic $GITHUB_WORKSPACE $HOME/Arduino/libraries/.
   if [[ $DEBUG_INSTALL == true ]]; then
+   echo ln --symbolic $GITHUB_WORKSPACE $HOME/Arduino/libraries/.
+   rm --force --recursive $HOME/Arduino/libraries/*/.git # do not want to list the whole .git directory
    echo ls -l --dereference --recursive --all $HOME/Arduino/libraries/
    ls -l --dereference --recursive --all $HOME/Arduino/libraries/
   fi
@@ -277,6 +285,18 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
     declare -p SKETCHES
   fi
 
+  # Check if find command found a file
+  if [[ -z ${SKETCHES[0]} ]]; then
+    GLOBIGNORE=*:?:[
+    echo No files found to compile with sketch-names=${SKETCH_NAMES} and sketch-names-find-start=${SKETCH_NAMES_FIND_START}
+    GLOBIGNORE=
+    # No files found -> list start directory and execute find command to see what we did
+    echo -e "find command is: find ${PWD}/${SKETCH_NAMES_FIND_START} -type f -name \"$sketch_name\""
+    echo "\"sketch-names-find-start\" directory content listing with: ls -l ${PWD}/${SKETCH_NAMES_FIND_START}"
+    ls -l ${PWD}/${SKETCH_NAMES_FIND_START}
+    echo
+  fi
+
   for sketch in "${SKETCHES[@]}"; do # Loop over all sketch files
     SKETCH_PATH=$(dirname $sketch) # complete path to sketch
     SKETCH_DIR=${SKETCH_PATH##*/}  # directory of sketch, must match sketch basename
@@ -349,7 +369,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
   done
 done
 if [ -z "$COMPILED_SKETCHES" ]; then
-  echo "::error::Did not find any sketches to compile, probably misconfigured?"
-  exit_code=1
+  echo "::error::Did not find any sketches to compile, probably misconfigured or used checkout twice without \"path:\" parameter?"
+  exit_code=2
 fi
 exit $exit_code

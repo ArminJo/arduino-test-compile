@@ -1,19 +1,25 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
 ### Version 2.5.0
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
+[![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ActionTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
+[![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ScriptTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
+
 This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) in a repository for different boards, each with different compile parameters.<br/>
 It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).<br/>
 The action is a Docker action which uses Ubuntu 18.04 and the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the other work like loading libraries, installing board definitions and setting parameters is orchestrated by the [arduino-test-compile.sh](arduino-test-compile.sh) bash script.<br/>
 In case of a compile error the [**complete compile output**](https://github.com/ArminJo/PlayRtttl/runs/692586646?check_suite_focus=true#step:4:99) is logged in the [Compile all examples](https://github.com/ArminJo/PlayRtttl/runs/692586646?check_suite_focus=true#step:4:1) step, otherwise only a [**green check**](https://github.com/ArminJo/PlayRtttl/runs/692736061?check_suite_focus=true#step:4:95) is printed.<br/>
 If you want to test compile a sketch, **it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino**. Internally the file is renamed to be .ino and the appropriate directory is created on the fly at `/home/runner/<sketch-name>` for test-compiling. See [parameter `sketch-names`](arduino-test-compile#sketch-names).<br/>
 
-If you need more flexibility for e.g. installing additional board platforms, or want to save around 20 to 30 seconds for each job, then you may consider to
-use the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) directly.
-See [example below](https://github.com/ArminJo/arduino-test-compile#multiple-boards-with-parameter-using-the-script-directly).
+# Hints
+- If you require a custom library for your build, add an extra step for [loading a custom library](#using-custom-library). **Be aware to use the `path:` parameter for checkout, otherwise checkout will overwrite the last checkout content.**</br>
+Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
-[![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ActionTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
-[![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ScriptTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
+- If you need more flexibility for e.g. installing additional board platforms, or want to save around 20 to 30 seconds for each job,
+then you may consider to use the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) directly.
+See [example below](#multiple-boards-with-parameter-using-the-script-directly).
+
+- If you have problems with you workflow file, you find additional information in the output if setting the [flags](#debug-compile-and-debug-install) `debug-compile` and / or `debug-install` to `true`.<br/>
 
 # Inputs
 See [action.yml](https://github.com/ArminJo/arduino-test-compile/blob/master/action.yml) for comprehensive list of parameters.
@@ -71,7 +77,7 @@ platform-url: https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/I
 
 ### `required-libraries`
 Comma separated list of arduino library dependencies to install. You may add a version number like `@1.3.4`.<br/>
-Only libraries [avaliable in the Arduino library manager](https://www.arduinolibraries.info/) can be installed this way.<br/>
+Only libraries [available in the Arduino library manager](https://www.arduinolibraries.info/) can be installed this way.<br/>
 To use other/custom libraries, you must put all the library files into the sketch directory or add an extra step as in [this example](#using-custom-library).
 Default is `""`.<br/>
 Environment name for script usage is `ENV_REQUIRED_LIBRARIES`.
@@ -137,7 +143,7 @@ cli-version: 0.9.0 # The current one (3/2020)
 ```
 
 ### `sketch-names`
-Comma sepatated list of patterns or filenames (without path) of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled. If first character is a `*` like in "*.ino" the list must be enclosed in double quotes!<br/>
+Comma separated list of patterns or filenames (without path) of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled. If first character is a `*` like in "*.ino" the list must be enclosed in double quotes!<br/>
 The **sketch names to compile are searched in the whole repository** by the command `find . -name "$SKETCH_NAME"` with `.` as the root of the repository, so you do not need to specify the full path.<br/>
 If you specify `sketch-names-find-start` then the find command is changed to `find ${PWD}/${SKETCH_NAMES_FIND_START} -name "$SKETCH_NAME"`.<br/>
 Sketches do not need to be in an example directory. This enables **[plain programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) to be test compiled**.<br/>
@@ -150,7 +156,7 @@ sketch-names: "*.ino,SimpleTouchScreenDSO.cpp"
 ```
 
 ### `sketch-names-find-start`
-The **start directory to look for the sketch-names** to test compile. Can be a path like `digistump-avr/libraries/*/examples/`. Must be a path **relative to the root of the repository**. Used [here](https://github.com/ArminJo/DigistumpArduino/blob/master/.github/workflows/TestCompile.yml) to compile all library examples of the board package.
+The **start directory to look for the sketch-names** to test compile. Can be a path like `digistump-avr/libraries/*/examples/`. Must be a path **relative to the root of the repository**. Used [here](https://github.com/ArminJo/DigistumpArduino/blob/master/.github/workflows/TestCompile.yml#L90) to compile all library examples of the board package.
 Default is `.` (root of repository).<br/>
 Environment name for script usage is `ENV_SKETCH_NAMES_FIND_START`.
 
@@ -160,7 +166,7 @@ sketch-names-find-start: digistump-avr/libraries/*/examples/C*/
 
 ### `save-generated-files`
 If set to true, the **generated files** (.bin, .hex, .elf etc.) can be found in the example directory `/home/runner/work/<repo-name>/<repo-name>/src/<example_name>` = `$GITHUB_WORKSPACE/src/<example_name>`  or in `/home/runner/<sketch-name>` = `$HOME/<sketch-name>` for files not residing in a directory with the same name.<br/>
-Because of an [arduino-cli bug](https://github.com/arduino/arduino-cli/issues/821) this function is **incompatible with examples having local *.h files**.
+Because of an [arduino-cli bug](https://github.com/arduino/arduino-cli/issues/821) this function is **incompatible with examples having local *.h files**.<br/>
 Default is `false` (compatible with local *.h files).<br/>
 Environment name for script usage is `ENV_SAVE_GENERATED_FILES`.
 
@@ -168,7 +174,12 @@ Environment name for script usage is `ENV_SAVE_GENERATED_FILES`.
 save-generated-files: true
 ```
 
-# Workflows examples
+### `debug-compile` and `debug-install`
+If you have problems with you workflow file, try to set this flags to `true`.<br/>
+Default is `false`.<br/>
+Environment name for script usage is `ENV_DEBUG_COMPILE` and `ENV_DEBUG_INSTALL`.
+
+# Workflow examples
 ## Simple - without any parameter
 Compile all sketches / examples for the UNO board.
 
@@ -356,8 +367,8 @@ jobs:
 ```
 
 ## Using custom library
-Add an extra step `Checkout custom library` for loading custom library.
-Take care that the path parameter matches the pattern `*Custom*`.
+Add an extra step `Checkout custom library` for loading custom library. **You must use the `path:` parameter, otherwise checkout overwrites the last checkout content.**</br>
+Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).
 ```yaml
 ...
     steps:
@@ -412,7 +423,7 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 
 # Revision History
 ### Version v2.5.0
-- Build result files (and build temporaryfiles) are now stored in the build source directory by internally using cli parameter *--build-path*.
+- Build result files (and build temporary files) are now stored in the build source directory by internally using cli parameter *--build-path*.
 - Fixed skipped compile of examples, if one *.ino file is present in the repository root.
 - `examples-build-properties` now used also for **c and S* extra_flags.
 - Added `save-generated-files` parameter.
@@ -431,7 +442,7 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 
 ### Version v2.2.0
 - Using ubuntu:18.04 for Docker container, since ubuntu:latest can not fetch python for ESP32 anymore.
-- `CPP_EXTRA_FLAGS` are now resetted.
+- `CPP_EXTRA_FLAGS` are now reseted.
 
 ### Version v2.1.0 -> as of 30.4.2020 internally upgraded to content of v2.2.0, because of ESP32 compile bug
 - Added missing newline after print of "Install libraries $REQUIRED_LIBRARIES".
