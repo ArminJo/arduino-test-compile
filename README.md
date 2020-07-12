@@ -1,5 +1,5 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
-### Version 2.5.0
+### Version 2.5.1
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 [![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ActionTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
@@ -422,6 +422,9 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
+### Version v2.5.1
+- Improved error and debug flags handling.
+
 ### Version v2.5.0
 - Build result files (and build temporary files) are now stored in the build source directory by internally using cli parameter *--build-path*.
 - Fixed skipped compile of examples, if one *.ino file is present in the repository root.
