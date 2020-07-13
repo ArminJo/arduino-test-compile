@@ -55,8 +55,8 @@ inputs:
     default: ''
     required: false
 
-  save-generated-files:
-    description: 'Flag to save the generated files (.bin, .hex, .elf etc.) in the example directory. Is introduced because of a cli bug https://github.com/arduino/arduino-cli/issues/821'
+  set-build-path:
+    description: 'Flag to set the build directory (arduino-cli paramer --build-path) to /build subdirectory of compiled example.'
     default: 'false'
     required: false
 
@@ -84,7 +84,7 @@ runs:
     - ${{ inputs.required-libraries }}
     - ${{ inputs.examples-exclude }}
     - ${{ inputs.examples-build-properties }}
-    - ${{ inputs.save-generated-files }}
+    - ${{ inputs.set-build-path }}
     - ${{ inputs.debug-compile }}
     - ${{ inputs.debug-install }}
 

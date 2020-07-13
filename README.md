@@ -1,5 +1,5 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
-### Version 2.5.1
+### Version 2.5.2
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 [![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ActionTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
@@ -10,6 +10,7 @@ It can be used e.g. to test-compile all examples contained in an [Arduino librar
 The action is a Docker action which uses Ubuntu 18.04 and the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the other work like loading libraries, installing board definitions and setting parameters is orchestrated by the [arduino-test-compile.sh](arduino-test-compile.sh) bash script.<br/>
 In case of a compile error the [**complete compile output**](https://github.com/ArminJo/PlayRtttl/runs/692586646?check_suite_focus=true#step:4:99) is logged in the [Compile all examples](https://github.com/ArminJo/PlayRtttl/runs/692586646?check_suite_focus=true#step:4:1) step, otherwise only a [**green check**](https://github.com/ArminJo/PlayRtttl/runs/692736061?check_suite_focus=true#step:4:95) is printed.<br/>
 If you want to test compile a sketch, **it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino**. Internally the file is renamed to be .ino and the appropriate directory is created on the fly at `/home/runner/<sketch-name>` for test-compiling. See [parameter `sketch-names`](arduino-test-compile#sketch-names).<br/>
+Since version 0.11.0 of arduino-cli, the **generated files** (.bin, .hex, .elf, .eep etc.) can be found in the build/<FQBN> subfolder of the example directory `$GITHUB_WORKSPACE/src/<example_name>`  or in `$HOME/<sketch-name>` for files not residing in a directory with the same name.<br/>
 
 # Hints
 - If you require a custom library for your build, add an extra step for [loading a custom library](#using-custom-library). **Be aware to use the `path:` parameter for checkout, otherwise checkout will overwrite the last checkout content.**</br>
@@ -164,10 +165,9 @@ Environment name for script usage is `ENV_SKETCH_NAMES_FIND_START`.
 sketch-names-find-start: digistump-avr/libraries/*/examples/C*/
 ```
 
-### `save-generated-files`
-If set to true, the **generated files** (.bin, .hex, .elf etc.) can be found in the example directory `/home/runner/work/<repo-name>/<repo-name>/src/<example_name>` = `$GITHUB_WORKSPACE/src/<example_name>`  or in `/home/runner/<sketch-name>` = `$HOME/<sketch-name>` for files not residing in a directory with the same name.<br/>
-Because of an [arduino-cli bug](https://github.com/arduino/arduino-cli/issues/821) this function is **incompatible with examples having local *.h files**.<br/>
-Default is `false` (compatible with local *.h files).<br/>
+### `set-build-path`
+If set to true, the build directory (arduino-cli paramer --build-path) is set to `$GITHUB_WORKSPACE/src/<example_name>/build/`  or to `$HOME/<sketch-name>/build/` for files not residing in a directory with the same name.<br/>
+Default is `false`.<br/>
 Environment name for script usage is `ENV_SAVE_GENERATED_FILES`.
 
 ```yaml
@@ -422,14 +422,12 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
-### Version v2.5.1
-- Improved error and debug flags handling.
 
-### Version v2.5.0
-- Build result files (and build temporary files) are now stored in the build source directory by internally using cli parameter *--build-path*.
+### Version v2.5.0 -> Due to a Github failure/outage on 13.07.2020 the old 2.5.0 version from 10.07.20 (and 2.5.1 from 12.07.20 ) was removed.
 - Fixed skipped compile of examples, if one *.ino file is present in the repository root.
 - `examples-build-properties` now used also for **c and S* extra_flags.
-- Added `save-generated-files` parameter.
+- Improved error and debug flags handling.
+- Added `set-build-path`.
 
 ### Version v2.4.1
 - Only search for files when using `sketch-names`.
