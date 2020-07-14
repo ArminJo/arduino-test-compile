@@ -220,6 +220,48 @@ jobs:
         examples-build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'
 ```
 
+## One board with 2x2 compile parameter matrix
+```yaml
+name: LibraryBuild with parameter matrix
+on:
+  push: # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
+    paths:
+    - '**.ino'
+    - '**.cpp'
+    - '**.h'
+    - '**LibraryBuild.yml'
+  pull_request:
+jobs:
+  build:
+    name: ${{ matrix.arduino-boards-fqbn }} ${{ matrix.log-options }} ${{ matrix.other-options }}
+    runs-on: ubuntu-latest
+    env:
+      REQUIRED_LIBRARIES: Servo,Adafruit NeoPixel
+    strategy:
+      matrix:
+        arduino-boards-fqbn:
+          - arduino:avr:uno
+
+        log-options: [-DDEBUG, -DINFO]
+
+        other-options: [-DTEST, -DDUMMY]
+
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Compile all examples
+        uses: ArminJo/arduino-test-compile@v2
+        with:
+          arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
+          platform-url: ${{ matrix.platform-url }}
+          required-libraries: ${{ env.REQUIRED_LIBRARIES }}
+          examples-build-properties: '{ "All": "${{ matrix.log-options }} ${{ matrix.other-options }}" }'
+
+```
+
 ## Multiple boards with parameter
 ```yaml
 name: LibraryBuild

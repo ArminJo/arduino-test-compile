@@ -19,7 +19,7 @@ PLATFORM_URL="$7"
 REQUIRED_LIBRARIES="$8"
 EXAMPLES_EXCLUDE="$9"
 EXAMPLES_BUILD_PROPERTIES="${10}"
-SAVE_GENERATED_FILES="${11}"
+SET_BUILD_PATH="${11}"
 DEBUG_COMPILE="${12}"
 DEBUG_INSTALL="${13}" # not yet implemented for action
 
@@ -41,7 +41,7 @@ if [[ -n $ENV_PLATFORM_URL ]]; then PLATFORM_URL=$ENV_PLATFORM_URL; fi
 if [[ -n $ENV_REQUIRED_LIBRARIES ]]; then REQUIRED_LIBRARIES=$ENV_REQUIRED_LIBRARIES; fi
 if [[ -n $ENV_EXAMPLES_EXCLUDE ]]; then EXAMPLES_EXCLUDE=$ENV_EXAMPLES_EXCLUDE; fi
 if [[ -n $ENV_EXAMPLES_BUILD_PROPERTIES ]]; then EXAMPLES_BUILD_PROPERTIES=$ENV_EXAMPLES_BUILD_PROPERTIES; fi
-if [[ -n $ENV_SAVE_GENERATED_FILES ]]; then SAVE_GENERATED_FILES=$ENV_SAVE_GENERATED_FILES; fi
+if [[ -n $ENV_SET_BUILD_PATH ]]; then SET_BUILD_PATH=$ENV_SET_BUILD_PATH; fi
 
 if [[ -n $ENV_DEBUG_COMPILE ]]; then DEBUG_COMPILE=$ENV_DEBUG_COMPILE; fi
 if [[ -n $ENV_DEBUG_INSTALL ]]; then DEBUG_INSTALL=$ENV_DEBUG_INSTALL; fi
@@ -56,7 +56,7 @@ if [[ -z $PLATFORM_URL && -n $PLATFORM_DEFAULT_URL ]]; then echo -e "Set PLATFOR
 if [[ -z $CLI_VERSION ]]; then echo "Set CLI_VERSION to default value: \"latest\""; CLI_VERSION='latest'; fi
 if [[ -z $SKETCH_NAMES ]]; then echo -e "Set SKETCH_NAMES to default value: \"*.ino\""; SKETCH_NAMES='*.ino'; fi
 if [[ -z $SKETCH_NAMES_FIND_START ]]; then echo -e "Set SKETCH_NAMES_FIND_START to default value: \".\" (root of repository)"; SKETCH_NAMES_FIND_START='.'; fi
-if [[ -z $SAVE_GENERATED_FILES ]]; then echo -e "Set SAVE_GENERATED_FILES to default value: \"false\""; SAVE_GENERATED_FILES='false'; fi
+if [[ -z $SET_BUILD_PATH ]]; then echo -e "Set SET_BUILD_PATH to default value: \"false\""; SET_BUILD_PATH='false'; fi
 
 
 #
@@ -73,14 +73,14 @@ echo PLATFORM_URL=$PLATFORM_URL
 echo REQUIRED_LIBRARIES=$REQUIRED_LIBRARIES
 echo EXAMPLES_EXCLUDE=$EXAMPLES_EXCLUDE
 echo EXAMPLES_BUILD_PROPERTIES=$EXAMPLES_BUILD_PROPERTIES
-echo ENV_SAVE_GENERATED_FILES=$SAVE_GENERATED_FILES
+echo ENV_SET_BUILD_PATH=$SET_BUILD_PATH
 
 echo DEBUG_COMPILE=$DEBUG_COMPILE
 echo DEBUG_INSTALL=$DEBUG_INSTALL
 
 if [[ $DEBUG_INSTALL == true ]]; then
 echo HOME=$HOME # /home/runner if script, /github/home if action
-echo PWD=$PWD # /home/runner/work/Github-Actions-Test/Github-Actions-Tes if script, /github/workspace if action
+echo PWD=$PWD # /home/runner/work/Github-Actions-Test/Github-Actions-Test if script, /github/workspace if action
 echo GITHUB_WORKSPACE=$GITHUB_WORKSPACE # /home/runner/work/Github-Actions/Github-Actions if script, /github/workspace if action
 #set
 #ls -lR $GITHUB_WORKSPACE
@@ -111,7 +111,7 @@ else
 fi
 
 #print version
-$HOME/arduino_ide/arduino-cli version
+arduino-cli version
 
 # add the arduino CLI to our PATH
 export PATH="$HOME/arduino_ide:$PATH"
@@ -253,10 +253,15 @@ fi
 echo -e "\n"${YELLOW}Compiling sketches / examples for board $ARDUINO_BOARD_FQBN "\n"
 
 # If matrix.examples-build-properties are specified, create an associative shell array
+# Input example: { "WhistleSwitch": "-DINFO -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }
+# Converted to: [All]="-DDEBUG -DINFO" [WhistleSwitch]="-DDEBUG -DINFO"
 if [[ -n $EXAMPLES_BUILD_PROPERTIES && $EXAMPLES_BUILD_PROPERTIES != "null" ]]; then # contains "null", if passed as environment variable
   echo EXAMPLES_BUILD_PROPERTIES=$EXAMPLES_BUILD_PROPERTIES
   EXAMPLES_BUILD_PROPERTIES=${EXAMPLES_BUILD_PROPERTIES#\{} # remove the "{". The "}" is required as end token
   # (\w*): * first token before the colon and spaces, ([^,}]*) token after colon and spaces up to "," or "}", [,}] trailing characters
+  if [[ $DEBUG_COMPILE == true ]]; then
+    echo EXAMPLES_BUILD_PROPERTIES is converted to:$(echo $EXAMPLES_BUILD_PROPERTIES | sed -E 's/"(\w*)": *([^,}]*)[,}]/\[\1\]=\2/g')
+  fi
   declare -A PROP_MAP="( $(echo $EXAMPLES_BUILD_PROPERTIES | sed -E 's/"(\w*)": *([^,}]*)[,}]/\[\1\]=\2/g' ) )"
   declare -p PROP_MAP # print properties of PROP_MAP
 else
@@ -279,8 +284,12 @@ fi
 IFS="$BACKUP_IFS"
 COMPILED_SKETCHES=
 for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
-  # must use $PWD/$SKETCH_NAMES_FIND_START, since arduino-cli does not support relative path for --build-path
-  declare -a SKETCHES=($(find ${PWD}/${SKETCH_NAMES_FIND_START} -type f -name "$sketch_name")) # only search for files
+  if [[ $SET_BUILD_PATH == true ]]; then
+  # must use $GITHUB_WORKSPACE/$SKETCH_NAMES_FIND_START, since arduino-cli does not support relative path for --build-path
+    declare -a SKETCHES=($(find ${GITHUB_WORKSPACE}/${SKETCH_NAMES_FIND_START} -type f -name "$sketch_name")) # only search for files
+  else
+    declare -a SKETCHES=($(find ${SKETCH_NAMES_FIND_START} -type f -name "$sketch_name")) # only search for files
+  fi
   if [[ $DEBUG_COMPILE == true ]]; then
     declare -p SKETCHES
   fi
@@ -291,9 +300,9 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
     echo No files found to compile with sketch-names=${SKETCH_NAMES} and sketch-names-find-start=${SKETCH_NAMES_FIND_START}
     GLOBIGNORE=
     # No files found -> list start directory and execute find command to see what we did
-    echo -e "find command is: find ${PWD}/${SKETCH_NAMES_FIND_START} -type f -name \"$sketch_name\""
-    echo "\"sketch-names-find-start\" directory content listing with: ls -l ${PWD}/${SKETCH_NAMES_FIND_START}"
-    ls -l ${PWD}/${SKETCH_NAMES_FIND_START}
+    echo -e "find command is: find ${GITHUB_WORKSPACE}/${SKETCH_NAMES_FIND_START} -type f -name \"$sketch_name\""
+    echo "\"sketch-names-find-start\" directory content listing with: ls -l ${GITHUB_WORKSPACE}/${SKETCH_NAMES_FIND_START}"
+    ls -l ${GITHUB_WORKSPACE}/${SKETCH_NAMES_FIND_START}
     echo
   fi
 
@@ -318,8 +327,8 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
         cp --recursive ${SKETCH_PATH}/* $HOME/$SKETCH_BASENAME
         SKETCH_PATH=$HOME/$SKETCH_BASENAME
       fi
-      if [[ $SAVE_GENERATED_FILES == true ]]; then
-        BUILD_PATH_PARAMETER="--build-path $SKETCH_PATH"
+      if [[ $SET_BUILD_PATH == true ]]; then
+        BUILD_PATH_PARAMETER="--build-path $SKETCH_PATH/build/"
       fi
       # Check if there is an entry in the associative array and create compile parameter to put in compiler.*.extra_flags
       # This flags are also defined in platform.txt as empty, to be overwritten by a platform.local.txt definition.
@@ -356,11 +365,11 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
         else
           echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-properties compiler.cpp.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.c.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.S.extra_flags=\"${GCC_EXTRA_FLAGS}\" $SKETCH_PATH"
         fi
-        if [[ $DEBUG_COMPILE == true || $SAVE_GENERATED_FILES == true ]]; then
+        if [[ $DEBUG_COMPILE == true || $SET_BUILD_PATH == true ]]; then
           echo "Debug mode enabled => compile output will be printed also for successful compilation and sketch directory is listed after compilation"
           echo -e "$build_stdout \n"
-          echo -e "\nls -l $SKETCH_PATH"
-          ls -l $SKETCH_PATH
+          echo -e "\nls -l --recursive $SKETCH_PATH/build/"
+          ls -l --recursive $SKETCH_PATH/build/
           echo -e "\n\n"
         fi
       fi
