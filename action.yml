@@ -44,14 +44,26 @@ inputs:
     required: false
 
   examples-exclude:
+    description: 'Deprecated in favor of sketches-exclude. Comma or space separated list of complete names of all sketches / examples to be excluded in the build for this board.'
+    default: ''
+    required: false
+
+  sketches-exclude:
     description: 'Comma or space separated list of complete names of all sketches / examples to be excluded in the build for this board.'
     default: ''
     required: false
 
   examples-build-properties:
     description: |
-      Build parameter like -DDEBUG for each example specified or for all examples, if example name is "All". In json format.
+      Deprecated in favor of build-properties. Build parameter like -DDEBUG for each example specified or for all examples, if example name is "All". In json format.
       For example: examples-build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'
+    default: ''
+    required: false
+
+  build-properties:
+    description: |
+      Build parameter like -DDEBUG for each example specified or for all examples, if example name is "All". In json format.
+      For example: build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'
     default: ''
     required: false
 
@@ -82,7 +94,9 @@ runs:
     - ${{ inputs.platform-default-url }}
     - ${{ inputs.platform-url }}
     - ${{ inputs.required-libraries }}
+    - ${{ inputs.sketches-exclude }}
     - ${{ inputs.examples-exclude }}
+    - ${{ inputs.build-properties }}
     - ${{ inputs.examples-build-properties }}
     - ${{ inputs.set-build-path }}
     - ${{ inputs.debug-compile }}

@@ -17,11 +17,13 @@ ARDUINO_PLATFORM="$5"
 PLATFORM_DEFAULT_URL="$6"
 PLATFORM_URL="$7"
 REQUIRED_LIBRARIES="$8"
-EXAMPLES_EXCLUDE="$9"
-EXAMPLES_BUILD_PROPERTIES="${10}"
-SET_BUILD_PATH="${11}"
-DEBUG_COMPILE="${12}"
-DEBUG_INSTALL="${13}" # not yet implemented for action
+SKETCHES_EXCLUDE="$9"
+EXAMPLES_EXCLUDE="${10}"
+BUILD_PROPERTIES="${11}"
+EXAMPLES_BUILD_PROPERTIES="${12}"
+SET_BUILD_PATH="${13}"
+DEBUG_COMPILE="${14}"
+DEBUG_INSTALL="${15}" # not yet implemented for action
 
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -39,13 +41,20 @@ if [[ -n $ENV_ARDUINO_PLATFORM ]]; then ARDUINO_PLATFORM=$ENV_ARDUINO_PLATFORM; 
 if [[ -n $ENV_PLATFORM_DEFAULT_URL ]]; then PLATFORM_DEFAULT_URL=$ENV_PLATFORM_DEFAULT_URL; fi
 if [[ -n $ENV_PLATFORM_URL ]]; then PLATFORM_URL=$ENV_PLATFORM_URL; fi
 if [[ -n $ENV_REQUIRED_LIBRARIES ]]; then REQUIRED_LIBRARIES=$ENV_REQUIRED_LIBRARIES; fi
+if [[ -n $ENV_SKETCHES_EXCLUDE ]]; then SKETCHES_EXCLUDE=$ENV_SKETCHES_EXCLUDE; fi
 if [[ -n $ENV_EXAMPLES_EXCLUDE ]]; then EXAMPLES_EXCLUDE=$ENV_EXAMPLES_EXCLUDE; fi
+if [[ -n $ENV_BUILD_PROPERTIES ]]; then BUILD_PROPERTIES=$ENV_BUILD_PROPERTIES; fi
 if [[ -n $ENV_EXAMPLES_BUILD_PROPERTIES ]]; then EXAMPLES_BUILD_PROPERTIES=$ENV_EXAMPLES_BUILD_PROPERTIES; fi
 if [[ -n $ENV_SET_BUILD_PATH ]]; then SET_BUILD_PATH=$ENV_SET_BUILD_PATH; fi
 
 if [[ -n $ENV_DEBUG_COMPILE ]]; then DEBUG_COMPILE=$ENV_DEBUG_COMPILE; fi
 if [[ -n $ENV_DEBUG_INSTALL ]]; then DEBUG_INSTALL=$ENV_DEBUG_INSTALL; fi
 
+#
+# Handle deprecated names
+#
+if [[ -z $SKETCHES_EXCLUDE && -n $EXAMPLES_EXCLUDE ]]; then echo "Please change parameter name from \"examples-exclude\" to \"sketches-exclude\""; SKETCHES_EXCLUDE=${EXAMPLES_EXCLUDE}; fi
+if [[ -z $BUILD_PROPERTIES && -n $EXAMPLES_BUILD_PROPERTIES ]]; then echo "Please change parameter name from \"examples-build-properties\" to \"build-properties\""; BUILD_PROPERTIES=${EXAMPLES_BUILD_PROPERTIES}; fi
 
 #
 # Enforce defaults. Required at least for script version. !!! MUST be equal the defaults in action.yml !!!
@@ -71,8 +80,8 @@ echo ARDUINO_PLATFORM=$ARDUINO_PLATFORM
 echo PLATFORM_DEFAULT_URL=$PLATFORM_DEFAULT_URL
 echo PLATFORM_URL=$PLATFORM_URL
 echo REQUIRED_LIBRARIES=$REQUIRED_LIBRARIES
-echo EXAMPLES_EXCLUDE=$EXAMPLES_EXCLUDE
-echo EXAMPLES_BUILD_PROPERTIES=$EXAMPLES_BUILD_PROPERTIES
+echo SKETCHES_EXCLUDE=$SKETCHES_EXCLUDE
+echo BUILD_PROPERTIES=$BUILD_PROPERTIES
 echo ENV_SET_BUILD_PATH=$SET_BUILD_PATH
 
 echo DEBUG_COMPILE=$DEBUG_COMPILE
@@ -252,17 +261,17 @@ fi
 #
 echo -e "\n"${YELLOW}Compiling sketches / examples for board $ARDUINO_BOARD_FQBN "\n"
 
-# If matrix.examples-build-properties are specified, create an associative shell array
+# If matrix.build-properties are specified, create an associative shell array
 # Input example: { "WhistleSwitch": "-DINFO -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }
 # Converted to: [All]="-DDEBUG -DINFO" [WhistleSwitch]="-DDEBUG -DINFO"
-if [[ -n $EXAMPLES_BUILD_PROPERTIES && $EXAMPLES_BUILD_PROPERTIES != "null" ]]; then # contains "null", if passed as environment variable
-  echo EXAMPLES_BUILD_PROPERTIES=$EXAMPLES_BUILD_PROPERTIES
-  EXAMPLES_BUILD_PROPERTIES=${EXAMPLES_BUILD_PROPERTIES#\{} # remove the "{". The "}" is required as end token
+if [[ -n $BUILD_PROPERTIES && $BUILD_PROPERTIES != "null" ]]; then # contains "null", if passed as environment variable
+  echo BUILD_PROPERTIES=$BUILD_PROPERTIES
+  BUILD_PROPERTIES=${BUILD_PROPERTIES#\{} # remove the "{". The "}" is required as end token
   # (\w*): * first token before the colon and spaces, ([^,}]*) token after colon and spaces up to "," or "}", [,}] trailing characters
   if [[ $DEBUG_COMPILE == true ]]; then
-    echo EXAMPLES_BUILD_PROPERTIES is converted to:$(echo $EXAMPLES_BUILD_PROPERTIES | sed -E 's/"(\w*)": *([^,}]*)[,}]/\[\1\]=\2/g')
+    echo BUILD_PROPERTIES is converted to:$(echo $BUILD_PROPERTIES | sed -E 's/"(\w*)": *([^,}]*)[,}]/\[\1\]=\2/g')
   fi
-  declare -A PROP_MAP="( $(echo $EXAMPLES_BUILD_PROPERTIES | sed -E 's/"(\w*)": *([^,}]*)[,}]/\[\1\]=\2/g' ) )"
+  declare -A PROP_MAP="( $(echo $BUILD_PROPERTIES | sed -E 's/"(\w*)": *([^,}]*)[,}]/\[\1\]=\2/g' ) )"
   declare -p PROP_MAP # print properties of PROP_MAP
 else
   declare -A PROP_MAP=( [dummy]=dummy ) # declare an accociative array
@@ -312,7 +321,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
     SKETCH_FILENAME=$(basename $sketch) # complete name of sketch
     SKETCH_EXTENSION=${SKETCH_FILENAME##*.} # extension of sketch
     SKETCH_BASENAME=${SKETCH_FILENAME%%.*} # name without extension / basename of sketch, must match directory name
-    if [[ $EXAMPLES_EXCLUDE == *"$SKETCH_BASENAME"* ]]; then
+    if [[ $SKETCHES_EXCLUDE == *"$SKETCH_BASENAME"* ]]; then
       echo -e "Skipping $SKETCH_BASENAME \xe2\x9e\x9e" # Right arrow
     else
       # If sketch name does not end with .ino, rename it locally

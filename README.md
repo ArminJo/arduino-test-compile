@@ -1,5 +1,5 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
-### Version 2.5.2
+### Version 2.6.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 [![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ActionTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
@@ -90,31 +90,31 @@ required-libraries: Servo,Adafruit NeoPixel@1.3.4
 Comma separated list without double quotes around the list or a library name. A list of correct library names can be found [here](https://www.arduinolibraries.info/).
 
 
-### `examples-exclude`
-Examples to be **excluded from build**. Comma or space separated list of complete sketch / example names to exclude in build.<br/>
-Environment name for script usage is `ENV_EXAMPLES_EXCLUDE`.
+### `sketches-exclude`
+Sketches to be **excluded from build**. Comma or space separated list of complete sketch / example names to exclude in build.<br/>
+Environment name for script usage is `ENV_SKETCHES_EXCLUDE`.
 
 ```yaml
-  examples-exclude: QuadrupedControl,RobotArmControl # QuadrupedControl and RobotArmControl because of missing EEprom
+  sketches-exclude: QuadrupedControl,RobotArmControl # QuadrupedControl and RobotArmControl because of missing EEprom
 ```
 
-### `examples-build-properties`
+### `build-properties`
 Build parameter like `-DDEBUG` for each example specified or for all examples, if example name is `All`. If an example specific parameter is specified, the value for All is ignored for this example. <br/>
-Environment name for script usage is `ENV_EXAMPLES_BUILD_PROPERTIES`.<br/>
+Environment name for script usage is `ENV_BUILD_PROPERTIES`.<br/>
 
 In the `include:` section you may specify:
 
 ```yaml
 include:
 ...
-  examples-build-properties:
+  build-properties:
     WhistleSwitch:
       -DDEBUG
       -DFREQUENCY_RANGE_LOW
     SimpleFrequencyDetector:
       -DINFO
 ...
-  examples-build-properties:
+  build-properties:
     All:
       -DDEBUG
 ...
@@ -124,14 +124,14 @@ and reference it in the `with:` section by:
 
 ```yaml
 with:
-  examples-build-properties: ${{ toJson(matrix.examples-build-properties) }}
+  build-properties: ${{ toJson(matrix.build-properties) }}
 ```
 
 If you want to specify it directly in the `with:` section it must be:
 
 ```yaml
 with:
-  examples-build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO", "All": "-DDEBUG" }'
+  build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO", "All": "-DDEBUG" }'
 ```
 
 ### `cli-version`
@@ -216,8 +216,8 @@ jobs:
         arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
         platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
         required-libraries: Servo,Adafruit NeoPixel
-        examples-exclude: WhistleSwitch 50Hz
-        examples-build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'
+        sketches-exclude: WhistleSwitch 50Hz
+        build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'
 ```
 
 ## One board with 2x2 compile parameter matrix
@@ -258,7 +258,7 @@ jobs:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-url: ${{ matrix.platform-url }}
           required-libraries: ${{ env.REQUIRED_LIBRARIES }}
-          examples-build-properties: '{ "All": "${{ matrix.log-options }} ${{ matrix.other-options }}" }'
+          build-properties: '{ "All": "${{ matrix.log-options }} ${{ matrix.other-options }}" }'
 
 ```
 
@@ -291,7 +291,7 @@ jobs:
         include:
           - arduino-boards-fqbn: arduino:avr:uno
             sketch-names: WhistleSwitch.ino,SimpleFrequencyDetector.ino # Comma separated list of sketch names (no path required) or patterns to use in build
-            examples-build-properties:
+            build-properties:
               WhistleSwitch:
                 -DDEBUG
                 -DFREQUENCY_RANGE_LOW
@@ -299,20 +299,20 @@ jobs:
                 -DINFO
 
           - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # UNO board with -DDEBUG for all examples
-            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
-            examples-build-properties:
+            sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            build-properties:
               All:
                 -DDEBUG
 
           - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
-            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
-            examples-build-properties:
+            sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            build-properties:
               WhistleSwitch:
                 -DDEBUG
                 -DTRACE
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-            examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
+            sketches-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
 
       fail-fast: false
 
@@ -328,8 +328,8 @@ jobs:
           platform-url: ${{ matrix.platform-url }}
           required-libraries: ${{ env.REQUIRED_LIBRARIES }}
           sketch-names: ${{ matrix.sketch-names }}
-          examples-exclude: ${{ matrix.examples-exclude }}
-          examples-build-properties: ${{ toJson(matrix.examples-build-properties) }}
+          sketches-exclude: ${{ matrix.sketches-exclude }}
+          build-properties: ${{ toJson(matrix.build-properties) }}
 ```
 
 ## Multiple boards with parameter using the **script directly**
@@ -363,7 +363,7 @@ jobs:
         include:
           - arduino-boards-fqbn: arduino:avr:uno
             sketch-names: WhistleSwitch.ino,SimpleFrequencyDetector.ino # Comma separated list of sketch names (no path required) or patterns to use in build
-            examples-build-properties:
+            build-properties:
               WhistleSwitch:
                 -DDEBUG
                 -DFREQUENCY_RANGE_LOW
@@ -371,20 +371,20 @@ jobs:
                 -DINFO
 
           - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # UNO board with -DDEBUG for all examples
-            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
-            examples-build-properties:
+            sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            build-properties:
               All:
                 -DDEBUG
 
           - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
-            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
-            examples-build-properties:
+            sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            build-properties:
               WhistleSwitch:
                 -DDEBUG
                 -DTRACE
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
-            examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
+            sketches-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
 
       fail-fast: false
 
@@ -398,8 +398,8 @@ jobs:
           ENV_PLATFORM_DEFAULT_URL: ${{ env.PLATFORM_DEFAULT_URL }}
           ENV_PLATFORM_URL: ${{ matrix.platform-url }}
           ENV_REQUIRED_LIBRARIES: ${{ env.REQUIRED_LIBRARIES }}
-          ENV_EXAMPLES_EXCLUDE: ${{ matrix.examples-exclude }}
-          ENV_EXAMPLES_BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
+          ENV_SKETCHES_EXCLUDE: ${{ matrix.sketches-exclude }}
+          ENV_BUILD_PROPERTIES: ${{ toJson(matrix.build-properties) }}
           ENV_SKETCH_NAMES: ${{ matrix.sketch-names }}
           ENV_SKETCH_NAMES_FILE_START: examples/ # Not really required here, but serves as an usage example.
         run: |
@@ -464,6 +464,10 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
+
+### Version v2.6.0
+- Renamed `examples-exclude` to `sketches-exclude`. Old name is still valid.
+- Renamed `examples-build-properties` to `build-properties`. Old name is still valid.
 
 ### Version v2.5.0 -> Due to a Github failure/outage on 13.07.2020 the old 2.5.0 version from 10.07.20 (and 2.5.1 from 12.07.20 ) was removed.
 - Fixed skipped compile of examples, if one *.ino file is present in the repository root.

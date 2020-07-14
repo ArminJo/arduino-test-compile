@@ -43,18 +43,18 @@ jobs:
           - arduino:avr:uno
           - arduino:avr:uno|trace
           - arduino:avr:uno|All-DEBUG
-          - digistump:avr:digispark-tiny1
+          - digistump:avr:digispark-tiny:clock=clock1
           - ATTinyCore:avr:attinyx5:chip=85,clock=1internal
           - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
           - esp32:esp32:featheresp32:FlashFreq=80
 
         # Specify parameters for each board.
-        # Parameters can be: examples-exclude and examples-build-properties
+        # Parameters can be: sketches-exclude and build-properties
         #############################################################################################################
         include:
           - arduino-boards-fqbn: arduino:avr:uno
-            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
-            examples-build-properties:
+            sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            build-properties:
               WhistleSwitch:
                 -DDEBUG
                 -DFREQUENCY_RANGE_LOW
@@ -62,38 +62,38 @@ jobs:
                 -DINFO
 
           - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # UNO board with -DDEBUG for all examples
-            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
-            examples-build-properties:
+            sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            build-properties:
               All:
                 -DDEBUG
 
           - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
-            examples-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
-            examples-build-properties:
+            sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            build-properties:
               WhistleSwitch:
                 -DDEBUG
                 -DTRACE
 
-          - arduino-boards-fqbn: digistump:avr:digispark-tiny1  # ATtiny85 board @1 MHz
+          - arduino-boards-fqbn: digistump:avr:digispark-tiny:clock=clock1  # ATtiny85 board @1 MHz
             platform-url: https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json
-            examples-exclude: WhistleSwitch,"Blink" # Comma separated list of (unique substrings of) example names to exclude in build
-            examples-build-properties:
+            sketches-exclude: WhistleSwitch,"Blink" # Comma separated list of (unique substrings of) example names to exclude in build
+            build-properties:
               SimpleFrequencyDetector:
                 -DINFO
 
           - arduino-boards-fqbn: ATTinyCore:avr:attinyx5:chip=85,clock=1internal
             platform-url: http://drazzy.com/package_drazzy.com_index.json
-            examples-build-properties:
+            build-properties:
               WhistleSwitch:
                 -DFREQUENCY_RANGE_LOW
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
             platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
-            examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
+            sketches-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
 
           - arduino-boards-fqbn: esp32:esp32:featheresp32:FlashFreq=80
             platform-url: https://dl.espressif.com/dl/package_esp32_index.json
-            examples-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
+            sketches-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
 
       # Do not cancel all jobs / architectures if one job fails
       fail-fast: false
@@ -116,8 +116,8 @@ jobs:
           ENV_ARDUINO_BOARD_FQBN: ${{ matrix.arduino-boards-fqbn }}
           ENV_PLATFORM_URL: ${{ matrix.platform-url }}
           ENV_REQUIRED_LIBRARIES: ${{ env.REQUIRED_LIBRARIES }}
-          ENV_EXAMPLES_EXCLUDE: ${{ matrix.examples-exclude }}
-          ENV_EXAMPLES_BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
+          ENV_SKETCHES_EXCLUDE: ${{ matrix.sketches-exclude }}
+          ENV_BUILD_PROPERTIES: ${{ toJson(matrix.build-properties) }}
           ENV_SKETCH_NAMES: "*.ino"
           ENV_SKETCH_NAMES_FILE_START: .
           ENV_SAVE_GENERATED_FILES: true
