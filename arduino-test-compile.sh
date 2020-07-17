@@ -59,7 +59,7 @@ if [[ -z $BUILD_PROPERTIES && -n $EXAMPLES_BUILD_PROPERTIES ]]; then echo "Pleas
 #
 # Enforce defaults. Required at least for script version. !!! MUST be equal the defaults in action.yml !!!
 #
-echo -e "\n\n"${YELLOW}Set defaults
+echo -e "\n\n${YELLOW}Set defaults"
 if [[ -z $ARDUINO_BOARD_FQBN ]]; then echo "Set ARDUINO_BOARD_FQBN to default value: \"arduino:avr:uno\""; ARDUINO_BOARD_FQBN='arduino:avr:uno'; fi
 if [[ -z $PLATFORM_URL && -n $PLATFORM_DEFAULT_URL ]]; then echo -e "Set PLATFORM_URL to default value: \"${PLATFORM_DEFAULT_URL}\""; PLATFORM_URL=$PLATFORM_DEFAULT_URL; fi
 if [[ -z $CLI_VERSION ]]; then echo "Set CLI_VERSION to default value: \"latest\""; CLI_VERSION='latest'; fi
@@ -71,7 +71,7 @@ if [[ -z $SET_BUILD_PATH ]]; then echo -e "Set SET_BUILD_PATH to default value: 
 #
 # Echo input parameter
 #
-echo -e "\n\n"${YELLOW}Echo input parameter
+echo -e "\n\n${YELLOW}Echo input parameter"
 echo CLI_VERSION=$CLI_VERSION
 echo SKETCH_NAMES=$SKETCH_NAMES
 echo SKETCH_NAMES_FIND_START=$SKETCH_NAMES_FIND_START
@@ -102,34 +102,44 @@ declare -p BASH_ARGV
 #
 # Download and install arduino IDE, if not already cached
 #
-echo -n -e "\n\n"${YELLOW}"arduino-cli "
+echo -n -e "\n\n${YELLOW}arduino-cli "
 if [[ -f $HOME/arduino_ide/arduino-cli ]]; then
-  echo -e "cached: ""$GREEN""\xe2\x9c\x93" # never seen :-(
+  echo -e "cached: ${GREEN}\xe2\x9c\x93" # never seen :-(
 else
   echo -n "downloading: "
   wget --quiet https://downloads.arduino.cc/arduino-cli/arduino-cli_${CLI_VERSION}_Linux_64bit.tar.gz
-  if [[ $? -ne 0 ]]; then echo -e """$RED""\xe2\x9c\x96"; else echo -e """$GREEN""\xe2\x9c\x93"; fi
+  if [[ $? -ne 0 ]]; then 
+    echo -e "${RED}\xe2\x9c\x96"
+    echo "::error:: Unable to download arduino-cli_${CLI_VERSION}_Linux_64bit.tar.gz"
+    exit 3
+  else
+    echo -e "${GREEN}\xe2\x9c\x93"
+  fi
   echo -n "Upacking arduino-cli to ${HOME}/arduino_ide:  "
   if [[ ! -d $HOME/arduino_ide/ ]]; then
     mkdir $HOME/arduino_ide
   fi
   tar xf arduino-cli_${CLI_VERSION}_Linux_64bit.tar.gz -C $HOME/arduino_ide/
-  if [[ $? -ne 0 ]]; then echo -e """$RED""\xe2\x9c\x96"; else echo -e """$GREEN""\xe2\x9c\x93"; fi
+  if [[ $? -ne 0 ]]; then 
+    echo -e "${RED}\xe2\x9c\x96"
+  else
+    echo -e "${GREEN}\xe2\x9c\x93"
+  fi
 #  ls -l $HOME/arduino_ide/* # LICENSE.txt + arduino-cli
 #  ls -l $HOME # only arduino_ide
 fi
 
-#print version
-arduino-cli version
-
 # add the arduino CLI to our PATH
 export PATH="$HOME/arduino_ide:$PATH"
+
+#print version
+arduino-cli version
 
 #
 # Add *Custom* directories to Arduino library directory
 #
 if ls $GITHUB_WORKSPACE/*Custom* >/dev/null 2>&1; then
-  echo -e "\n\n"${YELLOW}Add *Custom* as Arduino library
+  echo -e "\n\n${YELLOW}Add *Custom* as Arduino library"
   mkdir --parents $HOME/Arduino/libraries
   rm --force --recursive $GITHUB_WORKSPACE/*Custom*/.git # do not want to move the whole .git directory
   # mv to avoid the library examples to be test compiled
@@ -147,7 +157,7 @@ fi
 #
 # Check if repo is an Arduino library
 if [[ -f $GITHUB_WORKSPACE/library.properties ]]; then
-  echo -e "\n\n"${YELLOW}Link this repository as Arduino library
+  echo -e "\n\n${YELLOW}Link this repository as Arduino library"
   mkdir --parents $HOME/Arduino/libraries
   ln --symbolic $GITHUB_WORKSPACE $HOME/Arduino/libraries/.
   if [[ $DEBUG_INSTALL == true ]]; then
@@ -161,7 +171,7 @@ fi
 #
 # Update index and install the required board platform
 #
-echo -e "\n\n"${YELLOW}Update index and install the required board platform
+echo -e "\n\n${YELLOW}Update index and install the required board platform"
 if [[ -z $ARDUINO_PLATFORM ]]; then
 # ARDUINO_PLATFORM is empty -> derive platform from the 2 first elements of the arduino-board-fqbn
   remainder=${ARDUINO_BOARD_FQBN#*:}
@@ -202,16 +212,16 @@ done
 #
 # Special esp8266 and esp32 platform handling
 #
-echo -e "\n\n"${YELLOW}Special esp8266 and esp32 platform handling
+echo -e "\n\n${YELLOW}Special esp8266 and esp32 platform handling"
 if [[ ${PLATFORM} == esp8266:esp8266 && ! -f /usr/bin/python3 ]]; then
   # python3 is a link in the esp8266 package: /github/home/.arduino15/packages/esp8266/tools/python3/3.7.2-post1/python3 -> /usr/bin/python3
-  echo -e "\n\n"${YELLOW}install python3 for ESP8266
+  echo -e "\n\n${YELLOW}install python3 for ESP8266"
   apt-get install -qq python3 > /dev/null
 fi
 
 if [[ $PLATFORM == esp32:esp32 ]]; then
   if [[ ! -f /usr/bin/pip && ! -f /usr/bin/python ]]; then
-    echo -e "\n\n"${YELLOW}install python and pip for ESP32
+    echo -e "\n\n${YELLOW}install python and pip for ESP32"
 # Here we would get the warning: The directory '/github/home/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled.
 #                                Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
     apt-get install -qq python-pip > /dev/null 2>&1 # this installs also python
@@ -222,7 +232,7 @@ fi
 #
 # List installed boards with their FQBN
 #
-echo -e "\n\n"${YELLOW}List installed boards with their FQBN
+echo -e "\n\n${YELLOW}List installed boards with their FQBN"
 if [[ $DEBUG_INSTALL == true ]]; then
   echo arduino-cli board listall --verbose
   arduino-cli board listall --verbose
@@ -234,7 +244,7 @@ fi
 #
 # Install required libraries
 #
-echo -e "\n"${YELLOW}Install required libraries
+echo -e "\n${YELLOW}Install required libraries"
 if [[ -z $REQUIRED_LIBRARIES ]]; then
   echo No additional libraries to install
 else
@@ -259,7 +269,7 @@ fi
 #
 # Get the build property map
 #
-echo -e "\n"${YELLOW}Compiling sketches / examples for board $ARDUINO_BOARD_FQBN "\n"
+echo -e "\n${YELLOW}Compiling sketches / examples for board $ARDUINO_BOARD_FQBN\n"
 
 # If matrix.build-properties are specified, create an associative shell array
 # Input example: { "WhistleSwitch": "-DINFO -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }
@@ -358,7 +368,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
         build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-properties compiler.cpp.extra_flags="${GCC_EXTRA_FLAGS}" --build-properties compiler.c.extra_flags="${GCC_EXTRA_FLAGS}" --build-properties compiler.S.extra_flags="${GCC_EXTRA_FLAGS}" $SKETCH_PATH 2>&1)
       fi
       if [[ $? -ne 0 ]]; then
-        echo -e ""$RED"\xe2\x9c\x96" # If ok output a green checkmark else a red X and the command output.
+        echo -e ""${RED}"\xe2\x9c\x96" # If ok output a green checkmark else a red X and the command output.
         if [[ -z $GCC_EXTRA_FLAGS ]]; then
           echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER $SKETCH_PATH"
         else
@@ -368,7 +378,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
         echo -e "$build_stdout \n"
         exit_code=1
       else
-        echo -e ""$GREEN"\xe2\x9c\x93"
+        echo -e "${GREEN}\xe2\x9c\x93"
         if [[ -z $GCC_EXTRA_FLAGS ]]; then
           echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER $SKETCH_PATH"
         else
