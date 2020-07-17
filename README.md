@@ -468,6 +468,7 @@ Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-t
 ### Version v2.6.0
 - Renamed `examples-exclude` to `sketches-exclude`. Old name is still valid.
 - Renamed `examples-build-properties` to `build-properties`. Old name is still valid.
+- Fixed print cli version bug.
 
 ### Version v2.5.0 -> Due to a Github failure/outage on 13.07.2020 the old 2.5.0 version from 10.07.20 (and 2.5.1 from 12.07.20 ) was removed.
 - Fixed skipped compile of examples, if one *.ino file is present in the repository root.
