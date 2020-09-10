@@ -167,11 +167,12 @@ sketch-names-find-start: digistump-avr/libraries/*/examples/C*/
 
 ### `set-build-path`
 If set to true, the build directory (arduino-cli paramer --build-path) is set to `$GITHUB_WORKSPACE/src/<example_name>/build/`  or to `$HOME/<sketch-name>/build/` for files not residing in a directory with the same name.<br/>
+This is useful, if you need to access the result files of the Arduino build in later workflow steps.
 Default is `false`.<br/>
-Environment name for script usage is `ENV_SAVE_GENERATED_FILES`.
+Environment name for script usage is `ENV_SET_BUILD_PATH`.
 
 ```yaml
-save-generated-files: true
+set-build-path: true
 ```
 
 ### `debug-compile` and `debug-install`

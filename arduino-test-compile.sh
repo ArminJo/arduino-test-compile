@@ -316,7 +316,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
   # Check if find command found a file
   if [[ -z ${SKETCHES[0]} ]]; then
     GLOBIGNORE=*:?:[
-    echo No files found to compile with sketch-names=${SKETCH_NAMES} and sketch-names-find-start=${SKETCH_NAMES_FIND_START}
+    echo -e "\nNo files found to compile with sketch_name=${sketch_name}. sketch-names=${SKETCH_NAMES} and sketch-names-find-start=${SKETCH_NAMES_FIND_START}"
     GLOBIGNORE=
     # No files found -> list start directory and execute find command to see what we did
     echo -e "find command is: find ${GITHUB_WORKSPACE}/${SKETCH_NAMES_FIND_START} -type f -name \"$sketch_name\""
@@ -331,6 +331,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
     SKETCH_FILENAME=$(basename $sketch) # complete name of sketch
     SKETCH_EXTENSION=${SKETCH_FILENAME##*.} # extension of sketch
     SKETCH_BASENAME=${SKETCH_FILENAME%%.*} # name without extension / basename of sketch, must match directory name
+    echo -e "\n"
     if [[ $SKETCHES_EXCLUDE == *"$SKETCH_BASENAME"* ]]; then
       echo -e "Skipping $SKETCH_BASENAME \xe2\x9e\x9e" # Right arrow
     else
