@@ -65,16 +65,13 @@ jobs:
           - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # UNO board with -DDEBUG for all examples
             sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
             build-properties:
-              All:
-                -DDEBUG
+              All: -DDEBUG
 
           - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
             arduino-platform: arduino:avr@1.8.1
             sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
             build-properties:
-              WhistleSwitch:
-                -DDEBUG
-                -DTRACE
+              WhistleSwitch: -DDEBUG -DTRACE
 
           - arduino-boards-fqbn: digistump:avr:digispark-tiny:clock=clock1  # ATtiny85 board @1 MHz
             platform-url: https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json
@@ -85,8 +82,7 @@ jobs:
             platform-url: http://drazzy.com/package_drazzy.com_index.json,https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json
 
             build-properties:
-              WhistleSwitch:
-                -DFREQUENCY_RANGE_LOW
+              WhistleSwitch: -DFREQUENCY_RANGE_LOW
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
             #"<URL> <URL>" whis space as separator is deprecated but works also
@@ -121,7 +117,7 @@ jobs:
           platform-url: ${{ matrix.platform-url }}
           required-libraries: ${{ env.REQUIRED_LIBRARIES }}
           sketches-exclude: ${{ matrix.sketches-exclude }}
-          examples-build-properties: ${{ toJson(matrix.build-properties) }}
+          build-properties: ${{ toJson(matrix.build-properties) }}
           sketch-names:
             WhistleSwitch.ino,
             50Hz.ino,

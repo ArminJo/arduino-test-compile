@@ -2,6 +2,7 @@
 ### Version 2.6.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
+[![Commits since latest](https://img.shields.io/github/commits-since/ArminJo/arduino-test-compile/latest)](https://github.com/ArminJo/arduino-test-compile/commits/master)
 [![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ActionTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
 [![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ScriptTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
 
@@ -13,7 +14,7 @@ If you want to test compile a sketch, **it is not required that the sketch resid
 Since version 0.11.0 of arduino-cli, the **generated files** (.bin, .hex, .elf, .eep etc.) can be found in the build/<FQBN> subfolder of the example directory `$GITHUB_WORKSPACE/src/<example_name>`  or in `$HOME/<sketch-name>` for files not residing in a directory with the same name.<br/>
 
 # Hints
-- If you require a custom library for your build, add an extra step for [loading a custom library](#using-custom-library). **Be aware to use the `path:` parameter for checkout, otherwise checkout will overwrite the last checkout content.**</br>
+- If you require a custom library for your build, add an extra step for [loading a custom library](#using-custom-library). **Be aware to use the `path:` parameter for checkout, otherwise checkout will overwrite the last checkout content.**<br/>
 Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).
 
 - If you need more flexibility for e.g. installing additional board platforms, or want to save around 20 to 30 seconds for each job,
@@ -54,14 +55,16 @@ Environment name for script usage is `ENV_PLATFORM_URL`.
   platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
 ```
 
-Sample URL's are:
+Some [sample URL's](https://github.com/arduino/Arduino/wiki/Unofficial-list-of-3rd-party-boards-support-urls) are:
 - http://drazzy.com/package_drazzy.com_index.json - for ATTiny boards
-- https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json - for Digistump AVR boards. Up to 20% smaller code
+- https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json - for Digistump AVR boards. Up to 20% smaller code<br/><br/>
 - https://arduino.esp8266.com/stable/package_esp8266com_index.json - for ESP8266 based boards
-- https://dl.espressif.com/dl/package_esp32_index.json - for ESP32 based boards
-- https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/package_stm_index.json - for STM32 boards
+- https://dl.espressif.com/dl/package_esp32_index.json - for ESP32 based boards<br/><br/>
+- https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/package_stm_index.json - STM for STM32 boards
+- http://dan.drown.org/stm32duino/package_STM32duino_index.json - stmduino for STM32 boards
 - https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards, esp. Apollo3 boards
-- https://files.pololu.com/arduino/package_pololu_index.json - for Pololu boards, esp. ATMega328PB boards
+- https://sandeepmistry.github.io/arduino-nRF5/package_nRF5_boards_index.json - for nRF528x based boards like Nano 33 BLE
+- https://files.pololu.com/arduino/package_pololu_index.json - for Pololu boards, esp. ATMega328PB boards<br/><br/>
 - https://downloads.arduino.cc/packages/package_index.json - Built in URL for default Arduino boards, not required to specify
 
 ### `arduino-platform`
@@ -410,8 +413,9 @@ jobs:
 ```
 
 ## Using custom library
-Add an extra step `Checkout custom library` for loading custom library. **You must use the `path:` parameter, otherwise checkout overwrites the last checkout content.**</br>
-Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).
+Add an extra step `Checkout custom library` for loading custom library. **You must use the `path:` parameter, otherwise checkout overwrites the last checkout content.**<br/>
+Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).<br/>
+You do not need to put the custom libraries you loaded manually in the `required-libraries` list, since they are already loaded now!
 ```yaml
 ...
     steps:
@@ -428,9 +432,9 @@ Take care that the path parameter matches the pattern `*Custom*` like [here](htt
       - name: Checkout second custom library # This name must be different from the one above
         uses: actions/checkout@v2
         with:
-          repository: ArminJo/Arduino-Utils
+          repository: ArminJo/Arduino-BlueDisplay
           ref: master
-          path: SecondCustomLibrary # This path must be different from the one above but must also contain string "Custom"
+          path: CustomLibrary_BlueDisplay # This path must be different from the one above but must also contain string "Custom"
 ...
 ```
 
