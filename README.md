@@ -455,6 +455,7 @@ Samples for using action in workflow:
 
 ### Version v3.0.0
 - Converted from a "Docker action" to a much faster "composite run steps" action.
+- Removed deprecated parameter `examples-exclude` and `examples-build-properties` from action definition.
 
 ### Version v2.6.0
 - Renamed `examples-exclude` to `sketches-exclude`. Old name is still valid.
