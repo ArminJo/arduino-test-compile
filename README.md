@@ -1,5 +1,5 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
-### Version 2.6.0
+### Version 3.0.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 [![Commits since latest](https://img.shields.io/github/commits-since/ArminJo/arduino-test-compile/latest)](https://github.com/ArminJo/arduino-test-compile/commits/master)
@@ -8,8 +8,8 @@
 
 This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) in a repository for different boards, each with different compile parameters.<br/>
 It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).<br/>
-The action is a Docker action which uses Ubuntu 18.04 and the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the other work like loading libraries, installing board definitions and setting parameters is orchestrated by the [arduino-test-compile.sh](arduino-test-compile.sh) bash script.<br/>
-In case of a compile error the [**complete compile output**](https://github.com/ArminJo/PlayRtttl/runs/692586646?check_suite_focus=true#step:4:99) is logged in the [Compile all examples](https://github.com/ArminJo/PlayRtttl/runs/692586646?check_suite_focus=true#step:4:1) step, otherwise only a [**green check**](https://github.com/ArminJo/PlayRtttl/runs/692736061?check_suite_focus=true#step:4:95) is printed.<br/>
+The action is a "composite run steps" action which uses the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the work like loading libraries, installing board definitions and setting parameters is orchestrated by the [arduino-test-compile.sh](arduino-test-compile.sh) bash script.<br/>
+In case of a compile error the **complete compile output** is logged in the *Compile all examples...* step, otherwise only a **green check** is printed. Examples can be found [here](https://github.com/ArminJo/ServoEasing/actions).<br/>
 If you want to test compile a sketch, **it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino**. Internally the file is renamed to be .ino and the appropriate directory is created on the fly at `/home/runner/<sketch-name>` for test-compiling. See [parameter `sketch-names`](arduino-test-compile#sketch-names).<br/>
 Since version 0.11.0 of arduino-cli, the **generated files** (.bin, .hex, .elf, .eep etc.) can be found in the build/<FQBN> subfolder of the example directory `$GITHUB_WORKSPACE/src/<example_name>`  or in `$HOME/<sketch-name>` for files not residing in a directory with the same name.<br/>
 
@@ -17,11 +17,7 @@ Since version 0.11.0 of arduino-cli, the **generated files** (.bin, .hex, .elf, 
 - If you require a custom library for your build, add an extra step for [loading a custom library](#using-custom-library). **Be aware to use the `path:` parameter for checkout, otherwise checkout will overwrite the last checkout content.**<br/>
 Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).
 
-- If you need more flexibility for e.g. installing additional board platforms, or want to save around 20 to 30 seconds for each job,
-then you may consider to use the [arduino-test-compile.sh](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh) directly.
-See [example below](#multiple-boards-with-parameter-using-the-script-directly).
-
-- If you have problems with you workflow file, you find additional information in the output if setting the [flags](#debug-compile-and-debug-install) `debug-compile` and / or `debug-install` to `true`.<br/>
+- If you have problems with you workflow file, you find additional information in the output if you set the [flags](#debug-compile-and-debug-install) `debug-compile` and / or `debug-install` to `true`.<br/>
 
 # Inputs
 See [action.yml](https://github.com/ArminJo/arduino-test-compile/blob/master/action.yml) for comprehensive list of parameters.
@@ -29,7 +25,6 @@ See [action.yml](https://github.com/ArminJo/arduino-test-compile/blob/master/act
 ### `arduino-board-fqbn`
 The fully qualified board name to use for compiling with arduino-cli. You may add a suffix behind the fqbn with `|` to specify one board for e.g. different compile options like `arduino:avr:uno|trace`.<br/>
 Default is `arduino:avr:uno`.<br/>
-Environment name for script usage is `ENV_ARDUINO_BOARD_FQBN`.
 
 ```yaml
 arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
@@ -40,7 +35,6 @@ arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
 ### `platform-default-url`
 Default value to take, if `platform-url` is not specified for a 3rd party board. Useful, if you want to test compile for different boards types of one architecture.<br/>
 Default is `""`.<br/>
-Environment name for script usage is `ENV_PLATFORM_DEFAULT_URL`.
 
 ```yaml
 platform-default-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
@@ -49,7 +43,6 @@ platform-default-url: https://arduino.esp8266.com/stable/package_esp8266com_inde
 ### `platform-url`
 Required for 3rd party boards, if `platform-default-url` is not specified or applicable. If you need, you may specify more than one URL as a comma separated list (without enclosing it in double quotes) like `http://drazzy.com/package_drazzy.com_index.json,https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json`.<br/>
 Default is `""`.<br/>
-Environment name for script usage is `ENV_PLATFORM_URL`.
 
 ```yaml
   platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
@@ -57,21 +50,20 @@ Environment name for script usage is `ENV_PLATFORM_URL`.
 
 Some [sample URL's](https://github.com/arduino/Arduino/wiki/Unofficial-list-of-3rd-party-boards-support-urls) are:
 - http://drazzy.com/package_drazzy.com_index.json - for ATTiny boards
-- https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json - for Digistump AVR boards. Up to 20% smaller code<br/><br/>
+- https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json - for Digistump AVR boards. Up to 20% smaller code
+- https://files.pololu.com/arduino/package_pololu_index.json - for Pololu boards, esp. ATmega328PB boards<br/><br/>
 - https://arduino.esp8266.com/stable/package_esp8266com_index.json - for ESP8266 based boards
 - https://dl.espressif.com/dl/package_esp32_index.json - for ESP32 based boards<br/><br/>
 - https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/package_stm_index.json - STM for STM32 boards
 - http://dan.drown.org/stm32duino/package_STM32duino_index.json - stmduino for STM32 boards
 - https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards, esp. Apollo3 boards
-- https://sandeepmistry.github.io/arduino-nRF5/package_nRF5_boards_index.json - for nRF528x based boards like Nano 33 BLE
-- https://files.pololu.com/arduino/package_pololu_index.json - for Pololu boards, esp. ATMega328PB boards<br/><br/>
+- https://sandeepmistry.github.io/arduino-nRF5/package_nRF5_boards_index.json - for nRF528x based boards like Nano 33 BLE<br/><br/>
 - https://downloads.arduino.cc/packages/package_index.json - Built in URL for default Arduino boards, not required to specify
 
 ### `arduino-platform`
 Comma separated list of platform specifies with optional version to specify multiple platforms for your board or a fixed version like `arduino:avr@1.8.2`.<br/>
 In general, use it only if you require another specifier than the one derived from the 2 first elements of the arduino-board-fqbn e.g. **esp8266:esp8266**:huzzah:eesz=4M3M,xtal=80, esp32:esp32:featheresp32:FlashFreq=80 -> **esp8266:esp8266**. Do not forget to specify the related URL's, if it is not the arduino URL, which is built in.<br/>
 Default is `""`.<br/>
-Environment name for script usage is `ENV_ARDUINO_PLATFORM`.
 
 ```yaml
 arduino-platform: arduino:avr,SparkFun:avr@1.1.13
@@ -84,7 +76,6 @@ Comma separated list of arduino library dependencies to install. You may add a v
 Only libraries [available in the Arduino library manager](https://www.arduinolibraries.info/) can be installed this way.<br/>
 To use other/custom libraries, you must put all the library files into the sketch directory or add an extra step as in [this example](#using-custom-library).
 Default is `""`.<br/>
-Environment name for script usage is `ENV_REQUIRED_LIBRARIES`.
 
 ```yaml
 required-libraries: Servo,Adafruit NeoPixel@1.3.4
@@ -95,7 +86,6 @@ Comma separated list without double quotes around the list or a library name. A 
 
 ### `sketches-exclude`
 Sketches to be **excluded from build**. Comma or space separated list of complete sketch / example names to exclude in build.<br/>
-Environment name for script usage is `ENV_SKETCHES_EXCLUDE`.
 
 ```yaml
   sketches-exclude: QuadrupedControl,RobotArmControl # QuadrupedControl and RobotArmControl because of missing EEprom
@@ -103,7 +93,6 @@ Environment name for script usage is `ENV_SKETCHES_EXCLUDE`.
 
 ### `build-properties`
 Build parameter like `-DDEBUG` for each example specified or for all examples, if example name is `All`. If an example specific parameter is specified, the value for All is ignored for this example. <br/>
-Environment name for script usage is `ENV_BUILD_PROPERTIES`.<br/>
 
 In the `include:` section you may specify:
 
@@ -140,7 +129,6 @@ with:
 ### `cli-version`
 The version of `arduino-cli` to use.<br/>
 Default is `latest`.<br/>
-Environment name for script usage is `ENV_CLI_VERSION`.
 
 ```yaml
 cli-version: 0.9.0 # The current one (3/2020)
@@ -153,7 +141,6 @@ If you specify `sketch-names-find-start` then the find command is changed to `fi
 Sketches do not need to be in an example directory. This enables **[plain programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) to be test compiled**.<br/>
 Since Arduino requires a sketch to end with .ino and to reside in a directory with the same name as the sketch, if required, the **renaming and directory creation is done internally** to fulfill the requirements of the Arduino IDE.<br/>
 Default is `*.ino`.<br/>
-Environment name for script usage is `ENV_SKETCH_NAMES`.
 
 ```yaml
 sketch-names: "*.ino,SimpleTouchScreenDSO.cpp"
@@ -162,7 +149,6 @@ sketch-names: "*.ino,SimpleTouchScreenDSO.cpp"
 ### `sketch-names-find-start`
 The **start directory to look for the sketch-names** to test compile. Can be a path like `digistump-avr/libraries/*/examples/`. Must be a path **relative to the root of the repository**. Used [here](https://github.com/ArminJo/DigistumpArduino/blob/master/.github/workflows/TestCompile.yml#L90) to compile all library examples of the board package.
 Default is `.` (root of repository).<br/>
-Environment name for script usage is `ENV_SKETCH_NAMES_FIND_START`.
 
 ```yaml
 sketch-names-find-start: digistump-avr/libraries/*/examples/C*/
@@ -172,7 +158,6 @@ sketch-names-find-start: digistump-avr/libraries/*/examples/C*/
 If set to true, the build directory (arduino-cli paramer --build-path) is set to `$GITHUB_WORKSPACE/src/<example_name>/build/`  or to `$HOME/<sketch-name>/build/` for files not residing in a directory with the same name.<br/>
 This is useful, if you need to access the result files of the Arduino build in later workflow steps.
 Default is `false`.<br/>
-Environment name for script usage is `ENV_SET_BUILD_PATH`.
 
 ```yaml
 set-build-path: true
@@ -181,7 +166,6 @@ set-build-path: true
 ### `debug-compile` and `debug-install`
 If you have problems with you workflow file, try to set this flags to `true`.<br/>
 Default is `false`.<br/>
-Environment name for script usage is `ENV_DEBUG_COMPILE` and `ENV_DEBUG_INSTALL`.
 
 # Workflow examples
 ## Simple - without any parameter
@@ -198,7 +182,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Compile all examples
-      uses: ArminJo/arduino-test-compile@v2
+      uses: ArminJo/arduino-test-compile@v3
 ```
 
 ## One ESP8266 board with parameter
@@ -215,7 +199,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v2
+        uses: ArminJo/arduino-test-compile@v3
       with:
         arduino-board-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
         platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
@@ -257,7 +241,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v2
+        uses: ArminJo/arduino-test-compile@v3
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-url: ${{ matrix.platform-url }}
@@ -325,7 +309,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@v2
+        uses: ArminJo/arduino-test-compile@v3
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-default-url: ${{ env.PLATFORM_DEFAULT_URL }}
@@ -336,8 +320,53 @@ jobs:
           build-properties: ${{ toJson(matrix.build-properties) }}
 ```
 
+## Using custom library
+Add an extra step `Checkout custom library` for loading custom library. **You must use the `path:` parameter, otherwise checkout overwrites the last checkout content.**<br/>
+Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).<br/>
+You do not need to put the custom libraries you loaded manually in the `required-libraries` list, since they are already loaded now!
+```yaml
+...
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Checkout custom library
+        uses: actions/checkout@v2
+        with:
+          repository: ArminJo/ATtinySerialOut
+          ref: master
+          path: CustomLibrary # must contain string "Custom"
+
+      - name: Checkout second custom library # This name must be different from the one above
+        uses: actions/checkout@v2
+        with:
+          repository: ArminJo/Arduino-BlueDisplay
+          ref: master
+          path: CustomLibrary_BlueDisplay # This path must be different from the one above but must also contain string "Custom"
+...
+```
+
+## Single [program](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master/src) using `sketch-names` parameter
+```yaml
+name: TestCompile
+on: push
+jobs:
+  build:
+    name: Test compiling examples for UNO
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Compile all examples
+        uses: ArminJo/arduino-test-compile@master
+        with:
+          sketch-names: SimpleTouchScreenDSO.cpp
+          required-libraries: BlueDisplay
+```
+
 ## Multiple boards with parameter using the **script directly**
-This is faster and more flexible.
+This is not longer required since v3.0.0.
 
 ```yaml
 name: LibraryBuild
@@ -405,56 +434,11 @@ jobs:
           ENV_SKETCHES_EXCLUDE: ${{ matrix.sketches-exclude }}
           ENV_BUILD_PROPERTIES: ${{ toJson(matrix.build-properties) }}
           ENV_SKETCH_NAMES: ${{ matrix.sketch-names }}
-          ENV_SKETCH_NAMES_FILE_START: examples/ # Not really required here, but serves as an usage example.
+          ENV_SKETCH_NAMES_FIND_START: examples/ # Not really required here, but serves as an usage example.
         run: |
           wget --quiet https://raw.githubusercontent.com/ArminJo/arduino-test-compile/master/arduino-test-compile.sh
           chmod +x arduino-test-compile.sh
           ./arduino-test-compile.sh
-```
-
-## Using custom library
-Add an extra step `Checkout custom library` for loading custom library. **You must use the `path:` parameter, otherwise checkout overwrites the last checkout content.**<br/>
-Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).<br/>
-You do not need to put the custom libraries you loaded manually in the `required-libraries` list, since they are already loaded now!
-```yaml
-...
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Checkout custom library
-        uses: actions/checkout@v2
-        with:
-          repository: ArminJo/ATtinySerialOut
-          ref: master
-          path: CustomLibrary # must contain string "Custom"
-
-      - name: Checkout second custom library # This name must be different from the one above
-        uses: actions/checkout@v2
-        with:
-          repository: ArminJo/Arduino-BlueDisplay
-          ref: master
-          path: CustomLibrary_BlueDisplay # This path must be different from the one above but must also contain string "Custom"
-...
-```
-
-## Single [program](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master/src) using `sketch-names` parameter
-```yaml
-name: TestCompile
-on: push
-jobs:
-  build:
-    name: Test compiling examples for UNO
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@master
-        with:
-          sketch-names: SimpleTouchScreenDSO.cpp
-          required-libraries: BlueDisplay
 ```
 
 Samples for using action in workflow:
@@ -463,12 +447,14 @@ Samples for using action in workflow:
 - Arduino library, only arduino:avr boards. Talkie [![Build Status](https://github.com/ArminJo/Talkie/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Talkie/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, 2 boards. Arduino-FrequencyDetector [![Build Status](https://github.com/ArminJo/Arduino-FrequencyDetector/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Arduino-FrequencyDetector/blob/master/.github/workflows/LibraryBuildWithAction.yml)
 
-Samples for using `arduino-test-compile.sh script` instead of `ArminJo/arduino-test-compile@v2` action:
 - One sketch, one board, multiple options. RobotCar [![Build Status](https://github.com/ArminJo/Arduino-RobotCar/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-RobotCar/blob/master/.github/workflows/TestCompile.yml)
 - Arduino library, multiple boards. ServoEasing [![Build Status](https://github.com/ArminJo/ServoEasing/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/ServoEasing/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
 
 # Revision History
+
+### Version v3.0.0
+- Converted from a "Docker action" to a much faster "composite run steps" action.
 
 ### Version v2.6.0
 - Renamed `examples-exclude` to `sketches-exclude`. Old name is still valid.
