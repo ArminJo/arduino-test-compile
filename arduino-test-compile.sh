@@ -265,6 +265,8 @@ else
   fi
 fi
 
+# Save generated files to the build subfolder of the sketch
+export ARDUINO_SKETCH_ALWAYS_EXPORT_BINARIES=true
 
 #
 # Get the build property map
