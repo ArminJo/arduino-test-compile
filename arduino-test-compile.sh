@@ -376,8 +376,10 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
         else
           echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-properties compiler.cpp.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.c.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.S.extra_flags=\"${GCC_EXTRA_FLAGS}\" $SKETCH_PATH"
         fi
-        echo "::error::Compile of  $SKETCH_BASENAME ${GCC_EXTRA_FLAGS} failed"
+        echo "::error::Compile of $SKETCH_BASENAME ${GCC_EXTRA_FLAGS} failed"
         echo -e "$build_stdout \n"
+        # repeat the info after hundred lines of output
+        echo "Compile of $SKETCH_BASENAME ${GCC_EXTRA_FLAGS} failed"
         exit_code=1
       else
         echo -e "${GREEN}\xe2\x9c\x93"
