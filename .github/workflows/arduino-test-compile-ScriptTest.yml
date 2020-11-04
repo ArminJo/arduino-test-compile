@@ -14,7 +14,7 @@ on:
     - '**.ino'
     - '**.cpp'
     - '**.h'
-    - '**.sh'
+    - 'arduino-test-compile.sh'
     - '**arduino-test-compile-ScriptTest.yml'
 
 jobs:
@@ -114,7 +114,7 @@ jobs:
           ENV_SKETCHES_EXCLUDE: ${{ matrix.sketches-exclude }}
           ENV_BUILD_PROPERTIES: ${{ toJson(matrix.build-properties) }}
           ENV_SKETCH_NAMES: "*.ino"
-          ENV_SKETCH_NAMES_FILE_START: .
+          ENV_SKETCH_NAMES_FIND_START: .
           ENV_SAVE_GENERATED_FILES: true
           ENV_DEBUG_COMPILE: true
           ENV_DEBUG_INSTALL: true

@@ -42,9 +42,9 @@ if [[ -n $ENV_PLATFORM_DEFAULT_URL ]]; then PLATFORM_DEFAULT_URL=$ENV_PLATFORM_D
 if [[ -n $ENV_PLATFORM_URL ]]; then PLATFORM_URL=$ENV_PLATFORM_URL; fi
 if [[ -n $ENV_REQUIRED_LIBRARIES ]]; then REQUIRED_LIBRARIES=$ENV_REQUIRED_LIBRARIES; fi
 if [[ -n $ENV_SKETCHES_EXCLUDE ]]; then SKETCHES_EXCLUDE=$ENV_SKETCHES_EXCLUDE; fi
-if [[ -n $ENV_EXAMPLES_EXCLUDE ]]; then EXAMPLES_EXCLUDE=$ENV_EXAMPLES_EXCLUDE; fi
+if [[ -n $ENV_EXAMPLES_EXCLUDE ]]; then EXAMPLES_EXCLUDE=$ENV_EXAMPLES_EXCLUDE; fi #deprecated
 if [[ -n $ENV_BUILD_PROPERTIES ]]; then BUILD_PROPERTIES=$ENV_BUILD_PROPERTIES; fi
-if [[ -n $ENV_EXAMPLES_BUILD_PROPERTIES ]]; then EXAMPLES_BUILD_PROPERTIES=$ENV_EXAMPLES_BUILD_PROPERTIES; fi
+if [[ -n $ENV_EXAMPLES_BUILD_PROPERTIES ]]; then EXAMPLES_BUILD_PROPERTIES=$ENV_EXAMPLES_BUILD_PROPERTIES; fi #deprecated
 if [[ -n $ENV_SET_BUILD_PATH ]]; then SET_BUILD_PATH=$ENV_SET_BUILD_PATH; fi
 
 if [[ -n $ENV_DEBUG_COMPILE ]]; then DEBUG_COMPILE=$ENV_DEBUG_COMPILE; fi
@@ -380,7 +380,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
         fi
         echo "::error::Compile of $SKETCH_BASENAME ${GCC_EXTRA_FLAGS} failed"
         echo -e "$build_stdout \n"
-        # repeat the info after hundred lines of output
+        # repeat the info after hundred lines of output :-)
         echo "Compile of $SKETCH_BASENAME ${GCC_EXTRA_FLAGS} failed"
         exit_code=1
       else

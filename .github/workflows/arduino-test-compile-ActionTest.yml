@@ -14,8 +14,8 @@ on:
     - '**.ino'
     - '**.cpp'
     - '**.h'
-    - '**.sh'
-    - '**action.yml'
+    - 'arduino-test-compile.sh'
+    - 'action.yml'
     - '**arduino-test-compile-ActionTest.yml'
 
 jobs:

@@ -48,11 +48,6 @@ inputs:
     default: ''
     required: false
 
-  examples-exclude:
-    description: 'Deprecated in favor of sketches-exclude. Comma or space separated list of complete names of all sketches / examples to be excluded in the build for this board.'
-    default: ''
-    required: false
-
   build-properties:
     description: |
       Build parameter like -DDEBUG for each example specified or for all examples, if example name is "All". In json format.
@@ -60,15 +55,8 @@ inputs:
     default: ''
     required: false
 
-  examples-build-properties:
-    description: |
-      Deprecated in favor of build-properties. Build parameter like -DDEBUG for each example specified or for all examples, if example name is "All". In json format.
-      For example: examples-build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'
-    default: ''
-    required: false
-
   set-build-path:
-    description: 'Flag to set the build directory (arduino-cli paramer --build-path) to /build subdirectory of compiled example.'
+    description: 'Flag to set the build directory (arduino-cli paramer --build-path) to /build subdirectory of compiled sketches.'
     default: 'false'
     required: false
 
@@ -83,24 +71,28 @@ inputs:
     required: false
 
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  args:
-    - ${{ inputs.cli-version }}
-    - ${{ inputs.sketch-names }}
-    - ${{ inputs.sketch-names-find-start }}
-    - ${{ inputs.arduino-board-fqbn }}
-    - ${{ inputs.arduino-platform }}
-    - ${{ inputs.platform-default-url }}
-    - ${{ inputs.platform-url }}
-    - ${{ inputs.required-libraries }}
-    - ${{ inputs.sketches-exclude }}
-    - ${{ inputs.examples-exclude }}
-    - ${{ inputs.build-properties }}
-    - ${{ inputs.examples-build-properties }}
-    - ${{ inputs.set-build-path }}
-    - ${{ inputs.debug-compile }}
-    - ${{ inputs.debug-install }}
+  using: 'composite'
+  steps:
+    - name: Compile all sketches / examples using the bash script arduino-test-compile.sh
+      env:
+          # Passing parameters to the script by setting the appropriate ENV_* variables.
+          # Direct passing as arguments is not possible because of blanks in the arguments.
+          ENV_CLI_VERSION: ${{ inputs.cli-version }}
+          ENV_SKETCH_NAMES: ${{ inputs.sketch-names }}
+          ENV_SKETCH_NAMES_FIND_START: ${{ inputs.sketch-names-find-start }}
+          ENV_ARDUINO_BOARD_FQBN: ${{ inputs.arduino-board-fqbn }}
+          ENV_ARDUINO_PLATFORM: ${{ inputs.arduino-platform }}
+          ENV_PLATFORM_DEFAULT_URL: ${{ inputs.platform-default-url }}
+          ENV_PLATFORM_URL: ${{ inputs.platform-url }}
+          ENV_REQUIRED_LIBRARIES: ${{ inputs.required-libraries }}
+          ENV_SKETCHES_EXCLUDE: ${{ inputs.sketches-exclude }}
+          ENV_BUILD_PROPERTIES: ${{ inputs.build-properties }}
+          ENV_SET_BUILD_PATH: ${{ inputs.set-build-path }} 
+          ENV_DEBUG_COMPILE: ${{ inputs.debug-compile }}
+          ENV_DEBUG_INSTALL:  ${{ inputs.debug-install }}
+
+      run: ${{ github.action_path }}/arduino-test-compile.sh
+      shell: bash
 
 branding:
   icon: 'eye'
