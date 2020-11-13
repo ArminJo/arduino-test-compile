@@ -175,14 +175,18 @@ echo -e "\n\n${YELLOW}Update index and install the required board platform"
 if [[ -z $ARDUINO_PLATFORM ]]; then
 # ARDUINO_PLATFORM is empty -> derive platform from the 2 first elements of the arduino-board-fqbn
   remainder=${ARDUINO_BOARD_FQBN#*:}
-  PLATFORM=${ARDUINO_BOARD_FQBN%%:*}:${remainder%%:*}
+  provider=${ARDUINO_BOARD_FQBN%%:*}
+  PLATFORM=${provider}:${remainder%%:*}
 else
   PLATFORM=$ARDUINO_PLATFORM
 fi
-echo PLATFORM=${PLATFORM}
+echo PLATFORM=${PLATFORM} # e.g. digistump:avr
 if [[ ${PLATFORM} != *arduino* && -z $PLATFORM_URL ]]; then
-  echo -e "::error::Non Arduino platform $PLATFORM requested, but \"platform-url\" parameter is missing."
-  exit 1
+# check if the requested platform is manually installed
+  if [[ ! -d $HOME/.arduino15/packages/${provider} ]]; then
+    echo -e "::error::Non Arduino platform $PLATFORM requested, but \"platform-url\" parameter is missing."
+    exit 1
+  fi
 fi
 
 if [[ -n $PLATFORM_URL ]]; then
@@ -336,7 +340,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
     SKETCH_BASENAME=${SKETCH_FILENAME%%.*} # name without extension / basename of sketch, must match directory name
     echo -e "\n"
     if [[ $SKETCHES_EXCLUDE == *"$SKETCH_BASENAME"* ]]; then
-      echo -e "Skipping $SKETCH_BASENAME \xe2\x9e\x9e" # Right arrow
+      echo -e "Skipping $SKETCH_PATH \xe2\x9e\x9e" # Right arrow
     else
       # If sketch name does not end with .ino, rename it locally
       if [[ $SKETCH_EXTENSION != ino ]]; then

@@ -1,5 +1,5 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
-### Version 3.0.0
+### Version 3.0.1
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 [![Commits since latest](https://img.shields.io/github/commits-since/ArminJo/arduino-test-compile/latest)](https://github.com/ArminJo/arduino-test-compile/commits/master)
@@ -18,6 +18,8 @@ Since version 0.11.0 of arduino-cli, the **generated files** (.bin, .hex, .elf, 
 Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).
 
 - If you have problems with you workflow file, you find additional information in the output if you set the [flags](#debug-compile-and-debug-install) `debug-compile` and / or `debug-install` to `true`.<br/>
+
+- If actions / workflow for your repository is not enabled, select `Allow all actions` it in your repositorys *Settings/Actions* menu.
 
 # Inputs
 See [action.yml](https://github.com/ArminJo/arduino-test-compile/blob/master/action.yml) for comprehensive list of parameters.
@@ -63,6 +65,7 @@ Some [sample URL's](https://github.com/arduino/Arduino/wiki/Unofficial-list-of-3
 ### `arduino-platform`
 Comma separated list of platform specifies with optional version to specify multiple platforms for your board or a fixed version like `arduino:avr@1.8.2`.<br/>
 In general, use it only if you require another specifier than the one derived from the 2 first elements of the arduino-board-fqbn e.g. **esp8266:esp8266**:huzzah:eesz=4M3M,xtal=80, esp32:esp32:featheresp32:FlashFreq=80 -> **esp8266:esp8266**. Do not forget to specify the related URL's, if it is not the arduino URL, which is built in.<br/>
+It is also useful in the special case you install the core manually, but require e.g. tools from another core.<br/>
 Default is `""`.<br/>
 
 ```yaml
@@ -85,10 +88,16 @@ Comma separated list without double quotes around the list or a library name. A 
 
 
 ### `sketches-exclude`
-Sketches to be **excluded from build**. Comma or space separated list of complete sketch / example names to exclude in build.<br/>
+Sketches to be **excluded from build**. Comma or space separated list of complete sketch / example names to exclude in build. Comment is only allowed at the end of the list<br/>
 
 ```yaml
-  sketches-exclude: QuadrupedControl,RobotArmControl # QuadrupedControl and RobotArmControl because of missing EEprom
+  # 1.TinyWireM not usable; 2. incompatible I2C Hardware for Wire.h; 3. SoftPwm is not required and not working
+  sketches-exclude:
+    WiiClassicJoystick
+    BasicUsage,DigisparkOLED,DigiUSB2LCD
+    SoftPwm13Pins,TinySoftPwmDemo
+    DigisparkUSBDemo ArduinoNunchukDemo DigisparkJoystickDemo # Nunchuck library: incompatible I2C Hardware, the original library uses TinyWireM library
+
 ```
 
 ### `build-properties`
@@ -365,6 +374,50 @@ jobs:
           required-libraries: BlueDisplay
 ```
 
+
+## Testing a core, which is not yet released using `arduino-platform` parameter like [here](https://github.com/ArminJo/DigistumpArduino/blob/master/.github/workflows/TestCompile.yml)
+```yaml
+name: TestCompile
+on: push
+jobs:
+  build:
+    name: Test compiling examples for Digispark
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arduino-boards-fqbn:
+          - digistump:avr:digispark-tiny   # ATtiny85 board @16.5 MHz
+          - digistump:avr:MHETtiny88 # Chinese MH-Tiny ATTiny88
+        include:
+          - arduino-boards-fqbn: digistump:avr:MHETtiny88  # ATtiny88 Chino clone board @16 MHz
+            # 1.TinyWireM not usable; 2. incompatible I2C Hardware for Wire.h; 3. SoftPwm is not required and not working
+            sketches-exclude:
+              WiiClassicJoystick
+              BasicUsage,DigisparkOLED,DigiUSB2LCD
+              SoftPwm13Pins,TinySoftPwmDemo
+              DigisparkUSBDemo ArduinoNunchukDemo DigisparkJoystickDemo # Nunchuck library: incompatible I2C Hardware, the original library uses TinyWireM library
+      # Do not cancel all jobs / architectures if one job fails
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Use this repo as Arduino core
+        run: |
+          mkdir --parents $HOME/.arduino15/packages/digistump/hardware/avr/0.0.7 # dummy release number
+          cp --recursive $GITHUB_WORKSPACE/digistump-avr/* $HOME/.arduino15/packages/digistump/hardware/avr/0.0.7/
+
+      - name: Compile all examples
+        uses: ArminJo/arduino-test-compile@master
+        with:
+          arduino-board-fqbn: digistump:avr:digispark-tiny
+          arduino-platform: digistump:avr,arduino:avr # we require the C compiler from it. See dependencies of package_digistump_index.json
+          sketches-exclude: ${{ matrix.sketches-exclude }}
+          sketch-names: "*.ino"
+          sketch-names-find-start: digistump-avr/libraries/*/examples/
+```
+
 ## Multiple boards with parameter using the **script directly**
 This is not longer required since v3.0.0.
 
@@ -450,8 +503,12 @@ Samples for using action in workflow:
 - One sketch, one board, multiple options. RobotCar [![Build Status](https://github.com/ArminJo/Arduino-RobotCar/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-RobotCar/blob/master/.github/workflows/TestCompile.yml)
 - Arduino library, multiple boards. ServoEasing [![Build Status](https://github.com/ArminJo/ServoEasing/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/ServoEasing/blob/master/.github/workflows/LibraryBuild.yml)
 - Arduino library, multiple boards. NeoPatterns [![Build Status](https://github.com/ArminJo/NeoPatterns/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/NeoPatterns/blob/master/.github/workflows/LibraryBuild.yml)
+- Arduino core. DigistumpArduino [![TestCompile](https://github.com/ArminJo/DigistumpArduino/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/DigistumpArduino/actions)
 
 # Revision History
+
+### Version v3.0.1
+- Suppress check for platform-url if core was manually installed before.
 
 ### Version v3.0.0
 - Converted from a "Docker action" to a much faster "composite run steps" action.
