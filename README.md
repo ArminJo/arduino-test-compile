@@ -1,5 +1,5 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
-### Version 3.0.1
+### Version 3.0.2 - work in progress
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 [![Commits since latest](https://img.shields.io/github/commits-since/ArminJo/arduino-test-compile/latest)](https://github.com/ArminJo/arduino-test-compile/commits/master)
@@ -61,23 +61,30 @@ Some [sample URL's](https://github.com/arduino/Arduino/wiki/Unofficial-list-of-3
 - https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards, esp. Apollo3 boards
 - https://sandeepmistry.github.io/arduino-nRF5/package_nRF5_boards_index.json - for nRF528x based boards like Nano 33 BLE<br/><br/>
 - https://downloads.arduino.cc/packages/package_index.json - Built in URL for default Arduino boards, not required to specify
+- https://mcudude.github.io/MegaCore/package_MCUdude_MegaCore_index.json - ATmega64, ATmega128, ATmega640, ATmega1280, ATmega1281, ATmega2560, ATmega2561 etc.
+- https://mcudude.github.io/MiniCore/package_MCUdude_MiniCore_index.json - ATmega328, ATmega168, ATmega88, ATmega48 and ATmega8. Two extra IO pins if using the internal oscillator
 
 ### `arduino-platform`
-Comma separated list of platform specifies with optional version to specify multiple platforms for your board or a fixed version like `arduino:avr@1.8.2`.<br/>
+Comma separated list of platform specifiers with optional version to specify multiple platforms for your board or a fixed version like `arduino:avr@1.8.2`.<br/>
 In general, use it only if you require another specifier than the one derived from the 2 first elements of the arduino-board-fqbn e.g. **esp8266:esp8266**:huzzah:eesz=4M3M,xtal=80, esp32:esp32:featheresp32:FlashFreq=80 -> **esp8266:esp8266**. Do not forget to specify the related URL's, if it is not the arduino URL, which is built in.<br/>
-It is also useful in the special case you install the core manually, but require e.g. tools from another core.<br/>
+Useful in the case you require two cores as for MegaCore, which requires the compiler from the Arduino core.<br/>
+It is also useful if you install the core manually, but require e.g. tools from another core.<br/>
 Default is `""`.<br/>
 
 ```yaml
 arduino-platform: arduino:avr,SparkFun:avr@1.1.13
 platform-url: https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json # Arduino URL is not required here
 
+- arduino-boards-fqbn: MegaCore:avr:128:bootloader=no_bootloader,eeprom=keep,BOD=2v7,LTO=Os,clock=8MHz_internal
+  platform-url: https://mcudude.github.io/MegaCore/package_MCUdude_MegaCore_index.json
+  arduino-platform: MegaCore:avr,arduino:avr # gcc is taken from arduino:avr
+
 ```
 
 ### `required-libraries`
 Comma separated list of arduino library dependencies to install. You may add a version number like `@1.3.4`.<br/>
 Only libraries [available in the Arduino library manager](https://www.arduinolibraries.info/) can be installed this way.<br/>
-To use other/custom libraries, you must put all the library files into the sketch directory or add an extra step as in [this example](#using-custom-library).
+using [Sloeber]ther/custom libraries, you must put all the library files into the sketch directory or add an extra step as in [this example](#using-custom-library).
 Default is `""`.<br/>
 
 ```yaml
@@ -506,6 +513,8 @@ Samples for using action in workflow:
 - Arduino core. DigistumpArduino [![TestCompile](https://github.com/ArminJo/DigistumpArduino/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/DigistumpArduino/actions)
 
 # Revision History
+###Version v3.0.2 - work in progress
+- Changed deprecated arduino-cli parameter build-properties to build-property. The build-properties parameter of the action is unaffected.
 
 ### Version v3.0.1
 - Suppress check for platform-url if core was manually installed before.

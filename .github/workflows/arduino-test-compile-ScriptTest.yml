@@ -53,7 +53,7 @@ jobs:
         #############################################################################################################
         include:
           - arduino-boards-fqbn: arduino:avr:uno
-            sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            sketches-exclude: 50Hz # Comma separated list of example names to exclude in build
             build-properties:
               WhistleSwitch:
                 -DDEBUG
@@ -62,18 +62,18 @@ jobs:
                 -DINFO
 
           - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # UNO board with -DDEBUG for all examples
-            sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            sketches-exclude: 50Hz # Comma separated list of example names to exclude in build
             build-properties:
               All: -DDEBUG
 
           - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
-            sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
+            sketches-exclude: 50Hz # Comma separated list of example names to exclude in build
             build-properties:
               WhistleSwitch: -DDEBUG -DTRACE
 
           - arduino-boards-fqbn: digistump:avr:digispark-tiny:clock=clock1  # ATtiny85 board @1 MHz
             platform-url: https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json
-            sketches-exclude: WhistleSwitch,"Blink" # Comma separated list of (unique substrings of) example names to exclude in build
+            sketches-exclude: WhistleSwitch,"Blink" # Comma separated list of example names to exclude in build
             build-properties:
               SimpleFrequencyDetector: -DINFO
 

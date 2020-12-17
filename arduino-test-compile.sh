@@ -373,14 +373,14 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
       if [[ -z $GCC_EXTRA_FLAGS ]]; then
         build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER $SKETCH_PATH 2>&1)
       else
-        build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-properties compiler.cpp.extra_flags="${GCC_EXTRA_FLAGS}" --build-properties compiler.c.extra_flags="${GCC_EXTRA_FLAGS}" --build-properties compiler.S.extra_flags="${GCC_EXTRA_FLAGS}" $SKETCH_PATH 2>&1)
+        build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-property compiler.cpp.extra_flags="${GCC_EXTRA_FLAGS}" --build-property compiler.c.extra_flags="${GCC_EXTRA_FLAGS}" --build-property compiler.S.extra_flags="${GCC_EXTRA_FLAGS}" $SKETCH_PATH 2>&1)
       fi
       if [[ $? -ne 0 ]]; then
         echo -e ""${RED}"\xe2\x9c\x96" # If ok output a green checkmark else a red X and the command output.
         if [[ -z $GCC_EXTRA_FLAGS ]]; then
           echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER $SKETCH_PATH"
         else
-          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-properties compiler.cpp.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.c.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.S.extra_flags=\"${GCC_EXTRA_FLAGS}\" $SKETCH_PATH"
+          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-property compiler.cpp.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-property compiler.c.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-property compiler.S.extra_flags=\"${GCC_EXTRA_FLAGS}\" $SKETCH_PATH"
         fi
         echo "::error::Compile of $SKETCH_BASENAME ${GCC_EXTRA_FLAGS} failed"
         echo -e "$build_stdout \n"
@@ -392,7 +392,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
         if [[ -z $GCC_EXTRA_FLAGS ]]; then
           echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER $SKETCH_PATH"
         else
-          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-properties compiler.cpp.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.c.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-properties compiler.S.extra_flags=\"${GCC_EXTRA_FLAGS}\" $SKETCH_PATH"
+          echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-property compiler.cpp.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-property compiler.c.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-property compiler.S.extra_flags=\"${GCC_EXTRA_FLAGS}\" $SKETCH_PATH"
         fi
         if [[ $DEBUG_COMPILE == true || $SET_BUILD_PATH == true ]]; then
           echo "Debug mode enabled => compile output will be printed also for successful compilation and sketch directory is listed after compilation"
