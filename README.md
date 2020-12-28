@@ -58,7 +58,8 @@ Some [sample URL's](https://github.com/arduino/Arduino/wiki/Unofficial-list-of-3
 - https://dl.espressif.com/dl/package_esp32_index.json - for ESP32 based boards<br/><br/>
 - https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/package_stm_index.json - STM for STM32 boards
 - http://dan.drown.org/stm32duino/package_STM32duino_index.json - stmduino for STM32 boards
-- https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards, esp. Apollo3 boards
+- https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards
+- https://raw.githubusercontent.com/sparkfun/Arduino_Apollo3/master/package_sparkfun_apollo3_index.json - for Sparkfun Apollo3 boards
 - https://sandeepmistry.github.io/arduino-nRF5/package_nRF5_boards_index.json - for nRF528x based boards like Nano 33 BLE<br/><br/>
 - https://downloads.arduino.cc/packages/package_index.json - Built in URL for default Arduino boards, not required to specify
 - https://mcudude.github.io/MegaCore/package_MCUdude_MegaCore_index.json - ATmega64, ATmega128, ATmega640, ATmega1280, ATmega1281, ATmega2560, ATmega2561 etc.
