@@ -109,7 +109,8 @@ Sketches to be **excluded from build**. Comma or space separated list of complet
 ```
 
 ### `build-properties`
-Build parameter like `-DDEBUG` for each example specified or for all examples, if example name is `All`. If an example specific parameter is specified, the value for All is ignored for this example. <br/>
+Build parameter like `-DDEBUG` for each example specified or for all examples, if example name is `All`. If an example specific parameter is specified, the value for All is ignored for this example.<br/>
+The content is passed to the arduino-cli commandline in 3 parameters `--build-property compiler.[cpp,c,S].extra_flags="${GCC_EXTRA_FLAGS}"`
 
 In the `include:` section you may specify:
 
@@ -141,6 +142,31 @@ If you want to specify it directly in the `with:` section it must be:
 ```yaml
 with:
   build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO", "All": "-DDEBUG" }'
+```
+
+### `extra-arduino-cli-args`
+This string is passed verbatim without additional quoting to the arduino-cli compile commandline as last argument before the filename.
+See https://arduino.github.io/arduino-cli/commands/arduino-cli_compile/ for compile parameters.<br/>
+Be aware, that you cannot add to `--build-property compiler.[cpp,c,S].extra_flags`, if you already specified `build-properties`, they will be overwritten by your content. See https://github.com/arduino/arduino-cli/pull/1044.
+
+This example tells arduino-cli to do the lolin32 build for what the Arduino IDE calls *Tools > Partition Scheme > No OTA (Large APP)*.
+
+```yaml
+strategy:
+  matrix:
+    arduino-board-fqbn:
+    - esp32:esp32:lolin32
+    include:
+      - arduino-boards-fqbn: esp32:esp32:lolin32
+        extra-arduino-cli-args: "--build-property build.partitions=no_ota --build-property upload.maximum_size=2097152"
+    ...
+steps:
+- name: Arduino build
+  uses: ArminJo/arduino-test-compile@2e04e8c
+  with:
+    ...
+    arduino-board-fqbn: ${{ matrix.arduino-board-fqbn }}
+    extra-arduino-cli-args: ${{ matrix.extra-arduino-cli-args }}
 ```
 
 ### `cli-version`

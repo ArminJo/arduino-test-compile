@@ -55,6 +55,13 @@ inputs:
     default: ''
     required: false
 
+  extra-arduino-cli-args:
+    description: |
+      This string is passed verbatim without double quotes to the arduino-cli compile commandline as last argument before the filename.
+      See https://arduino.github.io/arduino-cli/commands/arduino-cli_compile/ for compile parameters.
+    default: ''
+    required: false
+
   set-build-path:
     description: 'Flag to set the build directory (arduino-cli paramer --build-path) to /build subdirectory of compiled sketches.'
     default: 'false'
@@ -87,6 +94,7 @@ runs:
           ENV_REQUIRED_LIBRARIES: ${{ inputs.required-libraries }}
           ENV_SKETCHES_EXCLUDE: ${{ inputs.sketches-exclude }}
           ENV_BUILD_PROPERTIES: ${{ inputs.build-properties }}
+          ENV_EXTRA_ARDUINO_CLI_ARGS: ${{ inputs.extra-arduino-cli-args }}
           ENV_SET_BUILD_PATH: ${{ inputs.set-build-path }} 
           ENV_DEBUG_COMPILE: ${{ inputs.debug-compile }}
           ENV_DEBUG_INSTALL:  ${{ inputs.debug-install }}
