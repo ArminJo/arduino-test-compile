@@ -147,6 +147,7 @@ with:
 ### `extra-arduino-cli-args`
 This string is passed verbatim without additional quoting to the arduino-cli compile commandline as last argument before the filename.
 See https://arduino.github.io/arduino-cli/commands/arduino-cli_compile/ for compile parameters.<br/>
+E.g. if you specify `extra-arduino-cli-args: "--warnings default"`, this overwrites the default setting of `--warnings all` for compile, which may be especially useful for ESP32 source compilation.<br/>
 Be aware, that you cannot add to `--build-property compiler.[cpp,c,S].extra_flags`, if you already specified `build-properties`, they will be overwritten by your content. See https://github.com/arduino/arduino-cli/pull/1044.
 
 This example tells arduino-cli to do the lolin32 build for what the Arduino IDE calls *Tools > Partition Scheme > No OTA (Large APP)*.

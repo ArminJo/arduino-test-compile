@@ -91,9 +91,10 @@ echo DEBUG_COMPILE=$DEBUG_COMPILE
 echo DEBUG_INSTALL=$DEBUG_INSTALL
 
 if [[ $DEBUG_INSTALL == true ]]; then
-echo HOME=$HOME # /home/runner if script, /github/home if action
-echo PWD=$PWD # /home/runner/work/Github-Actions-Test/Github-Actions-Test if script, /github/workspace if action
-echo GITHUB_WORKSPACE=$GITHUB_WORKSPACE # /home/runner/work/Github-Actions/Github-Actions if script, /github/workspace if action
+echo
+echo HOME=$HOME # /home/runner
+echo PWD=$PWD # ***
+echo GITHUB_WORKSPACE=$GITHUB_WORKSPACE # /home/runner/work/<repoName>/<repoName>
 #set
 #ls -lR $GITHUB_WORKSPACE
 fi
