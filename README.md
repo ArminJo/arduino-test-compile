@@ -541,11 +541,13 @@ Samples for using action in workflow:
 - Arduino core. DigistumpArduino [![TestCompile](https://github.com/ArminJo/DigistumpArduino/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/DigistumpArduino/actions)
 
 # Revision History
-###Version v3.0.2 - work in progress
-- Changed deprecated arduino-cli parameter build-properties to build-property. The build-properties parameter of the action is unaffected.
+###Version v3.1.1 - work in progress
 
-### Version v3.0.1
+
+### Version v3.1.0
 - Suppress check for platform-url if core was manually installed before.
+- Changed deprecated arduino-cli parameter build-properties to build-property. The build-properties parameter of the action is unaffected.
+- Added parameter `extra-arduino-cli-args`.
 
 ### Version v3.0.0
 - Converted from a "Docker action" to a much faster "composite run steps" action.
