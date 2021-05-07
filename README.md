@@ -1,5 +1,5 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
-### Version 3.0.2 - work in progress
+### Version 3.1.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 [![Commits since latest](https://img.shields.io/github/commits-since/ArminJo/arduino-test-compile/latest)](https://github.com/ArminJo/arduino-test-compile/commits/master)
@@ -50,14 +50,16 @@ Default is `""`.<br/>
   platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
 ```
 
+[Unofficial list of 3. party URL's](https://github.com/arduino/Arduino/wiki/Unofficial-list-of-3rd-party-boards-support-urls)
+
 Some [sample URL's](https://github.com/arduino/Arduino/wiki/Unofficial-list-of-3rd-party-boards-support-urls) are:
 - http://drazzy.com/package_drazzy.com_index.json - for ATTiny boards
 - https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json - for Digistump AVR boards. Up to 20% smaller code
 - https://files.pololu.com/arduino/package_pololu_index.json - for Pololu boards, esp. ATmega328PB boards<br/><br/>
 - https://arduino.esp8266.com/stable/package_esp8266com_index.json - for ESP8266 based boards
 - https://dl.espressif.com/dl/package_esp32_index.json - for ESP32 based boards<br/><br/>
-- https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/package_stm_index.json - STM for STM32 boards
-- http://dan.drown.org/stm32duino/package_STM32duino_index.json - stmduino for STM32 boards
+- https://github.com/stm32duino/BoardManagerFiles/raw/master/package_stmicroelectronics_index.json - STMicroelectronics:stm32 for STM32 boards
+- http://dan.drown.org/stm32duino/package_STM32duino_index.json - stmduino: for STM32 boards
 - https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards
 - https://raw.githubusercontent.com/sparkfun/Arduino_Apollo3/master/package_sparkfun_apollo3_index.json - for Sparkfun Apollo3 boards
 - https://sandeepmistry.github.io/arduino-nRF5/package_nRF5_boards_index.json - for nRF528x based boards like Nano 33 BLE<br/><br/>
@@ -85,11 +87,12 @@ platform-url: https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/I
 ### `required-libraries`
 Comma separated list of arduino library dependencies to install. You may add a version number like `@1.3.4`.<br/>
 Only libraries [available in the Arduino library manager](https://www.arduinolibraries.info/) can be installed this way.<br/>
-using [Sloeber]ther/custom libraries, you must put all the library files into the sketch directory or add an extra step as in [this example](#using-custom-library).
+If you want to use other or custom libraries, you must put all the library files into the sketch directory or add an extra step as in [this example](#using-custom-library).<br/>
+Be careful, some library names can contain spaces, e.g. `LiquidCrystal I2C` even if they are defined in *library.properties* with underscores like: `name=LiquidCrystal_I2C`.<br/>
 Default is `""`.<br/>
 
 ```yaml
-required-libraries: Servo,Adafruit NeoPixel@1.3.4
+required-libraries: Servo,Adafruit NeoPixel@1.3.4,${{ env.REQUIRED_LIBRARIES }},${{ matrix.required-libraries }}
 ```
 
 Comma separated list without double quotes around the list or a library name. A list of correct library names can be found [here](https://www.arduinolibraries.info/).
@@ -150,7 +153,7 @@ See https://arduino.github.io/arduino-cli/commands/arduino-cli_compile/ for comp
 E.g. if you specify `extra-arduino-cli-args: "--warnings default"`, this overwrites the default setting of `--warnings all` for compile, which may be especially useful for ESP32 source compilation.<br/>
 Be aware, that you cannot add to `--build-property compiler.[cpp,c,S].extra_flags`, if you already specified `build-properties`, they will be overwritten by your content. See https://github.com/arduino/arduino-cli/pull/1044.
 
-This example tells arduino-cli to do the lolin32 build for what the Arduino IDE calls *Tools > Partition Scheme > No OTA (Large APP)*.
+This example tells arduino-cli to do the lolin32 build for what the Arduino IDE calls *Tools > Partition Scheme > No OTA (Large APP)*, what can also be specified with `arduino-boards-fqbn: esp32:esp32:lolin32:PartitionScheme=no_ota`.
 
 ```yaml
 strategy:
@@ -159,7 +162,7 @@ strategy:
     - esp32:esp32:lolin32
     include:
       - arduino-boards-fqbn: esp32:esp32:lolin32
-        extra-arduino-cli-args: "--build-property build.partitions=no_ota --build-property upload.maximum_size=2097152"
+        extra-arduino-cli-args: "--warnings default --build-property build.partitions=no_ota --build-property upload.maximum_size=2097152"
     ...
 steps:
 - name: Arduino build
@@ -310,7 +313,6 @@ jobs:
     name: ${{ matrix.arduino-boards-fqbn }} - test compiling examples
     runs-on: ubuntu-latest
     env:
-      PLATFORM_DEFAULT_URL: https://arduino.esp8266.com/stable/package_esp8266com_index.json
       REQUIRED_LIBRARIES: Servo,Adafruit NeoPixel
     strategy:
       matrix:
@@ -344,7 +346,12 @@ jobs:
                 -DTRACE
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
+            platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
             sketches-exclude: WhistleSwitch,50Hz,SimpleFrequencyDetector
+
+          - arduino-boards-fqbn: esp32:esp32:featheresp32:FlashFreq=80
+            platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+            required-libraries: ESP32 ESP32S2 AnalogWrite
 
       fail-fast: false
 
@@ -358,7 +365,7 @@ jobs:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-default-url: ${{ env.PLATFORM_DEFAULT_URL }}
           platform-url: ${{ matrix.platform-url }}
-          required-libraries: ${{ env.REQUIRED_LIBRARIES }}
+          required-libraries: ${{ env.REQUIRED_LIBRARIES }},${{ matrix.required-libraries }}
           sketch-names: ${{ matrix.sketch-names }}
           sketches-exclude: ${{ matrix.sketches-exclude }}
           build-properties: ${{ toJson(matrix.build-properties) }}
@@ -424,7 +431,7 @@ jobs:
           - digistump:avr:digispark-tiny   # ATtiny85 board @16.5 MHz
           - digistump:avr:MHETtiny88 # Chinese MH-Tiny ATTiny88
         include:
-          - arduino-boards-fqbn: digistump:avr:MHETtiny88  # ATtiny88 Chino clone board @16 MHz
+          - arduino-boards-fqbn: digistump:avr:MHETtiny88  # ATtiny88 China clone board @16 MHz
             # 1.TinyWireM not usable; 2. incompatible I2C Hardware for Wire.h; 3. SoftPwm is not required and not working
             sketches-exclude:
               WiiClassicJoystick
@@ -541,9 +548,6 @@ Samples for using action in workflow:
 - Arduino core. DigistumpArduino [![TestCompile](https://github.com/ArminJo/DigistumpArduino/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/DigistumpArduino/actions)
 
 # Revision History
-###Version v3.1.1 - work in progress
-
-
 ### Version v3.1.0
 - Suppress check for platform-url if core was manually installed before.
 - Changed deprecated arduino-cli parameter build-properties to build-property. The build-properties parameter of the action is unaffected.
