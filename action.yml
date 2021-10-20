@@ -62,6 +62,13 @@ inputs:
     default: ''
     required: false
 
+  extra-arduino-lib-install-args:
+    description: |
+      This string is passed verbatim without double quotes to the arduino-cli lib install commandline as last argument before the library names.
+      It can be used e.g. to suppress dependency resolving for libraries by using --no-deps as argument string.
+    default: ''
+    required: false
+
   set-build-path:
     description: 'Flag to set the build directory (arduino-cli paramer --build-path) to /build subdirectory of compiled sketches.'
     default: 'false'
@@ -95,6 +102,7 @@ runs:
           ENV_SKETCHES_EXCLUDE: ${{ inputs.sketches-exclude }}
           ENV_BUILD_PROPERTIES: ${{ inputs.build-properties }}
           ENV_EXTRA_ARDUINO_CLI_ARGS: ${{ inputs.extra-arduino-cli-args }}
+          ENV_EXTRA_ARDUINO_LIB_INSTALL_ARGS: ${{ inputs.extra-arduino-lib-install-args }}
           ENV_SET_BUILD_PATH: ${{ inputs.set-build-path }} 
           ENV_DEBUG_COMPILE: ${{ inputs.debug-compile }}
           ENV_DEBUG_INSTALL:  ${{ inputs.debug-install }}

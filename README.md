@@ -1,5 +1,5 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
-### Version 3.1.0
+### Version 3.2.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 [![Commits since latest](https://img.shields.io/github/commits-since/ArminJo/arduino-test-compile/latest)](https://github.com/ArminJo/arduino-test-compile/commits/master)
@@ -166,11 +166,24 @@ strategy:
     ...
 steps:
 - name: Arduino build
-  uses: ArminJo/arduino-test-compile@2e04e8c
+  uses: ArminJo/arduino-test-compile@master
   with:
     ...
     arduino-board-fqbn: ${{ matrix.arduino-board-fqbn }}
     extra-arduino-cli-args: ${{ matrix.extra-arduino-cli-args }}
+```
+
+### `extra-arduino-lib-install-args`
+This string is passed verbatim without double quotes to the arduino-cli lib install commandline as last argument before the library names. It can be used e.g. to suppress dependency resolving for libraries by using `--no-deps` as argument string.
+
+```yaml
+steps:
+- name: Arduino build
+  uses: ArminJo/arduino-test-compile@v3
+  with:
+    ...
+    arduino-board-fqbn: ${{ matrix.arduino-board-fqbn }}
+    extra-arduino-lib-install-args: "--no-deps"
 ```
 
 ### `cli-version`
@@ -548,6 +561,9 @@ Samples for using action in workflow:
 - Arduino core. DigistumpArduino [![TestCompile](https://github.com/ArminJo/DigistumpArduino/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/DigistumpArduino/actions)
 
 # Revision History
+### Version v3.2.0
+- Added parameter `extra-arduino-lib-install-args`.
+
 ### Version v3.1.0
 - Suppress check for platform-url if core was manually installed before.
 - Changed deprecated arduino-cli parameter build-properties to build-property. The build-properties parameter of the action is unaffected.
