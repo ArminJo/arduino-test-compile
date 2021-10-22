@@ -103,7 +103,7 @@ runs:
           ENV_BUILD_PROPERTIES: ${{ inputs.build-properties }}
           ENV_EXTRA_ARDUINO_CLI_ARGS: ${{ inputs.extra-arduino-cli-args }}
           ENV_EXTRA_ARDUINO_LIB_INSTALL_ARGS: ${{ inputs.extra-arduino-lib-install-args }}
-          ENV_SET_BUILD_PATH: ${{ inputs.set-build-path }} 
+          ENV_SET_BUILD_PATH: ${{ inputs.set-build-path }}
           ENV_DEBUG_COMPILE: ${{ inputs.debug-compile }}
           ENV_DEBUG_INSTALL:  ${{ inputs.debug-install }}
 

@@ -8,7 +8,7 @@
 # License: MIT
 #
 
-# Input parameter
+# Input parameter, which is normally not used for Githup actions
 CLI_VERSION="$1"
 SKETCH_NAMES="$2"
 SKETCH_NAMES_FIND_START="$3"
@@ -33,7 +33,7 @@ readonly YELLOW='\033[1;33m'
 readonly BLUE='\033[0;34m'
 
 #
-# Get env parameter with higher priority, which enables the script to run directly in a step
+# Get env parameter from action run with higher priority, which enables the script to run directly in a step
 #
 if [[ -n $ENV_CLI_VERSION ]]; then CLI_VERSION=$ENV_CLI_VERSION; fi
 if [[ -n $ENV_SKETCH_NAMES ]]; then SKETCH_NAMES=$ENV_SKETCH_NAMES; fi
