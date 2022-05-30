@@ -112,7 +112,7 @@ Sketches to be **excluded from build**. Comma or space separated list of complet
 ```
 
 ### `build-properties`
-Build parameter like `-DDEBUG` for each example specified or for all examples, if example name is `All`. If an example specific parameter is specified, the value for All is ignored for this example.<br/>
+Build parameter like `-DDEBUG` for each example specified or for all examples which have no dedicated specification, if example name is `All`. I.e. if an example specific parameter is specified, the value for All is ignored for this example.<br/>
 The content is passed to the arduino-cli commandline in 3 parameters `--build-property compiler.[cpp,c,S].extra_flags="${GCC_EXTRA_FLAGS}"`
 
 In the `include:` section you may specify:
@@ -121,13 +121,17 @@ In the `include:` section you may specify:
 include:
 ...
   build-properties:
-    WhistleSwitch:
+    SymmetricEasing:
+      -DDISABLE_COMPLEX_FUNCTIONS
       -DDEBUG
-      -DFREQUENCY_RANGE_LOW
-    SimpleFrequencyDetector:
-      -DINFO
+    AsymmetricEasing:
+      -DTRACE
+    Simple: -DPRINT_FOR_SERIAL_PLOTTER
+    PCA9685_ExpanderFor32Servos: -DTRACE -DENABLE_MICROS_AS_DEGREE_PARAMETER
 ...
   build-properties:
+    Simple:
+      -DPRINT_FOR_SERIAL_PLOTTER -DDEBUG
     All:
       -DDEBUG
 ...
@@ -387,7 +391,7 @@ jobs:
 ## Using custom library
 Add an extra step `Checkout custom library` for loading custom library. **You must use the `path:` parameter, otherwise checkout overwrites the last checkout content.**<br/>
 Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).<br/>
-You do not need to put the custom libraries you loaded manually in the `required-libraries` list, since they are already loaded now!
+You do not need to put the custom libraries, you loaded manually, in the `required-libraries` list, since they are already loaded now!
 ```yaml
 ...
     steps:
@@ -474,7 +478,7 @@ jobs:
 ```
 
 ## Multiple boards with parameter using the **script directly**
-This is not longer required since v3.0.0.
+**This is not longer required since version v3.0.0.**
 
 ```yaml
 name: LibraryBuild
@@ -553,7 +557,7 @@ Samples for using action in workflow:
 - The simple example from above. LightweightServo [![Build Status](https://github.com/ArminJo/LightweightServo/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/LightweightServo/blob/master/.github/workflows/LibraryBuild.yml)
 - One sketch, one library. Simple-DSO [![Build Status](https://github.com/ArminJo/Arduino-Simple-DSO/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml)
 - Arduino library, only arduino:avr boards. Talkie [![Build Status](https://github.com/ArminJo/Talkie/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Talkie/blob/master/.github/workflows/LibraryBuild.yml)
-- Arduino library, 2 boards. Arduino-FrequencyDetector [![Build Status](https://github.com/ArminJo/Arduino-FrequencyDetector/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/Arduino-FrequencyDetector/blob/master/.github/workflows/LibraryBuildWithAction.yml)
+- Arduino library, 2 boards. Arduino-FrequencyDetector [![Build Status](https://github.com/ArminJo/Arduino-FrequencyDetector/workflows/LibraryBuildWithAction/badge.svg)](https://github.com/ArminJo/Arduino-FrequencyDetector/blob/master/.github/workflows/LibraryBuildWithAction.yml)
 
 - One sketch, one board, multiple options. RobotCar [![Build Status](https://github.com/ArminJo/Arduino-RobotCar/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/Arduino-RobotCar/blob/master/.github/workflows/TestCompile.yml)
 - Arduino library, multiple boards. ServoEasing [![Build Status](https://github.com/ArminJo/ServoEasing/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/ServoEasing/blob/master/.github/workflows/LibraryBuild.yml)
