@@ -3,7 +3,7 @@
 # arduino-test-compile.sh
 # Bash script to do a test-compile of one or more Arduino programs in a repository each with different compile parameters.
 #
-# Copyright (C) 2020  Armin Joachimsmeyer
+# Copyright (C) 2020-2022  Armin Joachimsmeyer
 # https://github.com/ArminJo/Github-Actions
 # License: MIT
 #

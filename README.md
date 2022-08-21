@@ -1,5 +1,5 @@
 # arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / script
-### Version 3.2.0
+### Version 3.2.1
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 [![Commits since latest](https://img.shields.io/github/commits-since/ArminJo/arduino-test-compile/latest)](https://github.com/ArminJo/arduino-test-compile/commits/master)
@@ -573,6 +573,7 @@ Samples for using action in workflow:
 
 # Revision History
 ### Version v3.2.1
+- Merged #26, which fixes filename problems, especially with filenames with multiple dots.
 - Extended debug output.
 
 ### Version v3.2.0
