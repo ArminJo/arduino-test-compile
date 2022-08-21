@@ -6,20 +6,26 @@
 [![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ActionTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
 [![Build Status](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ScriptTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
 
-This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) in a repository for different boards, each with different compile parameters.<br/>
-It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).<br/>
-The action is a "composite run steps" action which uses the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the work like loading libraries, installing board definitions and setting parameters is orchestrated by the [arduino-test-compile.sh](arduino-test-compile.sh) bash script.<br/>
-In case of a compile error the **complete compile output** is logged in the *Compile all examples...* step, otherwise only a **green check** is printed. Examples can be found [here](https://github.com/ArminJo/ServoEasing/actions).<br/>
-If you want to test compile a sketch, **it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino**. Internally the file is renamed to be .ino and the appropriate directory is created on the fly at `/home/runner/<sketch-name>` for test-compiling. See [parameter `sketch-names`](arduino-test-compile#sketch-names).<br/>
+This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) in a repository for different boards, each with different compile parameters.
+
+It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).
+
+The action is a "composite run steps" action which uses the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the work like loading libraries, installing board definitions and setting parameters is orchestrated by the [arduino-test-compile.sh](arduino-test-compile.sh) bash script.
+
+In case of a compile error the **complete compile output** is logged in the *Compile all examples...* step, otherwise only a **green check** is printed. Examples can be found [here](https://github.com/ArminJo/ServoEasing/actions).
+
+If you want to test compile a sketch, **it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino**. Internally the file is renamed to be .ino and the appropriate directory is created on the fly at `/home/runner/<sketch-name>` for test-compiling. See [parameter `sketch-names`](arduino-test-compile#sketch-names).
+
 Since version 0.11.0 of arduino-cli, the **generated files** (.bin, .hex, .elf, .eep etc.) can be found in the build/<FQBN> subfolder of the example directory `$GITHUB_WORKSPACE/src/<example_name>`  or in `$HOME/<sketch-name>` for files not residing in a directory with the same name.<br/>
 
 # Hints
-- If you require a custom library for your build, add an extra step for [loading a custom library](#using-custom-library). **Be aware to use the `path:` parameter for checkout, otherwise checkout will overwrite the last checkout content.**<br/>
+- If you require a custom library for your build, add an extra step for [loading a custom library](#using-custom-library).<br/>
+**Be aware to use the `path:` parameter for checkout, otherwise checkout will overwrite the last checkout content.**<br/>
 Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).
 
 - If you have problems with you workflow file, you find additional information in the output if you set the [flags](#debug-compile-and-debug-install) `debug-compile` and / or `debug-install` to `true`.<br/>
 
-- If actions / workflow for your repository is not enabled, select `Allow all actions` it in your repositorys *Settings/Actions* menu.
+- If actions / workflow for your repository is not enabled, select `Allow all actions` it in your repositorys *Settings -> Actions -> General* menu.
 
 # Inputs
 See [action.yml](https://github.com/ArminJo/arduino-test-compile/blob/master/action.yml) for comprehensive list of parameters.
@@ -95,7 +101,7 @@ Default is `""`.<br/>
 required-libraries: Servo,Adafruit NeoPixel@1.3.4,${{ env.REQUIRED_LIBRARIES }},${{ matrix.required-libraries }}
 ```
 
-Comma separated list without double quotes around the list or a library name. A list of correct library names can be found [here](https://www.arduinolibraries.info/).
+A **list of correct Arduino library names** can be found [here](https://www.arduinolibraries.info/).
 
 
 ### `sketches-exclude`
@@ -113,7 +119,8 @@ Sketches to be **excluded from build**. Comma or space separated list of complet
 
 ### `build-properties`
 Build parameter like `-DDEBUG` for each example specified or for all examples which have no dedicated specification, if example name is `All`. I.e. if an example specific parameter is specified, the value for All is ignored for this example.<br/>
-The content is passed to the arduino-cli commandline in 3 parameters `--build-property compiler.[cpp,c,S].extra_flags="${GCC_EXTRA_FLAGS}"`
+The content is passed to the arduino-cli commandline in 3 parameters:<br/>
+`--build-property compiler.[cpp,c,S].extra_flags="${GCC_EXTRA_FLAGS}"`
 
 In the `include:` section you may specify:
 
@@ -565,6 +572,9 @@ Samples for using action in workflow:
 - Arduino core. DigistumpArduino [![TestCompile](https://github.com/ArminJo/DigistumpArduino/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/DigistumpArduino/actions)
 
 # Revision History
+### Version v3.2.1
+- Extended debug output.
+
 ### Version v3.2.0
 - Added parameter `extra-arduino-lib-install-args`.
 

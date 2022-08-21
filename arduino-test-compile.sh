@@ -344,6 +344,9 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
     SKETCH_FILENAME=$(basename $sketch) # complete name of sketch
     SKETCH_EXTENSION=${SKETCH_FILENAME##*.} # extension of sketch
     SKETCH_BASENAME=${SKETCH_FILENAME%%.$SKETCH_EXTENSION} # name without extension / basename of sketch, must match directory name
+    if [[ $DEBUG_COMPILE == true ]]; then
+      echo -n  "Process $sketch with filename $SKETCH_FILENAME and extension $SKETCH_EXTENSION"
+    fi
     echo -e "\n"
     if [[ $SKETCHES_EXCLUDE == *"$SKETCH_BASENAME"* ]]; then
       echo -e "Skipping $SKETCH_PATH \xe2\x9e\x9e" # Right arrow

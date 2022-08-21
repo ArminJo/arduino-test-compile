@@ -122,5 +122,8 @@ jobs:
             WhistleSwitch.ino,
             50Hz.ino,
             SimpleFrequencyDetector.ino,
+            multiple.dots.ino,
             test.ino
           sketch-names-find-start: test
+          debug-compile: true
+          debug-install: true
