@@ -75,8 +75,9 @@ Some [sample URL's](https://github.com/arduino/Arduino/wiki/Unofficial-list-of-3
 
 ### `arduino-platform`
 Comma separated list of platform specifiers with optional version to specify multiple platforms for your board or a fixed version like `arduino:avr@1.8.2`.<br/>
+The suffix `@latest` is always removed from specified platform to enable usage of platform versions in a matrix.<br/>
 In general, use it only if you require another specifier than the one derived from the 2 first elements of the arduino-board-fqbn e.g. **esp8266:esp8266**:huzzah:eesz=4M3M,xtal=80, esp32:esp32:featheresp32:FlashFreq=80 -> **esp8266:esp8266**. Do not forget to specify the related URL's, if it is not the arduino URL, which is built in.<br/>
-Useful in the case you require two cores as for MegaCore, which requires the compiler from the Arduino core.<br/>
+Useful in the case you require a dedicated version of a core or two cores as for MegaCore, which requires the compiler from the Arduino core.<br/>
 It is also useful if you install the core manually, but require e.g. tools from another core.<br/>
 Default is `""`.<br/>
 
@@ -572,9 +573,11 @@ Samples for using action in workflow:
 - Arduino core. DigistumpArduino [![TestCompile](https://github.com/ArminJo/DigistumpArduino/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/DigistumpArduino/actions)
 
 # Revision History
+
 ### Version v3.2.1
 - Merged #26, which fixes filename problems, especially with filenames with multiple dots.
 - Extended debug output.
+- The suffix `@latest` is always removed from specified `arduino-platform`.
 
 ### Version v3.2.0
 - Added parameter `extra-arduino-lib-install-args`.

@@ -24,7 +24,7 @@ inputs:
     required: false
 
   arduino-platform:
-    description: 'Comma separated list of platform specifiers, if you require a fixed version like arduino:avr@1.8.2 or do not want the specifier derived from the 2 first elements of the arduino-board-fqbn or need more than one core.'
+    description: 'Comma separated list of platform specifiers, if you require a fixed version like "arduino:avr@1.8.2" or do not want the specifier derived from the 2 first elements of the arduino-board-fqbn or need more than one core. The suffix "@latest" is always removed.'
     default: ''
     required: false
 

@@ -22,7 +22,7 @@ jobs:
   build:
     name: ${{ matrix.arduino-boards-fqbn }} - test compiling examples
 
-    runs-on: ubuntu-18.04 # ubuntu-latest # I picked Ubuntu to use shell scripts.
+    runs-on: ubuntu-latest # ubuntu-latest # I picked Ubuntu to use shell scripts.
 
     env:
       # Comma separated list without double quotes around the list.

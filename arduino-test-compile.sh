@@ -184,7 +184,8 @@ if [[ -z $ARDUINO_PLATFORM ]]; then
   provider=${ARDUINO_BOARD_FQBN%%:*}
   PLATFORM=${provider}:${remainder%%:*}
 else
-  PLATFORM=$ARDUINO_PLATFORM
+# Remove @latest from specified platform
+  PLATFORM=${ARDUINO_PLATFORM%@latest}
 fi
 echo PLATFORM=${PLATFORM} # e.g. digistump:avr
 if [[ ${PLATFORM} != *arduino* && -z $PLATFORM_URL ]]; then
