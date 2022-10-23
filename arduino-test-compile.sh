@@ -93,7 +93,9 @@ echo SET_BUILD_PATH=$SET_BUILD_PATH
 echo DEBUG_COMPILE=$DEBUG_COMPILE
 echo DEBUG_INSTALL=$DEBUG_INSTALL
 
+VERBOSE_PARAMETER=
 if [[ $DEBUG_INSTALL == true ]]; then
+VERBOSE_PARAMETER=--verbose
 echo
 echo HOME=$HOME # /home/runner
 echo PWD=$PWD # ***
@@ -149,13 +151,8 @@ if ls $GITHUB_WORKSPACE/*Custom* >/dev/null 2>&1; then
   mkdir --parents $HOME/Arduino/libraries
   rm --force --recursive $GITHUB_WORKSPACE/*Custom*/.git # do not want to move the whole .git directory
   # mv to avoid the library examples to be test compiled
-  if [[ $DEBUG_INSTALL == true ]]; then
-    echo mv --no-clobber --verbose $GITHUB_WORKSPACE/\*Custom\* $HOME/Arduino/libraries/
-    mv --no-clobber --verbose $GITHUB_WORKSPACE/*Custom* $HOME/Arduino/libraries/
-  else
-    echo mv --no-clobber $GITHUB_WORKSPACE/\*Custom\* $HOME/Arduino/libraries/
-    mv --no-clobber $GITHUB_WORKSPACE/*Custom* $HOME/Arduino/libraries/
-  fi
+  echo mv --no-clobber $VERBOSE_PARAMETER $GITHUB_WORKSPACE/\*Custom\* $HOME/Arduino/libraries/
+  mv --no-clobber $VERBOSE_PARAMETER $GITHUB_WORKSPACE/*Custom* $HOME/Arduino/libraries/
 fi
 
 #
@@ -210,14 +207,26 @@ for single_platform in "${PLATFORM_ARRAY[@]}"; do # Loop over all platforms spec
   if [[ $DEBUG_INSTALL == true ]]; then
     echo -e "arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL --verbose"
     arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL --verbose # must specify --additional-urls here
+    if [[ $? -ne 0 ]]; then
+      echo "::error::Updating index of $PLATFORM_URL failed"
+      exit 1
+    fi
     echo -e "arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL -v"
     arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL --verbose
   else
     echo -e "arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null"
     arduino-cli core update-index $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null # must specify --additional-urls here
+    if [[ $? -ne 0 ]]; then
+      echo "::error::Updating index of $PLATFORM_URL failed"
+      exit 1
+    fi
     echo -e "arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null"
     arduino-cli core install $single_platform $PLATFORM_URL_COMMAND $PLATFORM_URL > /dev/null
   fi
+    if [[ $? -ne 0 ]]; then
+      echo "::error::Install core for $single_platform failed"
+      exit 1
+    fi
 done
 
 #

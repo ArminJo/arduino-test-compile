@@ -1,14 +1,29 @@
-# arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino) / [script](https://github.com/ArminJo/arduino-test-compile/blob/master/arduino-test-compile.sh)
-### Version 3.2.1
+<div align = center>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
-[![Commits since latest](https://img.shields.io/github/commits-since/ArminJo/arduino-test-compile/latest)](https://github.com/ArminJo/arduino-test-compile/commits/master)
-[![LibraryBuildWithAction Build Status](https://github.com/ArminJo/Github-Actions/workflows/LibraryBuildWithAction/badge.svg)](https://github.com/ArminJo/Github-Actions/actions)
-[![LibraryBuildWithScript Build Status](https://github.com/ArminJo/Github-Actions/workflows/LibraryBuildWithScript/badge.svg)](https://github.com/ArminJo/Github-Actions/actions)
-
-This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) in a repository for different boards, each with different compile parameters.
-
+# arduino-test-compile [action](https://github.com/marketplace/actions/test-compile-for-arduino)
+This action does a test-compile of one or more [Arduino programs](https://github.com/ArminJo/Arduino-Simple-DSO/tree/master) in a repository for different boards<br/>
+each with different compile parameters.<br/>
 It can be used e.g. to test-compile all examples contained in an [Arduino library repository](https://github.com/ArminJo/NeoPatterns/tree/master/examples).
+
+[![Badge License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
+ &nbsp; &nbsp; 
+ [![Badge Version](https://img.shields.io/github/v/release/ArminJo/arduino-test-compile?include_prereleases&color=yellow&logo=DocuSign&logoColor=white)](https://github.com/ArminJo/arduino-test-compile/releases/latest)
+ &nbsp; &nbsp; 
+[![Badge Commits since latest](https://img.shields.io/github/commits-since/ArminJo/arduino-test-compile/latest?color=yellow)](https://github.com/ArminJo/arduino-test-compile/commits/master)
+ &nbsp; &nbsp; 
+[![Badge Build Status Action](https://github.com/ArminJo/Github-Actions/workflows/LibraryBuildWithAction/badge.svg)](https://github.com/ArminJo/Github-Actions/actions)
+ &nbsp; &nbsp; 
+[![Badge Build Status Script](https://github.com/ArminJo/Github-Actions/workflows/LibraryBuildWithScript/badge.svg)](https://github.com/ArminJo/Github-Actions/actions)
+ &nbsp; &nbsp; 
+![Badge Hit Counter](https://visitor-badge.laobi.icu/badge?page_id=ArminJo_arduino-test-compile)
+<br/>
+<br/>
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
+
+</div>
+<br/>
+
+### If you see errors like `Node.js 12 actions are deprecated` update your checkout action from `actions/checkout@v2` to `actions/checkout@v3` or `actions/checkout@master`.
 
 The action is a "composite run steps" action which uses the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the work like loading libraries, installing board definitions and setting parameters is orchestrated by the [arduino-test-compile.sh](arduino-test-compile.sh) bash script.
 
@@ -573,11 +588,13 @@ Samples for using action in workflow:
 - Arduino core. DigistumpArduino [![TestCompile](https://github.com/ArminJo/DigistumpArduino/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/DigistumpArduino/actions)
 
 # Revision History
+### Version v3.3.0
+- The suffix `@latest` is always removed from specified `arduino-platform`.
+- Early exit on platform install error as suggested by *tobozo*.
 
 ### Version v3.2.1
 - Merged #26, which fixes filename problems, especially with filenames with multiple dots.
 - Extended debug output.
-- The suffix `@latest` is always removed from specified `arduino-platform`.
 
 ### Version v3.2.0
 - Added parameter `extra-arduino-lib-install-args`.
