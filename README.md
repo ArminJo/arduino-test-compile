@@ -34,9 +34,9 @@ If you want to test compile a sketch, **it is not required that the sketch resid
 Since version 0.11.0 of arduino-cli, the **generated files** (.bin, .hex, .elf, .eep etc.) can be found in the build/<FQBN> subfolder of the example directory `$GITHUB_WORKSPACE/src/<example_name>`  or in `$HOME/<sketch-name>` for files not residing in a directory with the same name.<br/>
 
 # Hints
-- If you require a custom library for your build, add an extra step for [loading a custom library](#using-custom-library).<br/>
-**Be aware to use the `path:` parameter for checkout, otherwise checkout will overwrite the last checkout content.**<br/>
-Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).
+- If you require a **custom library for your build**, add an extra step for [loading a custom library](#using-custom-library).<br/>
+Be aware to use the `path:` parameter for checkout, otherwise checkout will overwrite the last checkout content.<br/>
+Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24). You do not need to put the "Custom" library in the required-libraries list.
 
 - If you have problems with you workflow file, you find additional information in the output if you set the [flags](#debug-compile-and-debug-install) `debug-compile` and / or `debug-install` to `true`.<br/>
 
@@ -267,7 +267,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Compile all examples
       uses: ArminJo/arduino-test-compile@v3
 ```
@@ -283,7 +283,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Compile all examples
         uses: ArminJo/arduino-test-compile@v3
@@ -325,7 +325,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Compile all examples
         uses: ArminJo/arduino-test-compile@v3
@@ -397,7 +397,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Compile all examples
         uses: ArminJo/arduino-test-compile@v3
@@ -414,22 +414,24 @@ jobs:
 ## Using custom library
 Add an extra step `Checkout custom library` for loading custom library. **You must use the `path:` parameter, otherwise checkout overwrites the last checkout content.**<br/>
 Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24).<br/>
-You do not need to put the custom libraries, you loaded manually, in the `required-libraries` list, since they are already loaded now!
+You do not need to put the custom libraries, you loaded manually, in the `required-libraries` list, since they are already loaded now!<br/>
+But if you use this library as **substitute for an Arduino library** take care to remove the substituted Arduino linrary in your `required-libraries` list.
 ```yaml
 ...
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Checkout custom library
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ArminJo/ATtinySerialOut
           ref: master
           path: CustomLibrary # must contain string "Custom"
+          # No need to put "Custom" library in the required-libraries list
 
       - name: Checkout second custom library # This name must be different from the one above
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ArminJo/Arduino-BlueDisplay
           ref: master
@@ -447,7 +449,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Compile all examples
         uses: ArminJo/arduino-test-compile@master
@@ -483,7 +485,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Use this repo as Arduino core
         run: |
@@ -558,7 +560,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Compile all examples using the bash script arduino-test-compile.sh
         env:
           # Passing parameters to the script by setting the appropriate ENV_* variables.
