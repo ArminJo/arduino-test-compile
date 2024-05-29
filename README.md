@@ -21,9 +21,12 @@ It can be used e.g. to test-compile all examples contained in an [Arduino librar
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
 
 </div>
+
+#### If you find this program useful, please give it a star.
+
 <br/>
 
-### If you see errors like `Node.js 12 actions are deprecated` update your checkout action from `actions/checkout@v2` to `actions/checkout@v3` or `actions/checkout@master`.
+### If you see errors like `Node.js 12 actions are deprecated`, update your checkout action from `actions/checkout@v2` to `actions/checkout@master`.
 
 The action is a "composite run steps" action which uses the [arduino-cli program](https://github.com/arduino/arduino-cli) for compiling. All the work like loading libraries, installing board definitions and setting parameters is orchestrated by the [arduino-test-compile.sh](arduino-test-compile.sh) bash script.
 
@@ -78,7 +81,7 @@ Some [sample URL's](https://github.com/arduino/Arduino/wiki/Unofficial-list-of-3
 - https://raw.githubusercontent.com/ArminJo/DigistumpArduino/master/package_digistump_index.json - for Digistump AVR boards. Up to 20% smaller code
 - https://files.pololu.com/arduino/package_pololu_index.json - for Pololu boards, esp. ATmega328PB boards<br/><br/>
 - https://arduino.esp8266.com/stable/package_esp8266com_index.json - for ESP8266 based boards
-- https://dl.espressif.com/dl/package_esp32_index.json - for ESP32 based boards<br/><br/>
+- https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json - for ESP32 based boards<br/><br/>
 - https://github.com/stm32duino/BoardManagerFiles/raw/master/package_stmicroelectronics_index.json - STMicroelectronics:stm32 for STM32 boards
 - http://dan.drown.org/stm32duino/package_STM32duino_index.json - stmduino: for STM32 boards
 - https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json - for Sparkfun boards
@@ -103,6 +106,10 @@ platform-url: https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/I
 - arduino-boards-fqbn: MegaCore:avr:128:bootloader=no_bootloader,eeprom=keep,BOD=2v7,LTO=Os,clock=8MHz_internal
   platform-url: https://mcudude.github.io/MegaCore/package_MCUdude_MegaCore_index.json
   arduino-platform: MegaCore:avr,arduino:avr # gcc is taken from arduino:avr
+
+- arduino-boards-fqbn: esp32:esp32:esp32c3
+  platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+  arduino-platform: esp32:esp32@2.0.17 # latest 2.x version as of 5/2024
 
 ```
 
@@ -243,7 +250,9 @@ sketch-names-find-start: digistump-avr/libraries/*/examples/C*/
 
 ### `set-build-path`
 If set to true, the build directory (arduino-cli paramer --build-path) is set to `$GITHUB_WORKSPACE/src/<example_name>/build/`  or to `$HOME/<sketch-name>/build/` for files not residing in a directory with the same name.<br/>
-This is useful, if you need to access the result files of the Arduino build in later workflow steps.
+This is useful, if you need to access the result files of the Arduino build in later workflow steps.<br/>
+But anyway, the build binaries are always available in the newly generated "build/<fqbn>" directory of the sketch. 
+They are logged if debug-compile is set to "true".
 Default is `false`.<br/>
 
 ```yaml
@@ -256,14 +265,14 @@ Default is `false`.<br/>
 
 # Workflow examples
 ## Simple - without any parameter
-Compile all sketches / examples for the UNO board.
+Compile all sketches / examples for the Uno board.
 
 ```yaml
 name: SimpleBuild
 on: push
 jobs:
   build:
-    name: Test compiling examples for UNO
+    name: Test compiling examples for Uno
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -372,13 +381,13 @@ jobs:
               SimpleFrequencyDetector:
                 -DINFO
 
-          - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # UNO board with -DDEBUG for all examples
+          - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # Uno board with -DDEBUG for all examples
             sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
             build-properties:
               All:
                 -DDEBUG
 
-          - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
+          - arduino-boards-fqbn: arduino:avr:uno|trace # Uno board with different build properties
             sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
             build-properties:
               WhistleSwitch:
@@ -445,7 +454,7 @@ name: TestCompile
 on: push
 jobs:
   build:
-    name: Test compiling examples for UNO
+    name: Test compiling examples for Uno
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -490,7 +499,7 @@ jobs:
       - name: Use this repo as Arduino core
         run: |
           mkdir --parents $HOME/.arduino15/packages/digistump/hardware/avr/0.0.7 # dummy release number
-          cp --recursive $GITHUB_WORKSPACE/digistump-avr/* $HOME/.arduino15/packages/digistump/hardware/avr/0.0.7/
+          ln -s $GITHUB_WORKSPACE/digistump-avr/* $HOME/.arduino15/packages/digistump/hardware/avr/0.0.7
 
       - name: Compile all examples
         uses: ArminJo/arduino-test-compile@master
@@ -540,13 +549,13 @@ jobs:
               SimpleFrequencyDetector:
                 -DINFO
 
-          - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # UNO board with -DDEBUG for all examples
+          - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # Uno board with -DDEBUG for all examples
             sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
             build-properties:
               All:
                 -DDEBUG
 
-          - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
+          - arduino-boards-fqbn: arduino:avr:uno|trace # Uno board with different build properties
             sketches-exclude: 50Hz # Comma separated list of (unique substrings of) example names to exclude in build
             build-properties:
               WhistleSwitch:
@@ -658,5 +667,3 @@ Samples for using action in workflow:
 
 ## Requests for modifications / extensions
 Please write me a PM including your motivation/problem if you need a modification or an extension.
-
-#### If you find this action useful, please give it a star.

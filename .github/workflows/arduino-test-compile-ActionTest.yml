@@ -62,12 +62,12 @@ jobs:
               SimpleFrequencyDetector:
                 -DINFO
 
-          - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # UNO board with -DDEBUG for all examples
+          - arduino-boards-fqbn: arduino:avr:uno|All-DEBUG # Uno board with -DDEBUG for all examples
             sketches-exclude: 50Hz # Comma separated list of example names to exclude in build
             build-properties:
               All: -DDEBUG
 
-          - arduino-boards-fqbn: arduino:avr:uno|trace # UNO board with different build properties
+          - arduino-boards-fqbn: arduino:avr:uno|trace # Uno board with different build properties
             arduino-platform: arduino:avr@1.8.1
             sketches-exclude: 50Hz # Comma separated list of example names to exclude in build
             build-properties:
@@ -99,10 +99,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
 
       - name: Checkout custom library
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
         with:
           repository: ArminJo/ATtinySerialOut
           ref: master

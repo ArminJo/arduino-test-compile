@@ -3,12 +3,12 @@
 # arduino-test-compile.sh
 # Bash script to do a test-compile of one or more Arduino programs in a repository each with different compile parameters.
 #
-# Copyright (C) 2020-2022  Armin Joachimsmeyer
+# Copyright (C) 2020-2024  Armin Joachimsmeyer
 # https://github.com/ArminJo/Github-Actions
 # License: MIT
 #
 
-# Input parameter, which is normally not used for Githup actions
+# Input parameter, which is normally not used for Github actions
 CLI_VERSION="$1"
 SKETCH_NAMES="$2"
 SKETCH_NAMES_FIND_START="$3"
@@ -355,7 +355,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
     SKETCH_EXTENSION=${SKETCH_FILENAME##*.} # extension of sketch
     SKETCH_BASENAME=${SKETCH_FILENAME%%.$SKETCH_EXTENSION} # name without extension / basename of sketch, must match directory name
     if [[ $DEBUG_COMPILE == true ]]; then
-      echo -n  "Process $sketch with filename $SKETCH_FILENAME and extension $SKETCH_EXTENSION"
+      echo -e "\n${YELLOW}Process $sketch with filename $SKETCH_FILENAME and extension $SKETCH_EXTENSION"
     fi
     echo -e "\n"
     if [[ $SKETCHES_EXCLUDE == *"$SKETCH_BASENAME"* ]]; then
@@ -368,8 +368,8 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
       fi
       # If directory name does not match sketch name, create an appropriate directory, copy the files recursively and compile
       if [[ $SKETCH_DIR != $SKETCH_BASENAME ]]; then
-        mkdir $HOME/$SKETCH_BASENAME
         echo "Creating directory $HOME/$SKETCH_BASENAME and copy ${SKETCH_PATH}/* to it"
+        mkdir $HOME/$SKETCH_BASENAME
         cp --recursive ${SKETCH_PATH}/* $HOME/$SKETCH_BASENAME
         SKETCH_PATH=$HOME/$SKETCH_BASENAME
       fi
@@ -382,7 +382,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
       echo -n "Compiling $SKETCH_BASENAME "
       if [[ -n ${PROP_MAP[$SKETCH_BASENAME]} ]]; then
         GCC_EXTRA_FLAGS=${PROP_MAP[$SKETCH_BASENAME]}
-        echo -n "with $GCC_EXTRA_FLAGS "
+        echo -n "with $GCC_EXTRA_FLAGS " # -n for the green check after the text
       elif [[ -n ${PROP_MAP[All]} ]]; then
         GCC_EXTRA_FLAGS=${PROP_MAP[All]}
         echo -n "with $GCC_EXTRA_FLAGS "
@@ -417,7 +417,7 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
           echo "Debug mode enabled => compile output will be printed also for successful compilation and sketch directory is listed after compilation"
           echo -e "$build_stdout \n"
           echo -e "\nls -l --recursive $SKETCH_PATH/build/"
-          ls -l --recursive $SKETCH_PATH/build/
+          ls -l --recursive $SKETCH_PATH/build/ # This works because of exporting ARDUINO_SKETCH_ALWAYS_EXPORT_BINARIES=true above
           echo -e "\n\n"
         fi
       fi

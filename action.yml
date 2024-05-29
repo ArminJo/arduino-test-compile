@@ -39,7 +39,7 @@ inputs:
     required: false
 
   required-libraries:
-    description: 'Comma separated list of arduino library names required for compiling the sketches / examples for this board.'
+    description: 'Comma separated list of arduino library names required for compiling the sketches / examples for this board. Add version number by e.g. @1.2.0.'
     default: ''
     required: false
 
@@ -70,7 +70,10 @@ inputs:
     required: false
 
   set-build-path:
-    description: 'Flag to set the build directory (arduino-cli paramer --build-path) to /build subdirectory of compiled sketches.'
+    description: |
+      Flag to set the build directory (arduino-cli paramer --build-path) to /build subdirectory of compiled sketches. 
+      But anyway, the build binaries are always available in the newly generated "build/<fqbn>" directory of the sketch. 
+      They are logged if debug-compile is set to "true".
     default: 'false'
     required: false
 
