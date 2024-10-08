@@ -275,6 +275,7 @@ else
   declare -a REQUIRED_LIBRARIES_ARRAY=( $REQUIRED_LIBRARIES )
   IFS="$BACKUP_IFS"
   if [[ $DEBUG_INSTALL == true ]]; then
+    echo "arduino-cli lib install \"${REQUIRED_LIBRARIES_ARRAY[@]}\" $EXTRA_ARDUINO_LIB_INSTALL_ARGS"
     arduino-cli lib install "${REQUIRED_LIBRARIES_ARRAY[@]}" $EXTRA_ARDUINO_LIB_INSTALL_ARGS
   else
     arduino-cli lib install "${REQUIRED_LIBRARIES_ARRAY[@]}" $EXTRA_ARDUINO_LIB_INSTALL_ARGS >/dev/null 2>&1

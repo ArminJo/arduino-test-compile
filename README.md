@@ -599,6 +599,9 @@ Samples for using action in workflow:
 - Arduino core. DigistumpArduino [![TestCompile](https://github.com/ArminJo/DigistumpArduino/workflows/TestCompile/badge.svg)](https://github.com/ArminJo/DigistumpArduino/actions)
 
 # Revision History
+### Version v3.4.0
+- Work in progress.
+
 ### Version v3.3.0
 - The suffix `@latest` is always removed from specified `arduino-platform`.
 - Early exit on platform install error as suggested by *tobozo*.
