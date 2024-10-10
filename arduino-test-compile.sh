@@ -299,6 +299,14 @@ echo -e "\n${YELLOW}Compiling sketches / examples for board $ARDUINO_BOARD_FQBN\
 # Converted to: [All]="-DDEBUG -DINFO" [WhistleSwitch]="-DDEBUG -DINFO"
 if [[ -n $BUILD_PROPERTIES && $BUILD_PROPERTIES != "null" ]]; then # contains "null", if passed as environment variable
   echo BUILD_PROPERTIES=$BUILD_PROPERTIES
+  if [[ ${BUILD_PROPERTIES::2} == "-D" ]]; then
+    OLD_BUILD_PROPERTIES=$BUILD_PROPERTIES
+    BUILD_PROPERTIES="{ \"All\": \"${BUILD_PROPERTIES}\" }"
+    echo "Convert build-properties \"${OLD_BUILD_PROPERTIES}\" to correct form: \"${BUILD_PROPERTIES}\""
+  elif [[ ${BUILD_PROPERTIES::1} != "{" && ${BUILD_PROPERTIES:(-1)} != "}" ]]; then
+    echo "::error::build-properties must start with \"{\" and end  with \"}\" e.g. '{ \"All\": \"-DRAW_BUFFER_LENGTH=750\" }' but is \"${BUILD_PROPERTIES}\""
+    exit 3
+  fi
   BUILD_PROPERTIES=${BUILD_PROPERTIES#\{} # remove the "{". The "}" is required as end token
   # (\w*): * first token before the colon and spaces, ([^,}]*) token after colon and spaces up to "," or "}", [,}] trailing characters
   if [[ $DEBUG_COMPILE == true ]]; then

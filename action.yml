@@ -8,7 +8,7 @@ inputs:
     required: false
 
   sketch-names:
-    description: 'Comma sepatated list of patterns or filenames (without path) of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled.'
+    description: 'Comma sepatated list of patterns or filenames (without path, but with extension) of the sketch(es) to test compile. Useful if the sketch is a *.cpp or *.c file or only one sketch in the repository should be compiled.'
     default: '*.ino'
     required: false
 

@@ -600,7 +600,7 @@ Samples for using action in workflow:
 
 # Revision History
 ### Version v3.4.0
-- Work in progress.
+- Automatic conversion of `build-properties` parameter from `-DDEBUG` to `'{ "All": "-DDEBUG" }'`.
 
 ### Version v3.3.0
 - The suffix `@latest` is always removed from specified `arduino-platform`.
