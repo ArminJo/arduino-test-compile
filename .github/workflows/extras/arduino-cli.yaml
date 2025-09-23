@@ -1,0 +1,9 @@
+# arduino-cli.yaml
+# Configuration for the arduino-cli program
+#
+# Copyright (C) 2025  Armin Joachimsmeyer
+# https://github.com/ArminJo/Github-Actions
+# License: MIT
+#
+network:
+  connection_timeout: 120s

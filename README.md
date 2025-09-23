@@ -11,9 +11,9 @@ It can be used e.g. to test-compile all examples contained in an [Arduino librar
  &nbsp; &nbsp; 
 [![Badge Commits since latest](https://img.shields.io/github/commits-since/ArminJo/arduino-test-compile/latest?color=yellow)](https://github.com/ArminJo/arduino-test-compile/commits/master)
  &nbsp; &nbsp; 
-[![Badge Build Status Action](https://github.com/ArminJo/Github-Actions/workflows/LibraryBuildWithAction/badge.svg)](https://github.com/ArminJo/Github-Actions/actions)
+[![Badge Build Status Action](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ActionTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
  &nbsp; &nbsp; 
-[![Badge Build Status Script](https://github.com/ArminJo/Github-Actions/workflows/LibraryBuildWithScript/badge.svg)](https://github.com/ArminJo/Github-Actions/actions)
+[![Badge Build Status Script](https://github.com/ArminJo/arduino-test-compile/workflows/arduino-test-compile-ScriptTest/badge.svg)](https://github.com/ArminJo/arduino-test-compile/actions)
  &nbsp; &nbsp; 
 ![Badge Hit Counter](https://visitor-badge.laobi.icu/badge?page_id=ArminJo_arduino-test-compile)
 <br/>
@@ -32,18 +32,32 @@ The action is a "composite run steps" action which uses the [arduino-cli program
 
 In case of a compile error the **complete compile output** is logged in the *Compile all examples...* step, otherwise only a **green check** is printed. Examples can be found [here](https://github.com/ArminJo/ServoEasing/actions).
 
-If you want to test compile a sketch, **it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino**. Internally the file is renamed to be .ino and the appropriate directory is created on the fly at `/home/runner/<sketch-name>` for test-compiling. See [parameter `sketch-names`](sketch-names).
-
-Since version 0.11.0 of arduino-cli, the **generated files** (.bin, .hex, .elf, .eep etc.) can be found in the build/<FQBN> subfolder of the example directory `$GITHUB_WORKSPACE/src/<example_name>`  or in `$HOME/<sketch-name>` for files not residing in a directory with the same name.<br/>
+If you want to test compile just a sketch, **it is not required that the sketch resides in a directory with the same name (as Arduino IDE requires it) or has the extension .ino**.<br/>
+Internally the file is renamed to be .ino and the appropriate directory is created on the fly as `$HOME/<sketch-name>` for test-compiling. See [parameter sketch-names](https://github.com/ArminJo/arduino-test-compile?tab=readme-ov-file#sketch-names).
 
 # Hints
+- An optional arduino-cli [configuration](https://docs.arduino.cc/arduino-cli/configuration/#configuration-keys) file `arduino-cli.yaml` can be provided in `.github/workflows/extras/` like [here](https://github.com/ArminJo/Github-Actions/tree/master/.github/workflows/extras).
+
 - If you require a **custom library for your build**, add an extra step for [loading a custom library](#using-custom-library).<br/>
 Be aware to use the `path:` parameter for checkout, otherwise checkout will overwrite the last checkout content.<br/>
-Take care that the path parameter matches the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24). You do not need to put the "Custom" library in the required-libraries list.
+The path parameter must match the pattern `*Custom*` like [here](https://github.com/ArminJo/Arduino-Simple-DSO/blob/master/.github/workflows/TestCompile.yml#L24). You do not need to put the "Custom" library in the required-libraries list.<br/>
 
 - If you have problems with you workflow file, you find additional information in the output if you set the [flags](#debug-compile-and-debug-install) `debug-compile` and / or `debug-install` to `true`.<br/>
 
-- If actions / workflow for your repository is not enabled, select `Allow all actions` it in your repositorys *Settings -> Actions -> General* menu.
+- If actions / workflow for your repository is not enabled, select `Allow all actions and reusable workflows` it in your repositorys *Settings > Actions > General* menu.
+
+
+# Internal directory paths
+- Content of environment variable `$HOME` is `/home/runner/`.
+- Content of environment variable `$GITHUB_WORKSPACE` is `/home/runner/work/<repo-name>/<repo-name>`.
+- Arduino CLI is in: `$HOME/arduino_ide/`.
+- Arduino core is installed in: `$HOME/.arduino15/`.
+- Custom libraries are in: `$HOME/Arduino/libraries/<custom-library-name>`.
+- The library to be testet is in: `$HOME/Arduino/libraries/<repo-name>` and in: `$GITHUB_WORKSPACE`.
+- Examples to be testet are in: `$GITHUB_WORKSPACE/src/<example-name>`.
+- Sketches to be testet are in: `$HOME/<sketch-name>`.
+- Generated output files (.bin, .hex, .elf, .eep etc.) are in the example / sketch subdirectory: `build/<FQBN>`.
+
 
 # Inputs
 See [action.yml](https://github.com/ArminJo/arduino-test-compile/blob/master/action.yml) for comprehensive list of parameters.
@@ -329,6 +343,7 @@ jobs:
         log-options: [-DDEBUG, -DINFO]
 
         other-options: [-DTEST, -DDUMMY]
+# Results in 4 jobs -DDEBUG -DTEST, -DDEBUG -DDUMMY, -DINFO -DTEST, -DINFO -DDUMMY
 
       fail-fast: false
 
@@ -471,7 +486,16 @@ jobs:
 ## Testing a core, which is not yet released using `arduino-platform` parameter like [here](https://github.com/ArminJo/DigistumpArduino/blob/master/.github/workflows/TestCompile.yml)
 ```yaml
 name: TestCompile
-on: push
+on:
+  workflow_dispatch: # To run it manually
+    description: 'manual build check'
+  push: # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
+    paths:
+    - '**.ino'
+    - '**.cpp'
+    - '**.hpp'
+    - '**.h'
+    - '**TestCompile.yml'
 jobs:
   build:
     name: Test compiling examples for Digispark
@@ -601,6 +625,7 @@ Samples for using action in workflow:
 # Revision History
 ### Version v3.4.0
 - Automatic conversion of `build-properties` parameter from `-DDEBUG` to `'{ "All": "-DDEBUG" }'`.
+- Using optional arduino-cli config file .github/workflows/extras/arduino-cli.yaml.
 
 ### Version v3.3.0
 - The suffix `@latest` is always removed from specified `arduino-platform`.

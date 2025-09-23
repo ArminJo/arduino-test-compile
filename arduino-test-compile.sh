@@ -3,7 +3,7 @@
 # arduino-test-compile.sh
 # Bash script to do a test-compile of one or more Arduino programs in a repository each with different compile parameters.
 #
-# Copyright (C) 2020-2024  Armin Joachimsmeyer
+# Copyright (C) 2020-2025  Armin Joachimsmeyer
 # https://github.com/ArminJo/Github-Actions
 # License: MIT
 #
@@ -95,13 +95,14 @@ echo DEBUG_INSTALL=$DEBUG_INSTALL
 
 VERBOSE_PARAMETER=
 if [[ $DEBUG_INSTALL == true ]]; then
-VERBOSE_PARAMETER=--verbose
-echo
-echo HOME=$HOME # /home/runner
-echo PWD=$PWD # ***
-echo GITHUB_WORKSPACE=$GITHUB_WORKSPACE # /home/runner/work/<repoName>/<repoName>
-#set
-#ls -lR $GITHUB_WORKSPACE
+  VERBOSE_PARAMETER=--verbose
+
+  echo
+  echo HOME=$HOME # /home/runner
+#  echo PWD=$PWD # the command pwd returns "***" :-(
+  echo GITHUB_WORKSPACE=$GITHUB_WORKSPACE # /home/runner/work/<repoName>/<repoName>
+  #set
+  #ls -lR $GITHUB_WORKSPACE
 fi
 
 # Show calling parameters
@@ -133,8 +134,6 @@ else
   else
     echo -e "${GREEN}\xe2\x9c\x93"
   fi
-#  ls -l $HOME/arduino_ide/* # LICENSE.txt + arduino-cli
-#  ls -l $HOME # only arduino_ide
 fi
 
 # add the arduino CLI to our PATH
@@ -143,11 +142,20 @@ export PATH="$HOME/arduino_ide:$PATH"
 #print version
 arduino-cli version
 
+if [[ $DEBUG_INSTALL == true ]]; then
+  echo -n "which arduino-cli="
+  which arduino-cli
+  echo PATH=$PATH
+  ls -l $HOME/arduino_ide/* # LICENSE.txt + arduino-cli
+fi
+
 #
-# Add *Custom* directories to Arduino library directory
+# Add optional user provided *Custom* directories to Arduino library directory
+# actions/checkout@master puts the repo in $GITHUB_WORKSPACE/<checkout-path-parameter>
+# We move it to $HOME/Arduino/libraries/<checkout-path-parameter>
 #
 if ls $GITHUB_WORKSPACE/*Custom* >/dev/null 2>&1; then
-  echo -e "\n\n${YELLOW}Add *Custom* as Arduino library"
+  echo -e "\n\n${YELLOW}Add user provided *Custom* libraries as Arduino library"
   mkdir --parents $HOME/Arduino/libraries
   rm --force --recursive $GITHUB_WORKSPACE/*Custom*/.git # do not want to move the whole .git directory
   # mv to avoid the library examples to be test compiled
@@ -157,6 +165,8 @@ fi
 
 #
 # Link this repository as Arduino library
+# actions/checkout@master puts this repo in $GITHUB_WORKSPACE
+# We link it to $HOME/Arduino/libraries/<repo-name>
 #
 # Check if repo is an Arduino library
 if [[ -f $GITHUB_WORKSPACE/library.properties ]]; then
@@ -169,6 +179,21 @@ if [[ -f $GITHUB_WORKSPACE/library.properties ]]; then
    echo ls -l --dereference --recursive --all $HOME/Arduino/libraries/
    ls -l --dereference --recursive --all $HOME/Arduino/libraries/
   fi
+fi
+
+#
+# Export path of optional arduino-cli config file "arduino-cli.yaml". This file must be in the /.github/workflows/extras directory of the repo to be tested.
+#
+echo -e "\n\n${YELLOW}Checking for optional .github/workflows/extras/arduino-cli.yaml arduino-cli configuration file"
+if [[ -f $GITHUB_WORKSPACE/.github/workflows/extras/arduino-cli.yaml ]]; then
+  export ARDUINO_CONFIG_FILE="$GITHUB_WORKSPACE/.github/workflows/extras/arduino-cli.yaml"
+  echo "Setting .github/workflows/extras/arduino-cli.yaml as arduino-cli configuration file"
+  if [[ $DEBUG_INSTALL == true ]]; then
+    echo "Content of $GITHUB_WORKSPACE/.github/workflows/extras/arduino-cli.yaml:"
+    cat  $GITHUB_WORKSPACE/.github/workflows/extras/arduino-cli.yaml
+  fi
+else
+  echo "No arduino-cli configuration file found"
 fi
 
 #
@@ -295,13 +320,14 @@ export ARDUINO_SKETCH_ALWAYS_EXPORT_BINARIES=true
 echo -e "\n${YELLOW}Compiling sketches / examples for board $ARDUINO_BOARD_FQBN\n"
 
 # If matrix.build-properties are specified, create an associative shell array
+# Input -DDEBUG,-DINFO is converted to { "All": "-DDEBUG -DINFO" }
 # Input example: { "WhistleSwitch": "-DINFO -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }
-# Converted to: [All]="-DDEBUG -DINFO" [WhistleSwitch]="-DDEBUG -DINFO"
+# Converted to: [WhistleSwitch]="-DINFO -DFREQUENCY_RANGE_LOW" [SimpleFrequencyDetector]="-DINFO"
 if [[ -n $BUILD_PROPERTIES && $BUILD_PROPERTIES != "null" ]]; then # contains "null", if passed as environment variable
   echo BUILD_PROPERTIES=$BUILD_PROPERTIES
   if [[ ${BUILD_PROPERTIES::2} == "-D" ]]; then
     OLD_BUILD_PROPERTIES=$BUILD_PROPERTIES
-    BUILD_PROPERTIES="{ \"All\": \"${BUILD_PROPERTIES}\" }"
+    BUILD_PROPERTIES="{ \"All\": \"${BUILD_PROPERTIES//,/ }\" }" # substitute ',' with ' '
     echo "Convert build-properties \"${OLD_BUILD_PROPERTIES}\" to correct form: \"${BUILD_PROPERTIES}\""
   elif [[ ${BUILD_PROPERTIES::1} != "{" && ${BUILD_PROPERTIES:(-1)} != "}" ]]; then
     echo "::error::build-properties must start with \"{\" and end  with \"}\" e.g. '{ \"All\": \"-DRAW_BUFFER_LENGTH=750\" }' but is \"${BUILD_PROPERTIES}\""
@@ -310,7 +336,7 @@ if [[ -n $BUILD_PROPERTIES && $BUILD_PROPERTIES != "null" ]]; then # contains "n
   BUILD_PROPERTIES=${BUILD_PROPERTIES#\{} # remove the "{". The "}" is required as end token
   # (\w*): * first token before the colon and spaces, ([^,}]*) token after colon and spaces up to "," or "}", [,}] trailing characters
   if [[ $DEBUG_COMPILE == true ]]; then
-    echo BUILD_PROPERTIES is converted to:$(echo $BUILD_PROPERTIES | sed -E 's/"(\w*)": *([^,}]*)[,}]/\[\1\]=\2/g')
+    echo BUILD_PROPERTIES is converted to:$(echo $BUILD_PROPERTIES | sed -E 's/"(\w*)": *([^,}]*)[,}]/\[\1\]=\2/g' )
   fi
   declare -A PROP_MAP="( $(echo $BUILD_PROPERTIES | sed -E 's/"(\w*)": *([^,}]*)[,}]/\[\1\]=\2/g' ) )"
   declare -p PROP_MAP # print properties of PROP_MAP
@@ -324,7 +350,7 @@ fi
 # Split comma separated sketch name list
 BACKUP_IFS="$IFS"
 IFS=$','
-SKETCH_NAMES=${SKETCH_NAMES// /} # replace all spaces
+SKETCH_NAMES=${SKETCH_NAMES// /} # delete all spaces
 GLOBIGNORE=*:?:[ # Disable filename expansion (globbing) of *.ino to abc.ino if abc.ino is a file in the directory
 declare -a SKETCH_NAMES_ARRAY=( $SKETCH_NAMES ) # declare an indexed array
 GLOBIGNORE= # Enable it for cp command below
@@ -358,29 +384,36 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
   fi
 
   for sketch in "${SKETCHES[@]}"; do # Loop over all sketch files
-    SKETCH_PATH=$(dirname $sketch) # complete path to sketch
-    SKETCH_DIR=${SKETCH_PATH##*/}  # directory of sketch, must match sketch basename
-    SKETCH_FILENAME=$(basename $sketch) # complete name of sketch
-    SKETCH_EXTENSION=${SKETCH_FILENAME##*.} # extension of sketch
-    SKETCH_BASENAME=${SKETCH_FILENAME%%.$SKETCH_EXTENSION} # name without extension / basename of sketch, must match directory name
-    if [[ $DEBUG_COMPILE == true ]]; then
-      echo -e "\n${YELLOW}Process $sketch with filename $SKETCH_FILENAME and extension $SKETCH_EXTENSION"
+    SKETCH_PATH=$(dirname $sketch) # complete (relative) path to sketch, e.g. ./examples/SimpleFrequencyDetector
+    SKETCH_DIR=${SKETCH_PATH##*/}  # directory of sketch, e.g. SimpleFrequencyDetector. Mmust match sketch basename, otherwise we must create an appropriate directory
+    SKETCH_FILENAME=$(basename $sketch) # complete name of sketch, e.g. SimpleFrequencyDetector.ino
+    SKETCH_EXTENSION=${SKETCH_FILENAME##*.} # extension of sketch, e.g. ino
+    SKETCH_BASENAME=${SKETCH_FILENAME%%.$SKETCH_EXTENSION} # name without extension / basename of sketch, must match directory name, e.g. SimpleFrequencyDetector
+    if [[ ${sketch::1} == "/" ]]; then
+      SKETCH_ABSOLUTE_PATH=$SKETCH_PATH
+    else
+      SKETCH_ABSOLUTE_PATH=${GITHUB_WORKSPACE}/${SKETCH_PATH}
     fi
+    if [[ $DEBUG_COMPILE == true ]]; then
+      echo -e "\n${YELLOW}Process ${SKETCH_ABSOLUTE_PATH}/${SKETCH_FILENAME} with filename $SKETCH_FILENAME and extension $SKETCH_EXTENSION"
+    fi
+    
     echo -e "\n"
     if [[ $SKETCHES_EXCLUDE == *"$SKETCH_BASENAME"* ]]; then
       echo -e "Skipping $SKETCH_PATH \xe2\x9e\x9e" # Right arrow
     else
       # If sketch name does not end with .ino, rename it locally
       if [[ $SKETCH_EXTENSION != ino ]]; then
-        echo "Rename ${SKETCH_PATH}/${SKETCH_FILENAME} to ${SKETCH_PATH}/${SKETCH_BASENAME}.ino"
-        mv ${SKETCH_PATH}/${SKETCH_FILENAME} ${SKETCH_PATH}/${SKETCH_BASENAME}.ino
+        echo "Rename ${SKETCH_ABSOLUTE_PATH}/${SKETCH_FILENAME} to ${SKETCH_ABSOLUTE_PATH}/${SKETCH_BASENAME}.ino"
+        mv ${SKETCH_ABSOLUTE_PATH}/${SKETCH_FILENAME} ${SKETCH_ABSOLUTE_PATH}/${SKETCH_BASENAME}.ino
       fi
       # If directory name does not match sketch name, create an appropriate directory, copy the files recursively and compile
       if [[ $SKETCH_DIR != $SKETCH_BASENAME ]]; then
-        echo "Creating directory $HOME/$SKETCH_BASENAME and copy ${SKETCH_PATH}/* to it"
+        echo "Creating directory $HOME/$SKETCH_BASENAME and copy ${SKETCH_ABSOLUTE_PATH}/* to it"
         mkdir $HOME/$SKETCH_BASENAME
-        cp --recursive ${SKETCH_PATH}/* $HOME/$SKETCH_BASENAME
+        cp --recursive ${SKETCH_ABSOLUTE_PATH}/* $HOME/$SKETCH_BASENAME
         SKETCH_PATH=$HOME/$SKETCH_BASENAME
+        SKETCH_ABSOLUTE_PATH=$HOME/$SKETCH_BASENAME
       fi
       if [[ $SET_BUILD_PATH == true ]]; then
         BUILD_PATH_PARAMETER="--build-path $SKETCH_PATH/build/"
@@ -423,10 +456,10 @@ for sketch_name in "${SKETCH_NAMES_ARRAY[@]}"; do # Loop over all sketch names
           echo "arduino-cli compile --verbose --warnings all --fqbn ${ARDUINO_BOARD_FQBN%|*} $BUILD_PATH_PARAMETER --build-property compiler.cpp.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-property compiler.c.extra_flags=\"${GCC_EXTRA_FLAGS}\" --build-property compiler.S.extra_flags=\"${GCC_EXTRA_FLAGS}\" $EXTRA_ARDUINO_CLI_ARGS $SKETCH_PATH"
         fi
         if [[ $DEBUG_COMPILE == true || $SET_BUILD_PATH == true ]]; then
-          echo "Debug mode enabled => compile output will be printed also for successful compilation and sketch directory is listed after compilation"
+          echo "Debug mode enabled => compile output will also be printed for a successful compilation, and the sketch directory will be listed after the compilation"
           echo -e "$build_stdout \n"
-          echo -e "\nls -l --recursive $SKETCH_PATH/build/"
-          ls -l --recursive $SKETCH_PATH/build/ # This works because of exporting ARDUINO_SKETCH_ALWAYS_EXPORT_BINARIES=true above
+          echo -e "\nls -l --recursive $SKETCH_ABSOLUTE_PATH/build/"
+          ls -l --recursive $SKETCH_ABSOLUTE_PATH/build/ # This works because of exporting ARDUINO_SKETCH_ALWAYS_EXPORT_BINARIES=true above
           echo -e "\n\n"
         fi
       fi

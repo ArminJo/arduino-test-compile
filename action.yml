@@ -1,9 +1,9 @@
 name: 'Test compile for Arduino'
-description: 'Compile sketches or Arduino library examples for one board type using arduino-cli and check for errors'
+description: 'Compile sketches or Arduino library examples for one board type using arduino-cli and check for errors.'
 author: 'Armin Joachimsmeyer'
 inputs:
   cli-version:
-    description: 'Version of arduino-cli to use when building. Current (8/2022) one is 0.26.0.'
+    description: 'Version of arduino-cli to use when building. Current (9/2025) one is 1.3.1.'
     default: 'latest'
     required: false
 
@@ -13,7 +13,7 @@ inputs:
     required: false
 
   sketch-names-find-start:
-    description: 'The start directory to look for the sketch-names to test compile. Can be a path like "digistump-avr/libraries/*/examples/C*/" .'
+    description: 'The start directory to look for the sketch-names to test compile. Can be a path like "digistump-avr/libraries/*/examples/C*/".'
     default: '.'
     required: false
 
@@ -51,7 +51,7 @@ inputs:
   build-properties:
     description: |
       Build parameter like -DDEBUG for each example specified or for all examples, if example name is "All". In json format.
-      For example: build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'
+      For example: build-properties: '{ "WhistleSwitch": "-DDEBUG -DFREQUENCY_RANGE_LOW", "SimpleFrequencyDetector": "-DINFO" }'.
     default: ''
     required: false
 
@@ -71,19 +71,19 @@ inputs:
 
   set-build-path:
     description: |
-      Flag to set the build directory (arduino-cli paramer --build-path) to /build subdirectory of compiled sketches. 
-      But anyway, the build binaries are always available in the newly generated "build/<fqbn>" directory of the sketch. 
+      Flag to set the build directory (arduino-cli paramer --build-path) to /build subdirectory of compiled sketches.
+      But anyway, the build binaries are always available in the newly generated "build/<fqbn>" directory of the sketch.
       They are logged if debug-compile is set to "true".
     default: 'false'
     required: false
 
   debug-compile:
-    description: 'If set to "true" the action logs verbose compile output even during successful builds'
+    description: 'If set to "true" the action logs verbose compile output even during successful builds.'
     default: ''
     required: false
 
   debug-install:
-    description: 'If set to "true" the action logs verbose arduino-cli output during installation'
+    description: 'If set to "true" the action logs verbose arduino-cli output during installation.'
     default: ''
     required: false
 
